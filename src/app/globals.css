@@ -1,0 +1,144 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "MiSansVF", "Google Sans Flex", ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  /* bollo brand tokens */
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-lush: var(--brand-lush);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-cyan: var(--cyan);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* bollo dark theme is the default — site is dark-first */
+:root,
+.dark {
+  /* Surfaces */
+  --background: oklch(0.18 0 0);
+  --surface: oklch(0.23 0 0);
+  --surface-elevated: oklch(0.27 0 0);
+  --foreground: oklch(1 0 0);
+
+  /* Cards */
+  --card: oklch(1 0 0 / 0.08);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.23 0 0);
+  --popover-foreground: oklch(1 0 0);
+
+  /* Primary = bollo brand lime (#F0FF8C = rgb(240,255,140)) */
+  --primary: #f0ff8c;
+  --primary-foreground: oklch(0.18 0 0);
+
+  /* Brand colors */
+  --brand: #f0ff8c;
+  --brand-hover: color-mix(in srgb, #f0ff8c 85%, #fff);
+  --brand-lush: #f5ffb3;
+  --brand-foreground: oklch(0.18 0 0);
+
+  /* Secondary */
+  --secondary: oklch(1 0 0 / 0.05);
+  --secondary-foreground: oklch(1 0 0);
+
+  /* Muted */
+  --muted: oklch(1 0 0 / 0.05);
+  --muted-foreground: oklch(1 0 0 / 0.58);
+
+  /* Accent (replaces pink, now uses a warm complementary tone) */
+  --accent: #f0ff8c;
+  --accent-foreground: oklch(0.18 0 0);
+
+  /* Cyan tertiary */
+  --cyan: oklch(0.93 0.1 200deg);
+
+  --destructive: oklch(0.65 0.22 25);
+
+  /* Borders */
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.08);
+  --ring: #f0ff8c;
+
+  --chart-1: #f0ff8c;
+  --chart-2: #f5ffb3;
+  --chart-3: oklch(0.93 0.1 200deg);
+  --chart-4: oklch(0.7 0.18 300deg);
+  --chart-5: oklch(0.85 0.15 60deg);
+
+  --radius: 0.75rem;
+  --sidebar: oklch(0.18 0 0);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: #f0ff8c;
+  --sidebar-primary-foreground: oklch(0.18 0 0);
+  --sidebar-accent: oklch(1 0 0 / 0.08);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0 / 0.06);
+  --sidebar-ring: #f0ff8c;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv01";
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

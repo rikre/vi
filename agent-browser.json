@@ -1,0 +1,3 @@
+{
+  "chromeArgs": ["--no-sandbox", "--disable-gpu-sandbox", "--no-proxy-server"]
+}
