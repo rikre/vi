@@ -71,7 +71,7 @@
   --popover: oklch(0.23 0 0);
   --popover-foreground: oklch(1 0 0);
 
-  /* Primary = bollo brand lime (#F0FF8C = rgb(240,255,140)) */
+  /* Primary = bollo brand lime (#D4FF3F = rgb(240,255,140)) */
   --primary: #f0ff8c;
   --primary-foreground: oklch(0.18 0 0);
 

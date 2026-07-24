@@ -9,25 +9,36 @@ import type { SVGProps } from "react";
 export function BolloLogo(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      width="80"
-      height="24"
-      viewBox="0 0 80 24"
+      width="96"
+      height="28"
+      viewBox="0 0 96 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="bollo"
       role="img"
       {...props}
     >
-      <rect x="0" y="2" width="20" height="20" rx="6" fill="#F0FF8C" />
-      <path d="M7 7.5v9l6.5-4.5-6.5-4.5z" fill="#0D0D0D" />
+      {/* Rounded square background */}
+      <rect x="0" y="0" width="28" height="28" rx="7" fill="#D4FF3F" />
+      {/* Star with curved cutout */}
+      <path
+        d="M14 5.5L15.6 10.4L20.9 10.6L16.8 13.9L18.2 19L14 16.1L9.8 19L11.2 13.9L7.1 10.6L12.4 10.4L14 5.5Z"
+        fill="#0D0D0D"
+      />
+      {/* Curved cutout on top-right of star */}
+      <path
+        d="M17.5 8.5C19.5 7 22 6.5 24 7C22.5 8 20.5 9.5 19.5 11.5C19 10 18 9 17.5 8.5Z"
+        fill="#D4FF3F"
+      />
+      {/* Wordmark */}
       <text
-        x="27"
-        y="17"
-        fill="#F0FF8C"
+        x="34"
+        y="20.5"
+        fill="#FFFFFF"
         fontFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
-        fontSize="15"
-        fontWeight="700"
-        letterSpacing="-0.2px"
+        fontSize="19"
+        fontWeight="600"
+        letterSpacing="-0.8px"
       >
         bollo
       </text>
@@ -146,6 +157,28 @@ export function PublishIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+/** 广场 (Plaza/Market) - 16x16, currentColor */
+export function PlazaIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M4 21h16M6 21V10l6-4 6 4v11M9 21v-5h6v5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /** 技能 (Skill/Book) - 16x16, currentColor */
 export function SkillIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -233,7 +266,7 @@ export function HelpIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** Hand-wave icon used in greeting — 60x60, brand lime fill #F0FF8C */
+/** Hand-wave icon used in greeting — 60x60, brand lime fill #D4FF3F */
 export function WaveHand(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -250,7 +283,7 @@ export function WaveHand(props: SVGProps<SVGSVGElement>) {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M49.8207 31.7336C53.8068 38.384 50.9581 49.6876 41.2643 49.6876H17.7985C8.34042 49.6876 5.39951 38.9416 8.96549 32.2405C9.80576 30.6692 10.3591 29.7568 10.9227 28.0131C11.3121 26.7965 11.6502 25.7017 12.6749 24.3229C13.8739 22.711 16.1282 23.0152 15.5646 25.0224C15.4826 25.3164 15.3699 25.7219 15.2982 26.0565C15.083 27.1007 15.6773 27.638 16.3741 27.6684C17.0505 27.6887 17.8395 27.2426 17.8395 26.0159C17.8395 22.4981 18.7617 19.3859 21.2313 17.6219C22.8913 16.4256 24.4693 16.9933 23.6701 19.2743C23.5369 19.6494 23.2602 20.278 23.168 20.866C22.8708 22.7414 25.576 22.9848 25.9244 21.4033C25.9962 21.0687 26.0167 20.6734 26.0372 20.2983C26.0986 18.1592 27.1643 17.0947 28.4862 16.0201C30.2282 14.6211 29.7364 13.8405 29.9003 11.9245C30.0643 9.90706 31.8063 10.0287 32.8105 10.9918C35.6182 13.6682 35.9973 17.186 35.6079 19.7711C34.9521 24.1506 40.0449 23.9884 39.5633 20.5314C39.4813 19.9536 39.3481 19.2338 39.2764 18.3924C39.0919 16.0708 41.1926 16.2026 42.576 17.5712C43.9798 18.9499 45.1172 20.9673 45.5989 22.8834C46.6441 27.0905 47.6893 28.1956 49.8207 31.7438V31.7336Z"
-        fill="#F0FF8C"
+        fill="#D4FF3F"
       />
       <path
         fillRule="evenodd"
@@ -961,6 +994,222 @@ export function SceneIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+/** Send (Send 按钮) - 14x14, currentColor */
+export function SendIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="14"
+      viewBox="0 0 24 24"
+      width="14"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M22 2L11 13" />
+      <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+    </svg>
+  );
+}
+
+/** Document (Sidebar 文档) - 14x14, currentColor */
+export function DocumentIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="14"
+      viewBox="0 0 24 24"
+      width="14"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="8" y1="13" x2="16" y2="13" />
+      <line x1="8" y1="17" x2="13" y2="17" />
+    </svg>
+  );
+}
+
+/** Video Camera - 24x24, currentColor */
+export function VideoCameraIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="24"
+      viewBox="0 0 24 24"
+      width="24"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <rect x="2" y="6" width="14" height="12" rx="2" />
+      <path d="M16 10l4-2v8l-4-2" />
+      <circle cx="9" cy="12" r="2" />
+    </svg>
+  );
+}
+
+/** Image/Picture - 24x24, currentColor */
+export function ImageIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="24"
+      viewBox="0 0 24 24"
+      width="24"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="M21 15l-5-5L5 21" />
+    </svg>
+  );
+}
+
+/** Close/X - 20x20, currentColor */
+export function CloseIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="20"
+      viewBox="0 0 24 24"
+      width="20"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+/** Pause - 16x16, currentColor */
+export function PauseIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+    </svg>
+  );
+}
+
+/** Volume - 16x16, currentColor */
+export function VolumeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+    </svg>
+  );
+}
+
+/** Maximize/Fullscreen - 16x16, currentColor */
+export function MaximizeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+    </svg>
+  );
+}
+
+/** Eye/Views - 16x16, currentColor */
+export function EyeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+/** Link - 16x16, currentColor */
+export function LinkIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
+
 /** Prop/Mask - 16x16, currentColor */
 export function PropIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -983,6 +1232,30 @@ export function PropIcon(props: SVGProps<SVGSVGElement>) {
       <circle cx="16" cy="12" r="1.5" />
       <path d="M12 12v4" />
       <path d="M9 18c1.5 1 4.5 1 6 0" />
+    </svg>
+  );
+}
+
+/** Microphone - 16x16, currentColor */
+export function MicrophoneIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 1 1-6 0V5a3 3 0 0 1 3-3z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <line x1="12" y1="19" x2="12" y2="22" />
+      <line x1="8" y1="22" x2="16" y2="22" />
     </svg>
   );
 }
