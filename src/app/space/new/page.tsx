@@ -91,11 +91,13 @@ export default function SpaceNewPage() {
                 <img
                   src="https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=cute%20anime%20avatar%20mascot%20character%20bollo%20lime%20green%20theme%20simple%20design%20friendly%20chibi%20style&image_size=square"
                   alt="用户头像"
+                  loading="lazy"
                   className="size-full object-cover"
                 />
               </div>
               <button
                 type="button"
+                onClick={() => console.log("更换头像")}
                 className="absolute -bottom-2 -right-2 flex size-9 items-center justify-center rounded-xl bg-brand text-brand-foreground shadow-lg shadow-brand/20 transition-all hover:scale-105 hover:bg-brand-hover"
                 aria-label="更换头像"
               >
@@ -108,6 +110,7 @@ export default function SpaceNewPage() {
                 <h2 className="text-2xl font-bold text-white">bollo 用户</h2>
                 <button
                   type="button"
+                  onClick={() => console.log("编辑昵称")}
                   className="flex size-8 items-center justify-center rounded-lg bg-white/10 text-white/60 transition-all hover:bg-white/15 hover:text-white"
                   aria-label="编辑昵称"
                 >
@@ -122,6 +125,7 @@ export default function SpaceNewPage() {
                 </span>
                 <button
                   type="button"
+                  onClick={() => console.log("升级会员")}
                   className="inline-flex items-center gap-1 rounded-full bg-brand px-3 py-1 text-xs font-semibold text-brand-foreground transition-all hover:bg-brand-hover hover:shadow-md hover:shadow-brand/20"
                 >
                   <CrownIcon className="size-3" />
@@ -160,12 +164,14 @@ export default function SpaceNewPage() {
           <div className="flex items-center gap-2">
             <button
               type="button"
+              onClick={() => console.log("消费记录")}
               className="flex h-10 items-center gap-1.5 rounded-xl bg-white/10 px-4 text-[13px] font-medium text-white/80 transition-colors hover:bg-white/15"
             >
               消费记录
             </button>
             <button
               type="button"
+              onClick={() => console.log("立即充值")}
               className="flex h-10 items-center gap-1.5 rounded-xl bg-brand px-5 text-[13px] font-semibold text-brand-foreground transition-all hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20"
             >
               立即充值
@@ -178,6 +184,7 @@ export default function SpaceNewPage() {
             <button
               key={item.id}
               type="button"
+              onClick={() => console.log(item.label)}
               className={`group flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-white/[0.04] ${
                 index !== MENU_ITEMS.length - 1
                   ? "border-b border-white/[0.04]"
@@ -211,6 +218,7 @@ export default function SpaceNewPage() {
             <button
               key={item.id}
               type="button"
+              onClick={() => console.log(item.label)}
               className={`flex w-full items-center gap-3 px-5 py-4 text-left text-[14px] text-white/60 transition-colors hover:bg-white/[0.04] hover:text-white ${
                 index !== BOTTOM_MENU.length - 1
                   ? "border-b border-white/[0.04]"
@@ -226,6 +234,7 @@ export default function SpaceNewPage() {
 
         <button
           type="button"
+          onClick={() => console.log("退出登录")}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white/[0.04] py-4 text-[15px] font-medium text-red-400/80 ring-1 ring-white/[0.04] transition-all hover:bg-red-500/10 hover:text-red-400"
         >
           <LogoutIcon className="size-5" />

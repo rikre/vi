@@ -94,6 +94,51 @@ export function PlusIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+/** 项目 (FolderOpen) - 16x16, currentColor, 线性 */
+export function FolderOpenIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M3 7C3 5.89543 3.89543 5 5 5H9L11 7H19C20.1046 7 21 7.89543 21 9V10" />
+      <path d="M3 9.5L5 19C5.1267 19.6297 5.7056 20 6.35 20H19.5C20.3284 20 21 19.3284 21 18.5V11.5C21 10.6716 20.3284 10 19.5 10H5.5C4.4 10 3.3 9.7 3 9.5Z" />
+    </svg>
+  );
+}
+
+/** 技能 (BookOpen) - 16x16, currentColor, 线性 */
+export function BookOpenIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M12 6.5C10.5 5 8 4 4 4V18C8 18 10.5 19 12 20.5" />
+      <path d="M12 6.5C13.5 5 16 4 20 4V18C16 18 13.5 19 12 20.5" />
+      <path d="M12 6.5V20.5" />
+    </svg>
+  );
+}
+
 /** 项目 (Folder) - 16x16, currentColor */
 export function FolderIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -296,31 +341,45 @@ export function WaveHand(props: SVGProps<SVGSVGElement>) {
 }
 
 /**
- * bollo footer logo — white version for dark backgrounds.
- * Matches header logo design system with inverted colors.
+ * bollo footer logo — inverted-color version of BolloLogo for dark backgrounds.
+ * Preserves the rounded-square + star + curved-cutout shape system of the
+ * header BolloLogo, but flips the palette so it reads on dark surfaces:
+ * white rounded background, dark star, light cutout, white wordmark.
  */
 export function FooterLogo(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       width="96"
       height="28"
-      viewBox="0 0 80 24"
+      viewBox="0 0 96 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      aria-label="bollo"
       role="img"
+      aria-label="bollo"
       {...props}
     >
-      <rect x="0" y="2" width="20" height="20" rx="6" fill="#FFFFFF" />
-      <path d="M7 7.5v9l6.5-4.5-6.5-4.5z" fill="#0D0D0D" />
+      <title>bollo</title>
+      {/* Rounded square background — inverted to white for dark surfaces */}
+      <rect x="0" y="0" width="28" height="28" rx="7" fill="#FFFFFF" />
+      {/* Star with curved cutout — same geometry as BolloLogo */}
+      <path
+        d="M14 5.5L15.6 10.4L20.9 10.6L16.8 13.9L18.2 19L14 16.1L9.8 19L11.2 13.9L7.1 10.6L12.4 10.4L14 5.5Z"
+        fill="#0D0D0D"
+      />
+      {/* Curved cutout on top-right of star — matches background color */}
+      <path
+        d="M17.5 8.5C19.5 7 22 6.5 24 7C22.5 8 20.5 9.5 19.5 11.5C19 10 18 9 17.5 8.5Z"
+        fill="#FFFFFF"
+      />
+      {/* Wordmark — light for dark footer background */}
       <text
-        x="27"
-        y="17"
+        x="34"
+        y="20.5"
         fill="#FFFFFF"
         fontFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
-        fontSize="15"
-        fontWeight="700"
-        letterSpacing="-0.2px"
+        fontSize="19"
+        fontWeight="600"
+        letterSpacing="-0.8px"
       >
         bollo
       </text>
@@ -1256,6 +1315,49 @@ export function MicrophoneIcon(props: SVGProps<SVGSVGElement>) {
       <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
       <line x1="12" y1="19" x2="12" y2="22" />
       <line x1="8" y1="22" x2="16" y2="22" />
+    </svg>
+  );
+}
+
+/** Check - 16x16, currentColor */
+export function CheckIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+/** CheckCheck (双勾，全部已读) - 16x16, currentColor */
+export function CheckCheckIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M18 6 7 17l-5-5" />
+      <path d="m22 10-7.5 7.5L13 16" />
     </svg>
   );
 }

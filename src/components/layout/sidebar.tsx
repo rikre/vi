@@ -5,9 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  PlusIcon,
-  SkillIcon,
-  FolderIcon,
+  BolloLogo,
+  SparkleIcon,
+  BookOpenIcon,
+  FolderOpenIcon,
   PlazaIcon,
   AssetIcon,
   PublishIcon,
@@ -25,11 +26,11 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "创作", href: "/home", Icon: PlusIcon },
-  { label: "技能", href: "/skill", Icon: SkillIcon },
-  { label: "项目", href: "/comic", Icon: FolderIcon },
   { label: "广场", href: "/plaza", Icon: PlazaIcon },
+  { label: "创作", href: "/home", Icon: SparkleIcon },
+  { label: "项目", href: "/comic", Icon: FolderOpenIcon },
   { label: "资产", href: "/library", Icon: AssetIcon },
+  { label: "技能", href: "/skill", Icon: BookOpenIcon },
   { label: "发布", href: "#", Icon: PublishIcon },
 ];
 
@@ -57,15 +58,11 @@ export function Sidebar({ onOpenSubscription, onOpenMessages }: SidebarProps) {
         <div className="flex justify-center px-3 pt-[20px]">
           <Link
             href="/home"
-            aria-label="回到首页"
+            aria-label="bollo 首页"
             title="回到首页"
             className="inline-flex w-full items-center text-foreground"
           >
-            <img
-              src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEX17JqY3mcHVw0vTuM66hqfO9ZQhgW7AACajAAAmrvGVcSUvV8jVNsLz0E.png"
-              alt="bollo"
-              className="h-auto w-full object-contain"
-            />
+            <BolloLogo className="w-full h-auto" />
           </Link>
         </div>
 
@@ -85,7 +82,7 @@ export function Sidebar({ onOpenSubscription, onOpenMessages }: SidebarProps) {
             const cls = cn(
               "flex h-[54px] w-[84px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-[12px] px-2 py-[8px] transition-colors",
               active
-                ? "bg-white/[0.05] text-white"
+                ? "bg-brand/10 text-brand"
                 : "text-white/60 hover:bg-white/[0.05] hover:text-white"
             );
 
@@ -221,7 +218,7 @@ function QrPopupContent({ onClose }: { onClose: () => void }) {
   }, [onClose]);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" role="dialog" aria-label="二维码">
       {/* Arrow pointing down-left toward sidebar */}
       <div className="absolute -bottom-1.5 left-[-14px] size-3 rotate-45 bg-[#1a1a1a] border-r border-b border-white/[0.08]" />
       <div className="w-[380px] rounded-2xl border border-white/[0.08] bg-[#1a1a1a] p-5 shadow-2xl">
@@ -230,8 +227,8 @@ function QrPopupContent({ onClose }: { onClose: () => void }) {
           <a
             href="https://ecncw7du1qtr.feishu.cn/wiki/R6m5w5RILiS35lkM7PycEUhHnfc"
             target="_blank"
-            rel="noreferrer"
-            className="text-[13px] font-medium text-[#ff7a18] transition-colors hover:text-[#ff9a4d]"
+            rel="noopener noreferrer"
+            className="text-[13px] font-medium text-brand transition-colors hover:text-brand-hover"
           >
             点击跳转至客服系统
           </a>

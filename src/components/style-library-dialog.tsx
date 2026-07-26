@@ -121,6 +121,9 @@ export function StyleLibraryDialog({ open, onClose }: StyleLibraryDialogProps) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="风格库"
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md"
       onClick={handleOverlayClick}
     >
@@ -153,7 +156,7 @@ export function StyleLibraryDialog({ open, onClose }: StyleLibraryDialogProps) {
               className={cn(
                 "rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors",
                 category === c.id
-                  ? "bg-[#D4FF3F] text-black"
+                  ? "bg-brand text-black"
                   : "bg-white/[0.05] text-white/55 hover:bg-white/[0.1] hover:text-white/80"
               )}
             >
@@ -165,22 +168,27 @@ export function StyleLibraryDialog({ open, onClose }: StyleLibraryDialogProps) {
         {/* Grid */}
         <div className="mt-5 grid grid-cols-4 gap-3.5 overflow-y-auto px-7 pb-7">
           {/* Upload tile */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="group flex aspect-[3/4] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] text-white/45 transition-colors hover:border-white/30 hover:bg-white/[0.05] hover:text-white/70"
-          >
+          <label className="group flex aspect-[3/4] cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] text-white/45 transition-colors hover:border-white/30 hover:bg-white/[0.05] hover:text-white/70">
             <span className="flex size-10 items-center justify-center rounded-full bg-white/[0.06] transition-transform group-hover:scale-110">
               <PlusIcon className="size-5" />
             </span>
             <span className="text-[12.5px] font-medium">上传风格</span>
-          </button>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                console.log("upload style", e.target.files?.[0] ?? null)
+              }
+            />
+          </label>
 
           {items.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => {
+                console.log("select style");
                 onClose();
               }}
               className="group relative aspect-[3/4] overflow-hidden rounded-2xl ring-1 ring-white/[0.08] transition-all duration-300 hover:ring-white/25"
@@ -196,7 +204,7 @@ export function StyleLibraryDialog({ open, onClose }: StyleLibraryDialogProps) {
                 <span
                   className={cn(
                     "absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[10px] font-bold leading-none text-black",
-                    item.badge === "Hot" ? "bg-[#ff7a18]" : "bg-[#00e5c8]"
+                    item.badge === "Hot" ? "bg-brand" : "bg-[#00e5c8]"
                   )}
                 >
                   {item.badge}

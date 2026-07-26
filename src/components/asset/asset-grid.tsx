@@ -1,3 +1,5 @@
+"use client";
+
 import { PlusCircleIcon, MoreIcon, HeartIcon } from "@/components/icons";
 
 type Asset = {
@@ -18,6 +20,7 @@ function AssetCard({ asset, isNew, newLabel = "新建" }: AssetCardProps) {
     return (
       <button
         type="button"
+        onClick={() => console.log("新建资产")}
         className="group flex aspect-square flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-white/10 bg-white/[0.02] text-white/40 transition-all hover:border-brand/40 hover:bg-brand/5 hover:text-brand"
       >
         <PlusCircleIcon className="size-10 transition-transform group-hover:scale-110" />
@@ -34,13 +37,15 @@ function AssetCard({ asset, isNew, newLabel = "新建" }: AssetCardProps) {
             `${asset.type === "character" ? "anime character design reference sheet" : asset.type === "scene" ? "anime background scene illustration" : "anime prop item design"}, ${asset.name}, high quality, detailed, bollo brand lime green accent, dark theme`
           )}&image_size=square`}
           alt={asset.name}
+          loading="lazy"
           className="h-full w-full object-cover transition-all duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-        
+
         <div className="absolute right-2 top-2 flex flex-col gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
           <button
             type="button"
+            onClick={() => console.log("收藏资产", asset.name)}
             className="flex size-8 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur-md transition-colors hover:bg-black/70 hover:text-white"
             aria-label="收藏"
           >
@@ -48,6 +53,7 @@ function AssetCard({ asset, isNew, newLabel = "新建" }: AssetCardProps) {
           </button>
           <button
             type="button"
+            onClick={() => console.log("资产更多操作", asset.name)}
             className="flex size-8 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur-md transition-colors hover:bg-black/70 hover:text-white"
             aria-label="更多操作"
           >

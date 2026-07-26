@@ -17,14 +17,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "bollo - AI 动画创作工作台",
     description: "想象力，即刻呈现。用 bollo 高效创作 AI 动画、分镜与短片。",
-    images: ["https://static-oiioii-sg.hogiai.cn/home/share.png"],
+    images: ["https://placehold.co/1200x630/141414/D4FF3F?text=bollo"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "bollo - AI 动画创作工作台",
     description: "想象力，即刻呈现。用 bollo 高效创作 AI 动画、分镜与短片。",
-    images: ["https://static-oiioii-sg.hogiai.cn/home/share.png"],
+    images: ["https://placehold.co/1200x630/141414/D4FF3F?text=bollo"],
   },
   icons: {
     icon: [{ url: "/favicon.ico", type: "image/x-icon" }],

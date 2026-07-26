@@ -22,9 +22,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "水果庄园",
     author: "18995680247",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/85f228f4-bc8b-48fb-93fd-9d33d38dc4cb_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/fcf60aeb-dda8-420f-9e00-ae18b1875f12_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "一纸宣纸，道断两相倾心",
     description:
       "国内首部全 AIGC 非遗古装中剧，上线两周站内累计播放9200万+；非遗古风分类稳居第2，全站热播榜稳定前12。",
@@ -39,9 +39,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "九州明君录",
     author: "霓凰",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/78405b19-a92f-49d2-911a-7c660449bb8b_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/4391f239-64e2-4a50-88a1-b6f8507b9b17_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "乱世烽烟，谁主沉浮",
     description:
       "大周历372年，开国明君姬文渊于牧野之战力竭崩殂，临终命重臣裴守约将轩辕剑沉入洛水，以待后世明君。",
@@ -56,9 +56,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "天降绝症：我反手整顿全世界",
     author: "文化火焰AIGC",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/f16a2c9f-0bc9-411b-ba02-3c8d0f03a737_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/afcd1905-a7be-4b49-b992-26f5ce1b2786_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "生命倒计时，开启疯狂反击",
     description:
       "当一张肺癌晚期的诊断书彻底撕碎了社畜林默三十年的懦弱，他决定用生命最后的倒计时，向油腻的上司、势利的亲属和霸凌的社会发起最疯狂的还击。",
@@ -73,9 +73,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "终末地丨在超市后门喝酒的二人",
     author: "多兰克斯",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/5c989b5c-8609-4fc7-a0b3-ab39bb8eb5ae_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/4e9d3dde-4f46-4c0d-a21b-015c2fcc0f53_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "末日废墟里，一杯酒的温度",
     description: "ed的风格是这样，主要是图片处理麻烦一点，视频生成用到的较少~",
     stats: "二次元末日题材佳作，站内播放量2800万，评论区互动率35%，被誉为最治愈的末世短片。",
@@ -88,9 +88,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "人间善话",
     author: "17716637375",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/24fc3c6c-4424-4e82-bfac-6462dd9a2cf2_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/1739e482-1c18-4030-9b2d-d33923f9556a_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "一群人温暖一座城",
     description: "一群人温暖一座城",
     stats: "温情纪实风格短剧，播放量4500万+，多次登上平台正能量内容推荐位。",
@@ -103,9 +103,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "牛马鬼差之天师钟馗",
     author: "18687122002",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/63fe6915-3638-4fe2-9ab8-4c80862394a7_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/95d314e6-3c72-408a-b4ec-1f2a82964a3f_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "死后觉醒，杀穿地府",
     description:
       "社畜牛马猝死工位前，死后觉醒地府系统穿越至大唐，看钟小小如何杀穿地府一步步变为大唐子民家喻户晓的镇魔天师钟馗",
@@ -119,9 +119,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "玄枯界·归真潮",
     author: "15973721801",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/27ca96b6-632f-4798-9708-053d58aa94fa_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/37ee70ca-e2a-4953-ab2c-3248ec19d403_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "以身证道，问道归真",
     description: "林砚以身证道第三百年。",
     stats: "仙侠玄幻题材口碑之作，站内评分9.1，深度用户占比达58%。",
@@ -134,9 +134,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "山鬼",
     author: "金金",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/5ab51678-0f37-4dee-adbc-ad99ea882c67_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/1a13276f-0a64-4677-a4e6-3e115a7b6d32_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "鬼山探险，揭开山鬼真相",
     description: "网红主播刘星失恋后赴“鬼山”探险散心，偶遇神秘男孩，揭开“山鬼”真相",
     stats: "悬疑探险短剧，播放量6200万，剧情反转引发全网热议。",
@@ -149,9 +149,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "一剑赴山河，江湖本是客",
     author: "19806692620",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/cb31c98b-8356-40b9-8e93-5b7cec483dcd_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/fcfe6532-868d-423d-863b-fc240967914c_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "女子仗剑，踏遍山河",
     description: "世人总说女子该安分守于闺阁，可她偏要一身劲装，手握长剑踏遍山河。",
     stats: "古风武侠女性向短剧，播放量3800万+，女性用户占比76%。",
@@ -164,9 +164,9 @@ const GRID_VIDEOS: VideoItem[] = [
     title: "终末地｜小猫只想睡觉",
     author: "多兰克斯",
     coverUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/7dcec55f-dc98-4071-a680-c6f310a67aa1_cover.webp",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
     previewVideoUrl:
-      "https://static-oiioii-sg.hogiai.cn/home_recommends_v2/82c04ec9-94c7-410e-af6d-061bbb0b0455_video.mp4",
+      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
     subtitle: "末日危机，小猫只想躺平",
     description: "复刻了一下小猫快跑配对打危机合约~",
     stats: "萌系末日题材创意短片，站内播放量2100万，萌宠类目周榜TOP2。",
@@ -191,7 +191,9 @@ function VideoCard({
     const el = videoRef.current;
     if (el) {
       el.currentTime = 0;
-      el.play().catch(() => {});
+      el.play().catch((err: Error) => {
+        console.warn("video preview play failed:", err);
+      });
     }
   };
 
@@ -262,7 +264,9 @@ function VideoPlayerDialog({
     const el = videoRef.current;
     if (video && el) {
       el.currentTime = 0;
-      el.play().catch(() => {});
+      el.play().catch((err: Error) => {
+        console.warn("video dialog autoplay failed:", err);
+      });
     }
     return () => {
       if (el) el.pause();
@@ -273,6 +277,9 @@ function VideoPlayerDialog({
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="视频播放器"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
       onClick={onClose}
     >
@@ -283,6 +290,7 @@ function VideoPlayerDialog({
         <button
           type="button"
           onClick={onClose}
+          aria-label="关闭视频播放器"
           className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full bg-black/60 text-white/60 ring-1 ring-white/10 transition-colors hover:bg-black/80 hover:text-white"
         >
           <CloseIcon className="size-4" />
@@ -306,6 +314,7 @@ function VideoPlayerDialog({
               <img
                 src={video.coverUrl}
                 alt={video.title}
+                loading="lazy"
                 className="size-16 rounded-xl object-cover ring-1 ring-white/10"
               />
               <div className="min-w-0 flex-1">
@@ -327,7 +336,7 @@ function VideoPlayerDialog({
 
             <div>
               <h4 className="mb-2 flex items-center gap-2 text-[13px] font-bold text-white">
-                <span className="h-3 w-1 rounded-full bg-[#D4FF3F]" />
+                <span className="h-3 w-1 rounded-full bg-brand" />
                 播放数据
               </h4>
               <p className="text-[12px] leading-relaxed text-white/55">
@@ -348,7 +357,9 @@ function VideoPlayerDialog({
 
           <div className="mt-4 shrink-0 border-t border-white/[0.08] pt-4">
             <a
-              href="#"
+              href="https://www.douyin.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-[12px] text-[#00e5c8] transition-colors hover:text-[#7dffe6]"
             >
               {video.link}

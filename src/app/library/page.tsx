@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import {
   SearchIcon,
@@ -319,6 +319,7 @@ export default function LibraryPage() {
             </div>
             <button
               type="button"
+              onClick={() => console.log("export")}
               className="flex h-9 items-center gap-2 rounded-lg bg-brand px-4 text-[14px] font-medium text-black transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-60"
               aria-label="导出"
             >
@@ -409,6 +410,7 @@ function ArtistSection({
       <div className="mb-5 flex justify-end">
         <button
           type="button"
+          onClick={() => console.log("create artist")}
           className="flex h-9 items-center gap-2 rounded-lg bg-brand px-4 text-[14px] font-medium text-black transition-opacity hover:opacity-80"
         >
           <PlusIcon className="size-4" />
@@ -460,6 +462,7 @@ function ArtistCard({
         <img
           src={txi(artist.imagePrompt, "portrait_4_3")}
           alt={artist.name}
+          loading="lazy"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -511,6 +514,14 @@ function ArtistDetailDialog({
   const [selectedMakeup, setSelectedMakeup] = useState(MAKEUP_STYLES[0].id);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   const currentLook = LOOKS.find((l) => l.id === selectedLook);
   const currentMakeup = MAKEUP_STYLES.find((s) => s.id === selectedMakeup);
 
@@ -522,9 +533,20 @@ function ArtistDetailDialog({
   const thumbs = activeMode === "outfit" ? LOOKS : MAKEUP_STYLES;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm">
-      <div className="relative flex h-[92vh] w-full max-w-[1300px] overflow-hidden rounded-2xl bg-[#141414] ring-1 ring-white/[0.08]">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="艺人详情"
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative flex h-[92vh] w-full max-w-[1300px] overflow-hidden rounded-2xl bg-[#141414] ring-1 ring-white/[0.08]"
+      >
         <button
+          type="button"
+          aria-label="关闭"
           onClick={onClose}
           className="absolute left-4 top-4 z-20 flex size-8 items-center justify-center rounded-full bg-white/[0.08] text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white"
         >
@@ -545,6 +567,7 @@ function ArtistDetailDialog({
               <img
                 src={txi(previewPrompt, "portrait_4_3")}
                 alt={artist.name}
+                loading="lazy"
                 className="h-full w-full object-cover"
               />
               {activeMode === "outfit" && (
@@ -593,6 +616,7 @@ function ArtistDetailDialog({
                       "portrait_4_3"
                     )}
                     alt={item.label}
+                    loading="lazy"
                     className="h-full w-full object-cover"
                   />
                 </button>
@@ -667,6 +691,7 @@ function ArtistDetailDialog({
                           "portrait_4_3"
                         )}
                         alt={item.label}
+                        loading="lazy"
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -716,6 +741,7 @@ function ArtistDetailDialog({
 
           <button
             type="button"
+            onClick={() => console.log("AI试戏", artist.name)}
             className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#00e5c8] to-[#7dff8c] text-[15px] font-semibold text-black transition-opacity hover:opacity-90"
           >
             <PlusIcon className="size-4" />
@@ -869,6 +895,7 @@ function VoiceCard({
         <img
           src={txi(voice.imagePrompt)}
           alt={voice.name}
+          loading="lazy"
           className="h-full w-full object-cover"
         />
         <button
@@ -904,6 +931,7 @@ function VoiceCard({
 
       <button
         type="button"
+        onClick={() => console.log("使用音色", voice.name)}
         className="mt-4 flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-white/[0.06] text-[13px] font-medium text-white ring-1 ring-white/[0.08] transition-colors hover:bg-white/[0.1]"
       >
         <VolumeIcon className="size-3.5" />
@@ -917,12 +945,33 @@ function CloneVoiceDialog({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [gender, setGender] = useState("请选择");
   const [age, setAge] = useState("请选择");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm">
-      <div className="relative w-full max-w-[560px] max-h-[90vh] overflow-y-auto rounded-2xl bg-[#141414] p-8 ring-1 ring-white/[0.08]">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="克隆音色"
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-[560px] max-h-[90vh] overflow-y-auto rounded-2xl bg-[#141414] p-8 ring-1 ring-white/[0.08]"
+      >
         <button
+          type="button"
+          aria-label="关闭"
           onClick={onClose}
           className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full bg-white/[0.08] text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white"
         >
@@ -939,13 +988,23 @@ function CloneVoiceDialog({ onClose }: { onClose: () => void }) {
             <label className="w-24 shrink-0 pt-3 text-[14px] text-white/80">
               上传音色头像
             </label>
-            <button
-              type="button"
-              className="flex size-[120px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-white/[0.04] text-white/50 transition-colors hover:bg-white/[0.06]"
-            >
+            <label className="flex size-[120px] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-white/[0.04] text-white/50 transition-colors hover:bg-white/[0.06]">
               <UploadIcon className="size-8" />
-              <span className="text-[12px]">上传音色头像</span>
-            </button>
+              <span className="text-[12px]">
+                {avatarFile ? avatarFile.name : "上传音色头像"}
+              </span>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0] ?? null;
+                  setAvatarFile(f);
+                  console.log("upload voice avatar", f);
+                }}
+              />
+            </label>
           </div>
 
           {/* 音色名称 */}
@@ -1036,6 +1095,7 @@ function CloneVoiceDialog({ onClose }: { onClose: () => void }) {
 
         <button
           type="button"
+          onClick={() => console.log("submit clone voice", { name, gender, age, avatarFile })}
           className="mt-8 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-white/[0.1] text-[15px] font-medium text-white ring-1 ring-white/[0.12] transition-colors hover:bg-white/[0.14]"
         >
           <MicrophoneIcon className="size-4" />
@@ -1114,6 +1174,7 @@ function LegacySection({
       <div className="mb-5 flex justify-end">
         <button
           type="button"
+          onClick={() => console.log(type === "character" ? "create character" : type === "scene" ? "create scene" : "create prop")}
           className="flex h-9 items-center gap-2 rounded-lg bg-brand px-4 text-[14px] font-medium text-black transition-opacity hover:opacity-80"
         >
           <PlusIcon className="size-4" />
@@ -1145,12 +1206,14 @@ function LegacyCardItem({
     <div className="overflow-hidden rounded-2xl bg-[#141414] ring-1 ring-white/[0.08]">
       <button
         type="button"
+        onClick={() => console.log("查看资产卡片", card.name)}
         className="relative block w-full"
         style={{ aspectRatio: "16 / 9" }}
       >
         <img
           src={txi(card.imagePrompt, "landscape_4_3")}
           alt={card.name}
+          loading="lazy"
           className="absolute inset-0 h-full w-full object-cover"
         />
       </button>
@@ -1162,12 +1225,16 @@ function LegacyCardItem({
         <div className="flex flex-shrink-0 items-center gap-1">
           <button
             type="button"
+            aria-label="编辑"
+            onClick={() => console.log("edit", card.id)}
             className="flex items-center px-2 py-1 text-white/70 transition-colors hover:text-white"
           >
             <EditIcon className="size-4" />
           </button>
           <button
             type="button"
+            aria-label="删除"
+            onClick={() => console.log("delete", card.id)}
             className="flex items-center px-2 py-1 text-white/70 transition-colors hover:text-white"
           >
             <TrashIcon className="size-4" />

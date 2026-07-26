@@ -326,6 +326,9 @@ export function AssetGallery({ open, onClose }: AssetGalleryProps) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="资产广场"
       className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a]"
       onClick={handleOverlayClick}
     >

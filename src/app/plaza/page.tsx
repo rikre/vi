@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
 import { cn } from "@/lib/utils";
 import {
@@ -23,131 +24,120 @@ const txi = (prompt: string, size: string) =>
 /* ------------------------------------------------------------------ */
 /*  剧本市场                                                          */
 /* ------------------------------------------------------------------ */
-type Script = {
-  id: string;
-  title: string;
-  tags: string[];
-  episodes: number;
-  words: string;
-  price: number;
-  sold: boolean;
-  prompt: string;
-};
+import {
+  SCRIPTS as SCRIPTS_DATA,
+  SCRIPT_TYPE_META,
+  type Script,
+  type ScriptType,
+} from "@/lib/plaza-data";
 
-const SCRIPTS: Script[] = [
-  {
-    id: "1",
-    title: "画灵觉醒",
-    tags: ["男频", "都市异能", "中式美学"],
-    episodes: 20,
-    words: "1.2万字",
-    price: 5800,
-    sold: true,
-    prompt: "chinese ink fantasy drama poster, mystical painter awakening powers, no text",
-  },
-  {
-    id: "2",
-    title: "纸扎铺凌晨开门",
-    tags: ["女频", "影视", "权谋"],
-    episodes: 20,
-    words: "6537字",
-    price: 4200,
-    sold: true,
-    prompt: "dark chinese supernatural drama poster, paper effigy shop at night, no text",
-  },
-  {
-    id: "3",
-    title: "雨夜追赃",
-    tags: ["男频", "权谋", "影视"],
-    episodes: 20,
-    words: "6381字",
-    price: 3600,
-    sold: false,
-    prompt: "rainy night chinese crime thriller poster, detective chase, no text",
-  },
-  {
-    id: "4",
-    title: "夜校焚心",
-    tags: ["女频", "世家", "职场"],
-    episodes: 20,
-    words: "6534字",
-    price: 4800,
-    sold: true,
-    prompt: "chinese campus mystery romance drama poster, night school fire, no text",
-  },
-  {
-    id: "5",
-    title: "她在凶宅直播",
-    tags: ["女频", "末日", "双强"],
-    episodes: 20,
-    words: "1.8万字",
-    price: 5200,
-    sold: false,
-    prompt: "chinese livestream horror comedy poster, girl in haunted house, no text",
-  },
-  {
-    id: "6",
-    title: "雾港归航",
-    tags: ["女频", "权谋", "群像"],
-    episodes: 20,
-    words: "1.1万字",
-    price: 4500,
-    sold: true,
-    prompt: "chinese maritime mystery drama poster, foggy harbor ship, no text",
-  },
-];
+const SCRIPTS: Script[] = SCRIPTS_DATA;
+
+function TypeBadge({ type, className }: { type: ScriptType; className?: string }) {
+  const meta = SCRIPT_TYPE_META[type];
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold ring-1",
+        meta.color,
+        className
+      )}
+    >
+      <span className={cn("size-1.5 rounded-full", meta.dot)} />
+      {meta.label}
+    </span>
+  );
+}
 
 function ScriptCard({ script }: { script: Script }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] transition-all duration-300 hover:-translate-y-0.5 hover:ring-white/20 hover:shadow-lg hover:shadow-black/20">
-      <div className="relative aspect-[3/4] overflow-hidden">
-        <img
-          src={txi(script.prompt, "portrait_4_3")}
-          alt={script.title}
-          loading="lazy"
-          className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-        <div className="absolute left-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-bold text-white/90 backdrop-blur">
-          {script.episodes}集 | {script.words}
-        </div>
-        {script.sold && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-            <div className="flex size-16 items-center justify-center rounded-full border-2 border-white/40 bg-black/40">
-              <span className="text-[13px] font-bold text-white/80">已售出</span>
+    <article
+      className={cn(
+        "group relative overflow-hidden rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] transition-all duration-300",
+        script.sold ? "opacity-60" : "hover:-translate-y-0.5 hover:ring-white/20 hover:shadow-lg hover:shadow-black/20"
+      )}
+    >
+      {/* 详情跳转区：封面 + 标题 + 价格 + 购买 */}
+      <Link
+        href={`/plaza/script/${script.id}`}
+        aria-label={`查看剧本「${script.title}」详情`}
+        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a] rounded-2xl"
+      >
+        <div className="relative aspect-[3/4] overflow-hidden">
+          <img
+            src={txi(script.prompt, "portrait_4_3")}
+            alt={script.title}
+            loading="lazy"
+            className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+          {/* 左上：分类徽章（type） */}
+          <div className="absolute left-2 top-2">
+            <TypeBadge type={script.type} />
+          </div>
+          {/* 右上：元数据 */}
+          <div className="absolute right-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-bold text-white/90 backdrop-blur">
+            {script.episodes}集 | {script.words}
+          </div>
+          {script.sold && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+              <div className="flex size-16 items-center justify-center rounded-full border-2 border-white/40 bg-black/40">
+                <span className="text-[13px] font-bold text-white/80">已售出</span>
+              </div>
+            </div>
+          )}
+          <div className="absolute inset-x-0 bottom-0 p-3">
+            <div className="line-clamp-1 text-[14px] font-bold text-white">{script.title}</div>
+            {script.subtitle && (
+              <p className="mt-0.5 line-clamp-1 text-[11px] text-white/55">
+                {script.subtitle}
+              </p>
+            )}
+            {script.source && (
+              <p className="mt-0.5 line-clamp-1 text-[10px] text-white/40">
+                来源：{script.source}
+              </p>
+            )}
+            <div className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5">
+              {script.tags.map((tag) => (
+                <span key={tag} className="text-[10px] text-white/55">
+                  {tag}
+                </span>
+              ))}
             </div>
           </div>
-        )}
-        <div className="absolute inset-x-0 bottom-0 p-3">
-          <div className="line-clamp-1 text-[14px] font-bold text-white">{script.title}</div>
-          <div className="mt-1 flex flex-wrap gap-1">
-            {script.tags.map((tag) => (
-              <span key={tag} className="text-[10px] text-white/55">
-                {tag}
-              </span>
-            ))}
+        </div>
+        <div className="border-t border-white/[0.06] p-3">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1 text-[12px] font-bold text-brand">
+              <CoinsIcon className="size-3.5" />
+              {script.price.toLocaleString()}
+            </span>
+            <span
+              className={cn(
+                "rounded-lg px-3 py-1 text-[11px] font-semibold",
+                script.sold
+                  ? "bg-white/[0.05] text-white/35"
+                  : "bg-brand text-black group-hover:bg-[#e6ff4d] transition-colors"
+              )}
+            >
+              {script.sold ? "已售出" : "立即购买"}
+            </span>
           </div>
         </div>
-      </div>
-      <div className="flex items-center justify-between border-t border-white/[0.06] p-3">
-        <span className="flex items-center gap-1 text-[12px] font-bold text-[#D4FF3F]">
-          <CoinsIcon className="size-3.5" />
-          {script.price.toLocaleString()}
-        </span>
+      </Link>
+
+      {/* 独立操作区：试读按钮（不在 Link 内） */}
+      <div className="px-3 pb-3">
         <button
           type="button"
-          disabled={script.sold}
-          className={cn(
-            "rounded-lg px-3 py-1 text-[11px] font-semibold transition-colors",
-            script.sold
-              ? "bg-white/[0.05] text-white/35"
-              : "bg-[#D4FF3F] text-black hover:bg-[#e6ff4d]"
-          )}
+          onClick={() => console.log("preview script", script.id)}
+          className="w-full rounded-lg bg-white/[0.06] py-1.5 text-[11px] font-semibold text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#141414]"
         >
-          {script.sold ? "已售出" : "立即购买"}
+          试读剧本
         </button>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -305,16 +295,47 @@ function OrderCard({ order, onClick }: { order: Order; onClick: () => void }) {
 }
 
 function OrderDetailDialog({ order, onClose }: { order: Order | null; onClose: () => void }) {
+  useEffect(() => {
+    if (!order) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [order, onClose]);
+
   if (!order) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm">
-      <div className="relative max-h-[90vh] w-full max-w-[800px] overflow-y-auto rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] p-6">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="接单详情"
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative max-h-[90vh] w-full max-w-[800px] overflow-y-auto rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] p-6"
+      >
         <button
           type="button"
+          aria-label="关闭"
           onClick={onClose}
           className="absolute right-4 top-4 rounded-full p-1 text-white/40 transition-colors hover:bg-white/[0.08] hover:text-white"
         >
-          ✕
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-4"
+            aria-hidden="true"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
 
         <div className="flex items-start justify-between">
@@ -364,7 +385,11 @@ function OrderDetailDialog({ order, onClose }: { order: Order | null; onClose: (
               <span className="h-3 w-1 rounded-full bg-[#00e5c8]" />
               剧本简介
             </h3>
-            <button type="button" className="rounded-lg bg-[#00e5c8]/15 px-3 py-1 text-[11px] font-semibold text-[#7dffe6]">
+            <button
+              type="button"
+              onClick={() => console.log("preview script")}
+              className="rounded-lg bg-[#00e5c8]/15 px-3 py-1 text-[11px] font-semibold text-[#7dffe6]"
+            >
               试读剧本
             </button>
           </div>
@@ -396,10 +421,11 @@ function OrderDetailDialog({ order, onClose }: { order: Order | null; onClose: (
           <button
             type="button"
             disabled={order.status !== "open"}
+            onClick={() => console.log("apply order")}
             className={cn(
               "rounded-xl px-6 py-2.5 text-[14px] font-semibold transition-colors",
               order.status === "open"
-                ? "bg-[#D4FF3F] text-black hover:bg-[#e6ff4d]"
+                ? "bg-brand text-black hover:bg-[#e6ff4d]"
                 : "bg-white/[0.06] text-white/35"
             )}
           >
@@ -443,7 +469,7 @@ function WriterCard({ writer }: { writer: Writer }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-[14px] font-bold text-white">{writer.name}</span>
-          <span className="rounded-md bg-[#D4FF3F]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#D4FF3F]">{writer.level}</span>
+          <span className="rounded-md bg-brand/15 px-1.5 py-0.5 text-[10px] font-bold text-brand">{writer.level}</span>
         </div>
         <div className="mt-1 flex gap-3 text-[11px] text-white/50">
           <span>作品 {writer.works}</span>
@@ -459,6 +485,7 @@ function WriterCard({ writer }: { writer: Writer }) {
       </div>
       <button
         type="button"
+        onClick={() => console.log("view profile")}
         className="shrink-0 rounded-lg bg-white/[0.08] px-3 py-1.5 text-[11px] font-semibold text-white/80 transition-colors hover:bg-white/15"
       >
         查看主页
@@ -473,6 +500,40 @@ function WriterCard({ writer }: { writer: Writer }) {
 export default function PlazaPage() {
   const [activeTab, setActiveTab] = useState("scripts");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredScripts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return SCRIPTS;
+    return SCRIPTS.filter(
+      (s) =>
+        s.title.toLowerCase().includes(q) ||
+        s.tags.some((t) => t.toLowerCase().includes(q)) ||
+        (s.source?.toLowerCase().includes(q) ?? false) ||
+        (s.author?.toLowerCase().includes(q) ?? false)
+    );
+  }, [searchQuery]);
+
+  const filteredOrders = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return ORDERS;
+    return ORDERS.filter(
+      (o) =>
+        o.title.toLowerCase().includes(q) ||
+        o.tags.some((t) => t.toLowerCase().includes(q)) ||
+        o.model.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
+
+  const filteredWriters = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return WRITERS;
+    return WRITERS.filter(
+      (w) =>
+        w.name.toLowerCase().includes(q) ||
+        w.tags.some((t) => t.toLowerCase().includes(q))
+    );
+  }, [searchQuery]);
 
   return (
     <AppShell>
@@ -489,7 +550,8 @@ export default function PlazaPage() {
           </div>
           <button
             type="button"
-            className="flex h-11 items-center gap-2 rounded-xl bg-[#D4FF3F] px-5 text-[14px] font-semibold text-black transition-all hover:bg-[#e6ff4d] hover:shadow-lg hover:shadow-[#D4FF3F]/20"
+            onClick={() => console.log("publish script")}
+            className="flex h-11 items-center gap-2 rounded-xl bg-brand px-5 text-[14px] font-semibold text-black transition-all hover:bg-[#e6ff4d] hover:shadow-lg hover:shadow-brand/20"
           >
             <DocumentIcon className="size-4" />
             发布剧本
@@ -524,29 +586,52 @@ export default function PlazaPage() {
           <input
             type="text"
             aria-label="搜索广场"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={
               activeTab === "scripts"
-                ? "搜索剧本名称、题材、标签..."
+                ? "搜索剧本名称、题材、标签、来源、编剧..."
                 : activeTab === "orders"
                 ? "搜索项目、合作模式、题材..."
                 : "搜索编剧名称、擅长题材..."
             }
-            className="h-12 w-full rounded-xl border-0 bg-white/[0.06] pl-12 pr-4 text-[15px] text-white placeholder:text-white/40 transition-all focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-[#D4FF3F]/30"
+            className="h-12 w-full rounded-xl border-0 bg-white/[0.06] pl-12 pr-4 text-[15px] text-white placeholder:text-white/40 transition-all focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
         </div>
 
         {/* Content */}
         {activeTab === "scripts" && (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-            {SCRIPTS.map((script) => (
-              <ScriptCard key={script.id} script={script} />
-            ))}
-          </div>
+          <>
+            {filteredScripts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="mb-3 text-3xl text-white/30">🔍</div>
+                <p className="text-[15px] font-medium text-white/70">
+                  没有找到相关剧本
+                </p>
+                <p className="mt-1 text-[13px] text-white/40">
+                  试试调整搜索词
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="mt-5 inline-flex h-9 items-center rounded-lg bg-white/[0.08] px-4 text-[13px] text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white"
+                >
+                  清除搜索
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                {filteredScripts.map((script) => (
+                  <ScriptCard key={script.id} script={script} />
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {activeTab === "orders" && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {ORDERS.map((order) => (
+            {filteredOrders.map((order) => (
               <OrderCard key={order.id} order={order} onClick={() => setSelectedOrder(order)} />
             ))}
           </div>
@@ -554,7 +639,7 @@ export default function PlazaPage() {
 
         {activeTab === "writers" && (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {WRITERS.map((writer) => (
+            {filteredWriters.map((writer) => (
               <WriterCard key={writer.id} writer={writer} />
             ))}
           </div>

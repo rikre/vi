@@ -74,7 +74,7 @@ function RankingCard({ data }: { data: RankingData }) {
       {/* warm ambient glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_100%_at_80%_50%,rgba(255,94,24,0.15),transparent_70%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_100%_at_80%_50%,rgba(212,255,63,0.15),transparent_70%)]"
       />
 
       {/* Header */}
@@ -96,10 +96,10 @@ function RankingCard({ data }: { data: RankingData }) {
       <div className="relative mt-4 flex items-center gap-5">
         {/* Trend */}
         <div className="flex items-center gap-2">
-          <span className="text-[32px] font-extrabold leading-none text-[#ff7a18] tabular-nums">
+          <span className="text-[32px] font-extrabold leading-none text-brand tabular-nums">
             {data.trend}
           </span>
-          <span className="text-[#ff7a18]">
+          <span className="text-brand">
             <TrendArrow dir={data.trendDir} />
           </span>
         </div>
@@ -132,7 +132,7 @@ function RankingCard({ data }: { data: RankingData }) {
         <div className="flex items-center gap-3">
           {data.genres.map((g) => (
             <div key={g.name} className="flex flex-col items-center">
-              <span className="text-[14px] font-bold text-[#00e5c8]">{g.name}</span>
+              <span className="text-[14px] font-bold text-brand">{g.name}</span>
               <span className="text-[10px] text-white/40">{g.percent}</span>
             </div>
           ))}

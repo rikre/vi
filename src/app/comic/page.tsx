@@ -171,6 +171,7 @@ export default function ComicPage() {
               {/* Recycle bin */}
               <button
                 type="button"
+                onClick={() => console.log("recycle bin")}
                 className="flex h-9 items-center gap-2 rounded-lg border border-white/[0.2] bg-white/[0.1] px-3 py-2 text-[14px] text-white transition-colors hover:bg-white/[0.12]"
               >
                 <TrashIcon className="size-4" />
@@ -272,11 +273,11 @@ export default function ComicPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid auto-rows-fr grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {/* Create new card */}
                 <Link
                   href="/create"
-                  className="group flex aspect-[16/10] flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-white/[0.12] transition-colors hover:border-brand/40"
+                  className="group flex h-full min-h-[240px] flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-white/[0.12] transition-colors hover:border-brand/40"
                 >
                   <div className="flex size-12 items-center justify-center rounded-full bg-white/[0.04] text-white/40 transition-colors group-hover:bg-brand/10 group-hover:text-brand">
                     <PlusIcon className="size-6" />
@@ -306,7 +307,10 @@ export default function ComicPage() {
 
 function ShortDramaCard({ project }: { project: ShortDramaProject }) {
   return (
-    <div className="group cursor-pointer overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111] transition-all hover:border-white/[0.15]">
+    <Link
+      href={`/comic/${project.id}`}
+      className="group block overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141414] transition-all hover:border-white/[0.15]"
+    >
       {/* Cover */}
       <div className="relative aspect-[16/9] overflow-hidden">
         <img
@@ -337,7 +341,7 @@ function ShortDramaCard({ project }: { project: ShortDramaProject }) {
         </h3>
         <p className="mt-1 text-[12px] text-white/40">{project.updatedAt}</p>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -347,7 +351,10 @@ function ScriptCard({ project }: { project: ScriptProject }) {
   const hasScore = project.score !== null;
 
   return (
-    <div className="group cursor-pointer rounded-2xl border border-white/[0.06] bg-[#111] p-4 transition-all hover:border-white/[0.15]">
+    <Link
+      href={`/comic/${project.id}`}
+      className="group block rounded-2xl border border-white/[0.06] bg-[#141414] p-4 transition-all hover:border-white/[0.15]"
+    >
       {/* Type + status badge */}
       <div className="flex items-center gap-1.5">
         <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px] text-white/50">
@@ -356,7 +363,7 @@ function ScriptCard({ project }: { project: ScriptProject }) {
         <span
           className={`rounded px-1.5 py-0.5 text-[11px] ${
             project.status === "评估完成"
-              ? "bg-[#00e5c8]/10 text-[#00e5c8]"
+              ? "bg-brand/15 text-brand"
               : "bg-white/[0.06] text-white/40"
           }`}
         >
@@ -409,6 +416,6 @@ function ScriptCard({ project }: { project: ScriptProject }) {
         <span className="text-[12px] text-white/40">{project.updatedAt}</span>
         <span className="text-[12px] text-white/30">{project.dateStr}</span>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { MoreIcon, PlayCircleIcon, FolderIcon } from "@/components/icons";
 
@@ -62,6 +64,7 @@ function ProjectCard({ project, isNew }: ProjectCardProps) {
             )}&image_size=landscape_16_9`
           }
           alt={project.title}
+          loading="lazy"
           className="h-full w-full object-cover transition-all duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 transition-opacity group-hover:opacity-80" />
@@ -82,7 +85,11 @@ function ProjectCard({ project, isNew }: ProjectCardProps) {
           type="button"
           className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-black/50 text-white/80 opacity-0 backdrop-blur-md transition-all hover:bg-black/70 hover:text-white group-hover:opacity-100"
           aria-label="更多操作"
-          onClick={(e) => e.preventDefault()}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("项目更多操作", project.title);
+          }}
         >
           <MoreIcon className="size-4" />
         </button>

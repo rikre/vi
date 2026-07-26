@@ -1,3 +1,5 @@
+"use client";
+
 import { AppShell } from "@/components/layout/app-shell";
 import { PublishIcon } from "@/components/icons";
 
@@ -82,6 +84,7 @@ export default function PublishPage() {
               <p className="text-[13px] text-white/55">{p.desc}</p>
               <button
                 type="button"
+                onClick={() => console.log("绑定账号", p.name)}
                 className="mt-auto inline-flex h-9 items-center justify-center rounded-xl bg-white/[0.08] text-[13px] font-medium text-white transition-colors hover:bg-white/[0.12]"
               >
                 绑定账号

@@ -71,15 +71,16 @@
   --popover: oklch(0.23 0 0);
   --popover-foreground: oklch(1 0 0);
 
-  /* Primary = bollo brand lime (#D4FF3F = rgb(240,255,140)) */
-  --primary: #f0ff8c;
+  /* Primary = bollo brand lime (#D4FF3F = rgb(212,255,63)) */
+  --primary: #D4FF3F;
   --primary-foreground: oklch(0.18 0 0);
 
   /* Brand colors */
-  --brand: #f0ff8c;
-  --brand-hover: color-mix(in srgb, #f0ff8c 85%, #fff);
-  --brand-lush: #f5ffb3;
+  --brand: #D4FF3F;
+  --brand-hover: color-mix(in srgb, #D4FF3F 85%, #fff);
+  --brand-lush: #e6ff5c;
   --brand-foreground: oklch(0.18 0 0);
+  --brand-rgb: 212 255 63;
 
   /* Secondary */
   --secondary: oklch(1 0 0 / 0.05);
@@ -90,7 +91,7 @@
   --muted-foreground: oklch(1 0 0 / 0.58);
 
   /* Accent (replaces pink, now uses a warm complementary tone) */
-  --accent: #f0ff8c;
+  --accent: #D4FF3F;
   --accent-foreground: oklch(0.18 0 0);
 
   /* Cyan tertiary */
@@ -101,10 +102,10 @@
   /* Borders */
   --border: oklch(1 0 0 / 0.1);
   --input: oklch(1 0 0 / 0.08);
-  --ring: #f0ff8c;
+  --ring: #D4FF3F;
 
-  --chart-1: #f0ff8c;
-  --chart-2: #f5ffb3;
+  --chart-1: #D4FF3F;
+  --chart-2: #e6ff5c;
   --chart-3: oklch(0.93 0.1 200deg);
   --chart-4: oklch(0.7 0.18 300deg);
   --chart-5: oklch(0.85 0.15 60deg);
@@ -112,12 +113,12 @@
   --radius: 0.75rem;
   --sidebar: oklch(0.18 0 0);
   --sidebar-foreground: oklch(1 0 0);
-  --sidebar-primary: #f0ff8c;
+  --sidebar-primary: #D4FF3F;
   --sidebar-primary-foreground: oklch(0.18 0 0);
   --sidebar-accent: oklch(1 0 0 / 0.08);
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(1 0 0 / 0.06);
-  --sidebar-ring: #f0ff8c;
+  --sidebar-ring: #D4FF3F;
 }
 
 @layer base {

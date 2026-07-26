@@ -8,7 +8,7 @@ import {
   GiftIcon,
   InfoIcon,
   XIcon,
-  TrashIcon,
+  CheckCheckIcon,
 } from "@/components/icons";
 
 interface MessageCenterProps {
@@ -32,7 +32,7 @@ const INITIAL_MESSAGES: MsgItem[] = [
   {
     id: "m1",
     kind: "platform",
-    title: "橙星梦工厂关于人工智能生成内容的平台规范公告",
+    title: "bollo关于人工智能生成内容的平台规范公告",
     desc: "人工智能技术的快速发展，为互联网行业带来了更多可能性。尤其在内容创作领域，生成式人工智能技术降低了创作门槛，提升了创作效率。为规范平台内容生态，保障创作者权益，现发布以下规范公告……",
     date: "2026/5/21",
     ts: 70,
@@ -42,7 +42,7 @@ const INITIAL_MESSAGES: MsgItem[] = [
     id: "m2",
     kind: "welcome",
     title: "用户注册成功",
-    desc: "您好！ 欢迎成为创作者！ 您好，欢迎注册使用橙星梦工厂漫剧制作推广平台。打破创作局限，AI 赋能每帧精彩，速来体验全新创作之旅……",
+    desc: "您好！ 欢迎成为创作者！ 您好，欢迎注册使用bollo漫剧制作推广平台。打破创作局限，AI 赋能每帧精彩，速来体验全新创作之旅……",
     date: "2026/5/21",
     ts: 65,
     read: false,
@@ -114,7 +114,7 @@ function KindIcon({ kind }: { kind: MsgKind }) {
   if (kind === "welcome") {
     return (
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#2a2a2a]">
-        <svg viewBox="0 0 24 24" fill="none" className="size-5 text-[#ff7a18]">
+        <svg viewBox="0 0 24 24" fill="none" className="size-5 text-brand">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
           <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -124,7 +124,7 @@ function KindIcon({ kind }: { kind: MsgKind }) {
   const map: Record<string, { Icon: React.ComponentType<{ className?: string }>; color: string }> = {
     like: { Icon: HeartIcon, color: "text-[#ff5cb0]" },
     comment: { Icon: MessageSquareIcon, color: "text-[#00e5c8]" },
-    system: { Icon: SparkleIcon, color: "text-[#D4FF3F]" },
+    system: { Icon: SparkleIcon, color: "text-brand" },
     reward: { Icon: GiftIcon, color: "text-orange-300" },
     notice: { Icon: InfoIcon, color: "text-white/70" },
   };
@@ -201,7 +201,7 @@ export function MessageCenter({ open, onClose }: MessageCenterProps) {
               aria-label="全部标为已读"
               className="flex size-7 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/[0.08] hover:text-white/70"
             >
-              <TrashIcon className="size-[15px]" />
+              <CheckCheckIcon className="size-[15px]" />
             </button>
           </div>
           <button
@@ -234,6 +234,7 @@ export function MessageCenter({ open, onClose }: MessageCenterProps) {
                       setMessages((prev) =>
                         prev.map((x) => (x.id === m.id ? { ...x, read: true } : x))
                       );
+                      console.log("navigate to message", m.id);
                     }}
                     className="flex w-full items-start gap-3.5 px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
                   >

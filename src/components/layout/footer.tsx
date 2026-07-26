@@ -38,7 +38,7 @@ export function Footer() {
                   key={l.label}
                   href={l.href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="text-[11px] text-white/70 transition-colors hover:text-white"
                 >
                   {l.label}
@@ -63,7 +63,7 @@ export function Footer() {
                 key={label}
                 href={href}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 aria-label={label}
                 className="text-white/70 transition-colors hover:text-white"
               >

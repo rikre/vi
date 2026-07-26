@@ -63,42 +63,42 @@ function QuickIcon({ name }: { name: string }) {
   const common = "size-5";
   if (name === "clapper")
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
         <path d="M7 8 3 6l3-2 3 2-3 2Zm7 0-3-2 3-2 3 2-3 2ZM3 9v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9Z" />
         <path d="M3 9h18" />
       </svg>
     );
   if (name === "shield")
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
         <path d="M12 2 4 5v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5Z" />
         <path d="m9 12 2 2 4-4" />
       </svg>
     );
   if (name === "star")
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={`${common} text-[#ffd166]`}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={`${common} text-brand`} aria-hidden="true">
         <path d="m12 3 2.9 5.9 6.6.95-4.75 4.65 1.1 6.5L12 17.8 6.15 20l1.1-6.5L2.5 9.85l6.6-.95Z" />
       </svg>
     );
   if (name === "sparkle")
-    return <SparkleIcon className={`${common} text-[#ffd166]`} />;
+    return <SparkleIcon className={`${common} text-brand`} aria-hidden="true" />;
   if (name === "triangle")
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
         <path d="M12 3 3 20h18Z" />
       </svg>
     );
   if (name === "briefcase")
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
         <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
         <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
       </svg>
     );
   if (name === "users")
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
@@ -149,7 +149,7 @@ function DropdownPicker({
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "flex items-center gap-1 text-[13px] transition-colors",
-          accent === "cyan" ? "text-[#5fffe0]" : "text-white/50"
+          accent === "cyan" ? "text-[#7dffe6]" : "text-white/50"
         )}
       >
         {label && (
@@ -158,7 +158,7 @@ function DropdownPicker({
             <span className="text-white/30">·</span>
           </>
         )}
-        <span className={cn(accent === "cyan" ? "text-[#5fffe0]" : "text-white/70")}>{value}</span>
+        <span className={cn(accent === "cyan" ? "text-brand" : "text-white/70")}>{value}</span>
         <ChevronDownIcon className="size-3 text-white/30" />
       </button>
       {open && (
@@ -195,6 +195,10 @@ export function HeroSection() {
   const [scriptSubTab, setScriptSubTab] = useState<ScriptSubTab>("原创剧本");
   const [scriptStyleOpen, setScriptStyleOpen] = useState(false);
   const [episodes, setEpisodes] = useState("40集");
+  const [scriptText, setScriptText] = useState("");
+  const [audience, setAudience] = useState("男频");
+  const [genre, setGenre] = useState("✦");
+  const [setting, setSetting] = useState("✦");
 
   // Short drama state
   const [shortSubMode, setShortSubMode] = useState<ShortSubMode>("Agent");
@@ -216,6 +220,7 @@ export function HeroSection() {
         )}
         alt=""
         aria-hidden
+        loading="lazy"
         className="absolute inset-0 size-full object-cover"
       />
       <div
@@ -291,7 +296,7 @@ export function HeroSection() {
                 >
                   {mode}
                   {mode === "人工模式" && (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-3.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-3.5" aria-hidden="true">
                       <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                   )}
@@ -306,7 +311,7 @@ export function HeroSection() {
                   className={cn(
                     "rounded-xl px-4 py-2 text-[13px] font-medium transition-colors",
                     scriptSubTab === sub
-                      ? "bg-gradient-to-br from-[#00e5c8] to-[#7dff8c] text-black shadow-lg"
+                      ? "bg-brand text-black shadow-lg shadow-brand/20"
                       : "bg-white/5 text-white/60 hover:text-white"
                   )}
                 >
@@ -324,6 +329,7 @@ export function HeroSection() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
+                      onClick={() => console.log("upload script")}
                       className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
                     >
                       <UploadIcon className="size-4" />
@@ -331,9 +337,10 @@ export function HeroSection() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => console.log("paste text")}
                       className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
                     >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
                         <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
                       </svg>
@@ -359,19 +366,22 @@ export function HeroSection() {
             {/* ── Script: original ── */}
             {!isShort && scriptSubTab === "原创剧本" && (
               <div className="relative">
-                <span className="absolute left-3 top-3 text-[13px] font-medium text-[#5fffe0]">#男频</span>
+                <span className="absolute left-3 top-3 text-[13px] font-medium text-[#7dffe6]">#男频</span>
                 <textarea
                   rows={4}
+                  value={scriptText}
+                  onChange={(e) => setScriptText(e.target.value)}
                   placeholder="在此处输入想法，我们将为您定制创意，至少输入15字"
                   aria-label="创作输入框"
                   className="w-full resize-none bg-transparent px-3 pt-9 text-[14px] leading-relaxed text-white placeholder:text-white/35 outline-none"
                 />
                 <button
                   type="button"
+                  onClick={() => console.log("expand")}
                   className="absolute right-3 top-3 text-white/30 transition-colors hover:text-white/60"
                   aria-label="展开"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                     <path d="M7 14v5h5M17 10V5h-5M14 10l7-7M3 21l7-7" />
                   </svg>
                 </button>
@@ -385,15 +395,17 @@ export function HeroSection() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
+                      onClick={() => console.log("import IP")}
                       className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
                     >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                         <path d="M4 7V4h16v3M9 20h6M12 4v16" />
                       </svg>
                       引用IP
                     </button>
                     <button
                       type="button"
+                      onClick={() => console.log("local file")}
                       className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
                     >
                       <UploadIcon className="size-4" />
@@ -445,22 +457,22 @@ export function HeroSection() {
                     />
                     <DropdownPicker
                       label="目标受众"
-                      value="男频"
+                      value={audience}
                       options={["男频", "女频"]}
-                      onSelect={() => {}}
+                      onSelect={(v) => setAudience(v)}
                       accent="cyan"
                     />
                     <DropdownPicker
                       label="题材类型"
-                      value="✦"
+                      value={genre}
                       options={["仙侠玄幻", "现代都市", "悬疑灵异", "架空历史"]}
-                      onSelect={() => {}}
+                      onSelect={(v) => setGenre(v)}
                     />
                     <DropdownPicker
                       label="核心设定"
-                      value="✦"
+                      value={setting}
                       options={["重生", "穿越", "系统", "快穿"]}
-                      onSelect={() => {}}
+                      onSelect={(v) => setSetting(v)}
                     />
                     <button
                       type="button"
@@ -482,7 +494,7 @@ export function HeroSection() {
                   "flex items-center gap-1.5 rounded-full px-5 py-2 text-[13.5px] font-bold text-black shadow-lg transition-all active:scale-[0.98]",
                   isShort
                     ? "bg-white/20 text-white/40 hover:bg-white/25"
-                    : "bg-gradient-to-r from-[#00e5c8] to-[#7dff8c] hover:brightness-110"
+                    : "bg-brand hover:brightness-110"
                 )}
               >
                 开始创作
@@ -506,6 +518,7 @@ export function HeroSection() {
                   <img
                     src={txi(entry.bg, "landscape_16_9")}
                     alt=""
+                    loading="lazy"
                     className="absolute inset-0 size-full object-cover opacity-35 transition-opacity group-hover:opacity-50"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent" />
@@ -555,6 +568,7 @@ export function HeroSection() {
                       "square"
                     )}
                     alt=""
+                    loading="lazy"
                     className="absolute inset-0 size-full object-cover opacity-25 transition-opacity group-hover:opacity-40"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />

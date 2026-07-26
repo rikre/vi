@@ -24,11 +24,13 @@ function SkillCard({ skill }: SkillCardProps) {
             `AI video generation skill thumbnail, ${skill.title}, cinematic animation style, dark moody background with lime green accent, professional 3D render`
           )}&image_size=landscape_4_3`}
           alt={skill.title}
+          loading="lazy"
           className="h-full w-full object-cover opacity-90 transition-all duration-500 group-hover:scale-110 group-hover:opacity-100"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         <button
           type="button"
+          onClick={() => console.log("收藏技能", skill.title)}
           className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-black/50 text-white/70 backdrop-blur-md transition-all hover:bg-black/70 hover:text-brand hover:scale-110"
           aria-label="添加收藏"
         >
@@ -70,6 +72,7 @@ function SkillCard({ skill }: SkillCardProps) {
           </div>
           <button
             type="button"
+            onClick={() => console.log("使用技能", skill.title)}
             className="rounded-lg bg-white/[0.08] px-3 py-1.5 text-[12px] font-medium text-white transition-all hover:bg-brand hover:text-brand-foreground hover:shadow-md hover:shadow-brand/20"
           >
             使用

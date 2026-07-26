@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
@@ -249,7 +251,7 @@ function ArtistKindBadge({ kind }: { kind: "real" | "virtual" }) {
 function ArtistPriceBadge({ artist }: { artist: Artist }) {
   if (artist.kind === "real" && artist.coins) {
     return (
-      <span className="flex items-center gap-1 rounded-md bg-black/55 px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-[#D4FF3F] ring-1 ring-[#D4FF3F]/30 backdrop-blur">
+      <span className="flex items-center gap-1 rounded-md bg-black/55 px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-brand ring-1 ring-brand/30 backdrop-blur">
         <CoinsIcon className="size-3" />
         {artist.coins}
       </span>
@@ -257,7 +259,7 @@ function ArtistPriceBadge({ artist }: { artist: Artist }) {
   }
   if (artist.memberFree) {
     return (
-      <span className="rounded-md bg-[#D4FF3F]/15 px-1.5 py-0.5 text-[10.5px] font-bold text-[#D4FF3F] ring-1 ring-[#D4FF3F]/30 backdrop-blur">
+      <span className="rounded-md bg-brand/15 px-1.5 py-0.5 text-[10.5px] font-bold text-brand ring-1 ring-brand/30 backdrop-blur">
         会员免费
       </span>
     );
@@ -292,6 +294,12 @@ function ArtistCard({ artist }: { artist: Artist }) {
       <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/45 opacity-0 backdrop-blur-[1px] transition-opacity duration-300 group-hover:opacity-100">
         <button
           type="button"
+          aria-label="播放试镜"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("播放试镜", artist.name);
+          }}
           className="flex size-9 items-center justify-center rounded-full bg-white/90 text-black shadow-lg transition-transform hover:scale-110"
           title="播放试镜"
         >
@@ -299,6 +307,12 @@ function ArtistCard({ artist }: { artist: Artist }) {
         </button>
         <button
           type="button"
+          aria-label="查看换装"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("查看换装", artist.name);
+          }}
           className="flex size-9 items-center justify-center rounded-full bg-white/90 text-black shadow-lg transition-transform hover:scale-110"
           title="查看换装"
         >
@@ -306,7 +320,13 @@ function ArtistCard({ artist }: { artist: Artist }) {
         </button>
         <button
           type="button"
-          className="flex size-9 items-center justify-center rounded-full bg-[#D4FF3F] text-black shadow-lg transition-transform hover:scale-110"
+          aria-label="使用"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("使用艺人", artist.name);
+          }}
+          className="flex size-9 items-center justify-center rounded-full bg-brand text-black shadow-lg transition-transform hover:scale-110"
           title="使用"
         >
           <PlusIcon className="size-4" />

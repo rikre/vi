@@ -194,14 +194,14 @@ export function SubscriptionDialog({ open, onClose }: SubscriptionDialogProps) {
         <div className="relative mt-6 flex items-center gap-3">
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => console.log("view details")}
             className="flex h-11 flex-1 items-center justify-center rounded-xl bg-white/[0.07] text-[14px] font-medium text-white/80 transition-colors hover:bg-white/[0.12]"
           >
             查看详情
           </button>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => console.log("subscribe")}
             className="flex h-11 flex-[1.4] items-center justify-center gap-1.5 rounded-xl bg-brand text-[14px] font-bold text-black shadow-[0_8px_24px_-6px_rgba(240,255,140,0.5)] transition-all hover:brightness-110 active:scale-[0.98]"
           >
             订阅套餐
@@ -214,7 +214,7 @@ export function SubscriptionDialog({ open, onClose }: SubscriptionDialogProps) {
           若您想直接充值盒饭
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => console.log("recharge")}
             className="ml-1.5 inline-flex items-center gap-0.5 font-medium text-brand transition-colors hover:brightness-110"
           >
             去充值

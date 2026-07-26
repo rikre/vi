@@ -67,7 +67,12 @@ function StyleTrialDialog({
   const previewPrompt = `${character.imagePrompt}, ${current.prompt}`;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={mode === "makeup" ? "试妆预览" : "试服装预览"}
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+    >
       <div className="relative flex h-[560px] w-[860px] max-w-[92vw] overflow-hidden rounded-2xl bg-[#141414] ring-1 ring-white/10">
         {/* 左侧样式列表 */}
         <div className="flex w-[200px] shrink-0 flex-col border-r border-white/[0.08] py-5">
@@ -136,6 +141,7 @@ function StyleTrialDialog({
               key={current.id}
               src={imageUrl(previewPrompt)}
               alt={`${character.name} - ${current.label}`}
+              loading="lazy"
               className="size-full animate-[fadeIn_0.4s_ease] object-cover"
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-4 pt-10">
@@ -197,6 +203,7 @@ export function AssetDetail({ character, onBack, onClose }: AssetDetailProps) {
               key={activeOutfit}
               src={imageUrl(mainPrompt)}
               alt={character.name}
+              loading="lazy"
               className="size-full animate-[fadeIn_0.4s_ease] object-cover"
             />
             {/* 价格角标 */}
@@ -206,7 +213,7 @@ export function AssetDetail({ character, onBack, onClose }: AssetDetailProps) {
                   <CrownIcon className="size-3" /> 会员免费
                 </span>
               ) : (
-                <span className="flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[11px] font-bold text-[#D4FF3F] backdrop-blur-sm">
+                <span className="flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[11px] font-bold text-brand backdrop-blur-sm">
                   <CoinsIcon className="size-3" /> {character.price}积分/副
                 </span>
               )}
@@ -268,7 +275,7 @@ export function AssetDetail({ character, onBack, onClose }: AssetDetailProps) {
               </div>
               <div className="flex items-center justify-between rounded-lg bg-white/[0.04] px-3.5 py-2.5 ring-1 ring-white/[0.06]">
                 <span className="text-[12px] text-white/40">演员级别</span>
-                <span className="text-[13px] font-medium text-[#D4FF3F]">
+                <span className="text-[13px] font-medium text-brand">
                   {character.level}
                 </span>
               </div>
@@ -279,7 +286,7 @@ export function AssetDetail({ character, onBack, onClose }: AssetDetailProps) {
                     免费 · 会员可免费使用
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 text-[13px] font-semibold text-[#D4FF3F]">
+                  <span className="flex items-center gap-1 text-[13px] font-semibold text-brand">
                     <CoinsIcon className="size-3.5" /> {character.price}积分/副
                   </span>
                 )}
@@ -339,6 +346,12 @@ export function AssetDetail({ character, onBack, onClose }: AssetDetailProps) {
           <div className="pt-4">
             <button
               type="button"
+              onClick={() =>
+                console.log(
+                  isFree ? "立即免费使用" : "充值积分免费购买",
+                  character.name
+                )
+              }
               className="h-11 w-full rounded-xl bg-gradient-to-r from-[#00e5c8] to-[#7dff8c] text-[14px] font-bold text-black shadow-[0_4px_24px_rgba(0,229,200,0.25)] transition-all hover:shadow-[0_4px_32px_rgba(0,229,200,0.4)] hover:brightness-105 active:scale-[0.98]"
             >
               {isFree ? "立即免费使用" : "充值积分免费购买"}

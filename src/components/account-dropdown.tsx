@@ -34,14 +34,14 @@ const STATS = [
 ];
 
 const MENU = [
-  { Icon: UserIcon, title: "个人资料", sub: "编辑昵称、头像、个人简介" },
-  { Icon: SettingsIcon, title: "账号设置", sub: "密码、绑定、安全设置" },
+  { Icon: UserIcon, title: "个人资料", sub: "编辑昵称、头像、个人简介", onClick: () => console.log("个人资料") },
+  { Icon: SettingsIcon, title: "账号设置", sub: "密码、绑定、安全设置", onClick: () => console.log("账号设置") },
 ];
 
 const SUPPORT = [
-  { Icon: HelpCircleIcon, title: "帮助中心" },
-  { Icon: MessageSquareIcon, title: "意见反馈" },
-  { Icon: InfoIcon, title: "关于 bollo" },
+  { Icon: HelpCircleIcon, title: "帮助中心", onClick: () => console.log("帮助中心") },
+  { Icon: MessageSquareIcon, title: "意见反馈", onClick: () => console.log("意见反馈") },
+  { Icon: InfoIcon, title: "关于 bollo", onClick: () => console.log("关于 bollo") },
 ];
 
 // Mock signed-in user. `team` presence marks a team-plan account and is
@@ -131,7 +131,7 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
           <div className="relative overflow-hidden px-4 pb-4 pt-4">
             <div
               aria-hidden
-              className="pointer-events-none absolute -right-10 -top-12 size-40 rounded-full bg-[#D4FF3F]/[0.07] blur-2xl"
+              className="pointer-events-none absolute -right-10 -top-12 size-40 rounded-full bg-brand/[0.07] blur-2xl"
             />
             <div className="relative flex items-start gap-3">
               <div className="relative size-14 shrink-0">
@@ -139,12 +139,14 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
                   <img
                     src="https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=cute%20anime%20avatar%20mascot%20character%20bollo%20lime%20green%20theme%20simple%20design&image_size=square"
                     alt="用户头像"
+                    loading="lazy"
                     className="size-full object-cover"
                   />
                 </div>
                 <button
                   type="button"
                   aria-label="更换头像"
+                  onClick={() => console.log("更换头像")}
                   className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full bg-[#1c1c1c] text-white/70 ring-1 ring-white/15 transition-colors hover:text-white"
                 >
                   <CameraIcon className="size-3.5" />
@@ -157,7 +159,7 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
                   <button
                     type="button"
                     aria-label="编辑资料"
-                    onClick={onClose}
+                    onClick={() => { console.log("edit profile"); onClose(); }}
                     className="flex size-5 items-center justify-center rounded-md text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/70"
                   >
                     <EditIcon className="size-3.5" />
@@ -176,7 +178,7 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
                   )}
                   <button
                     type="button"
-                    onClick={onUpgrade}
+                    onClick={() => { console.log("升级会员"); onUpgrade(); }}
                     className="flex items-center gap-1 rounded-md bg-brand px-2 py-0.5 text-[11px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
                   >
                     <CrownIcon className="size-3" />
@@ -200,8 +202,8 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
 
           {/* points bar */}
           <div className="px-3">
-            <div className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#F0FF8C]/[0.10] to-[#F0FF8C]/[0.02] px-3 py-2.5 ring-1 ring-[#F0FF8C]/15">
-              <span className="flex size-8 items-center justify-center rounded-full bg-[#D4FF3F]/15 text-brand">
+            <div className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-brand/[0.10] to-brand/[0.02] px-3 py-2.5 ring-1 ring-brand/15">
+              <span className="flex size-8 items-center justify-center rounded-full bg-brand/15 text-brand">
                 <CoinsIcon className="size-4" />
               </span>
               <div className="min-w-0 flex-1">
@@ -213,12 +215,14 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
               </div>
               <button
                 type="button"
+                onClick={() => console.log("消费记录")}
                 className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white"
               >
                 消费记录
               </button>
               <button
                 type="button"
+                onClick={() => console.log("立即充值")}
                 className="rounded-lg bg-brand px-3 py-1.5 text-[12px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
               >
                 立即充值
@@ -256,14 +260,21 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
                       </span>
                     ) : undefined
                   }
+                  onClick={() => console.log("团队管理")}
                 />
                 <Row
                   Icon={CoinsIcon}
                   title="我的积分"
                   sub="积分余额、充值、消费记录"
                   right={<span className="text-[13px] font-bold tabular-nums text-brand">{USER.points.toLocaleString()}</span>}
+                  onClick={() => console.log("我的积分")}
                 />
-                <Row Icon={GiftIcon} title="邀请好友" sub="邀请好友得积分奖励" />
+                <Row
+                  Icon={GiftIcon}
+                  title="邀请好友"
+                  sub="邀请好友得积分奖励"
+                  onClick={() => console.log("邀请好友")}
+                />
               </div>
             </div>
           </div>

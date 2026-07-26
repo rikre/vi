@@ -1,3 +1,5 @@
+"use client";
+
 import { AppShell } from "@/components/layout/app-shell";
 import { PlusIcon } from "@/components/icons";
 
@@ -64,6 +66,7 @@ export default function NewProjectPage() {
             <button
               key={t.id}
               type="button"
+              onClick={() => console.log("使用模板", t.title)}
               className="group relative flex flex-col gap-3 rounded-2xl bg-card p-5 text-left ring-1 ring-white/[0.06] transition-all hover:-translate-y-1 hover:bg-white/[0.1] hover:ring-brand/30"
             >
               {t.badge && (
@@ -92,6 +95,7 @@ export default function NewProjectPage() {
           </p>
           <button
             type="button"
+            onClick={() => console.log("进入空白工作台")}
             className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-brand px-5 text-[13px] font-semibold text-brand-foreground transition-all hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20"
           >
             <PlusIcon className="size-4" />

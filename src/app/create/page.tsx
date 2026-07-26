@@ -120,6 +120,7 @@ export default function CreatePage() {
                   <button
                     key={btn.id}
                     type="button"
+                    onClick={() => console.log(btn.label)}
                     className="flex h-8 items-center gap-2 rounded-full bg-white/[0.05] px-3 text-[12px] font-medium leading-[16px] text-white/60 transition-colors hover:bg-white/[0.08] hover:text-white"
                   >
                     <Icon className="size-3.5" />
@@ -152,6 +153,7 @@ export default function CreatePage() {
               {/* 影棚模式 CTA */}
               <button
                 type="button"
+                onClick={() => console.log("影棚模式")}
                 className="ml-auto flex h-8 items-center gap-1.5 rounded-full bg-brand px-4 text-[14px] font-medium leading-[20px] text-black transition-opacity hover:opacity-80"
               >
                 <SparkleIcon className="size-3.5" />
@@ -162,6 +164,7 @@ export default function CreatePage() {
               <button
                 type="button"
                 aria-label="发送"
+                onClick={() => console.log("发送创作请求", inputValue)}
                 className="flex h-8 items-center gap-2 rounded-full bg-brand px-3 text-[12px] font-medium text-black transition-opacity hover:opacity-80"
               >
                 <SendIcon className="size-3.5" />
@@ -172,12 +175,14 @@ export default function CreatePage() {
             {/* 快捷入口 */}
             <div className="mt-4 flex items-center justify-center gap-4">
               {QUICK_LINKS.map((link) => (
-                <span
+                <button
                   key={link.label}
+                  type="button"
+                  onClick={() => console.log(link.label)}
                   className="cursor-pointer text-[13px] text-white/40 underline-offset-4 transition-colors hover:text-white/70 hover:underline"
                 >
                   {link.label}
-                </span>
+                </button>
               ))}
             </div>
           </div>
@@ -192,6 +197,15 @@ export default function CreatePage() {
             {DISCOVER_CARDS.map((card) => (
               <div
                 key={card.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => console.log("查看作品", card.title)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    console.log("查看作品", card.title);
+                  }
+                }}
                 onMouseEnter={() => setHoveredCardId(card.id)}
                 onMouseLeave={() => setHoveredCardId(null)}
                 className="relative aspect-[0.9/1] w-[224px] shrink-0 cursor-pointer overflow-hidden rounded-2xl bg-card"
@@ -210,6 +224,7 @@ export default function CreatePage() {
                     `cinematic anime key visual, ${card.title}, moody atmosphere, lime green accent, dark background, professional poster art`
                   )}&image_size=portrait_4_3`}
                   alt={card.title}
+                  loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
