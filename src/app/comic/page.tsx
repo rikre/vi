@@ -1,65 +1,59 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import type { DragEvent, ChangeEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
+import { Modal } from "@/components/ui/modal";
 import {
   SearchIcon,
   ChevronDownIcon,
   PlusIcon,
   TrashIcon,
+  ScriptIcon,
+  LayersIcon,
+  RefreshCwIcon,
+  SparkleIcon,
+  UploadIcon,
 } from "@/components/icons";
+import {
+  SHORT_DRAMA_PROJECTS,
+  SCRIPT_PROJECTS,
+  ALL_PROJECTS,
+  type ShortDramaProject,
+  type ScriptProject,
+} from "@/lib/mock-projects";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type ShortDramaProject = {
-  id: number;
-  type: "short";
-  title: string;
-  mode: "短片" | "剧本模式" | "自由模式";
-  episodes: number;
-  createdAt: string; // ISO date string for sorting/filtering
-  updatedAt: string;
-  coverPrompt: string;
+// 严格对齐 vibe-video useCreateProjectDialog：3 种创作模式
+type ProjectType = "剧本模式" | "自由模式" | "AI重绘";
+
+type UploadedFile = {
+  name: string;
+  size: string;
+  content?: string; // txt 文件读取的文本内容（与 vibe-video 一致）
 };
 
-type ScriptProject = {
-  id: number;
-  type: "script";
-  title: string;
-  scriptType: "剧本创作" | "网文改编" | "剧本改编" | "剧本评估" | "拉片剧本";
-  status: string;
-  rating: string;
-  score: number | null;
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
-  dateStr: string;
-};
+// vibe-video useCreateProjectDialog 的默认提交字段（不在 UI 暴露）
+const DEFAULT_TAG = "创作中";
+const DEFAULT_MEMBERS = ["常谦", "张三"];
+const DEFAULT_DESCRIPTION = "新创建的短剧项目概括描述。";
 
-type Project = ShortDramaProject | ScriptProject;
+// 创建模式卡片配置（与 vibe-video ProjectList.tsx 一致：3 选 1）
+const PROJECT_TYPE_OPTIONS: ReadonlyArray<{
+  value: ProjectType;
+  label: string;
+  hint: string;
+  Icon: React.ComponentType<{ className?: string }>;
+}> = [
+  { value: "剧本模式", label: "剧本模式", hint: "上传剧本，自动解析", Icon: ScriptIcon },
+  { value: "自由模式", label: "自由模式", hint: "输入集数，自由创作", Icon: LayersIcon },
+  { value: "AI重绘", label: "AI重绘", hint: "上传原片，智能复刻", Icon: RefreshCwIcon },
+];
 
 // ─── Data ────────────────────────────────────────────────────────────────────
-
-const SHORT_DRAMA_PROJECTS: ShortDramaProject[] = [
-  { id: 1, type: "short", title: "小福星", mode: "短片", episodes: 60, createdAt: "2026-07-24", updatedAt: "几秒前", coverPrompt: "cute anime baby celestial fairy tale, warm golden light, lime green accent" },
-  { id: 2, type: "short", title: "我妈归来demo", mode: "剧本模式", episodes: 40, createdAt: "2026-07-23", updatedAt: "4小时前", coverPrompt: "drama scene mother return home, cinematic lighting, emotional moment" },
-  { id: 3, type: "short", title: "清白入席", mode: "自由模式", episodes: 24, createdAt: "2026-07-20", updatedAt: "4天前", coverPrompt: "elegant dinner party scene, formal attire, dramatic lighting" },
-  { id: 4, type: "short", title: "二哈项目", mode: "短片", episodes: 12, createdAt: "2026-07-18", updatedAt: "4天前", coverPrompt: "funny husky dog meme style, bright colors, comedy" },
-  { id: 10, type: "short", title: "世界杯大乱斗", mode: "剧本模式", episodes: 36, createdAt: "2026-07-15", updatedAt: "1天前", coverPrompt: "epic football world cup stadium, dramatic lighting, sports anime" },
-  { id: 11, type: "short", title: "都市修仙传", mode: "自由模式", episodes: 48, createdAt: "2026-07-10", updatedAt: "2天前", coverPrompt: "urban cultivation fantasy, modern city with mystical elements" },
-];
-
-const SCRIPT_PROJECTS: ScriptProject[] = [
-  { id: 5, type: "script", title: "首富千金养成计划 评估", scriptType: "剧本评估", status: "评估完成", rating: "A", score: 81, tags: ["都市情感", "霸总甜宠", "复仇"], createdAt: "2026-05-17", updatedAt: "1周前", dateStr: "2026/5/17" },
-  { id: 6, type: "script", title: "1_老", scriptType: "剧本创作", status: "评估完成", rating: "A", score: 83, tags: ["穿越", "脑洞", "反差喜剧"], createdAt: "2026-05-17", updatedAt: "1周前", dateStr: "2026/5/17" },
-  { id: 7, type: "script", title: "拼好饭帝国 评估", scriptType: "剧本评估", status: "评估完成", rating: "A", score: 79, tags: ["都市", "创业", "喜剧"], createdAt: "2026-05-03", updatedAt: "3周前", dateStr: "2026/5/3" },
-  { id: 8, type: "script", title: "网文改编-测试", scriptType: "网文改编", status: "待评估", rating: "—", score: null, tags: ["网文", "改编"], createdAt: "2026-05-10", updatedAt: "2周前", dateStr: "2026/5/10" },
-  { id: 9, type: "script", title: "拉片剧本-样例", scriptType: "拉片剧本", status: "待评估", rating: "—", score: null, tags: ["拉片", "分析"], createdAt: "2026-07-21", updatedAt: "3天前", dateStr: "2026/7/21" },
-  { id: 12, type: "script", title: "剧本改编-示例", scriptType: "剧本改编", status: "待评估", rating: "—", score: null, tags: ["改编", "测试"], createdAt: "2026-07-01", updatedAt: "5天前", dateStr: "2026/7/1" },
-];
-
-const ALL_PROJECTS: Project[] = [...SHORT_DRAMA_PROJECTS, ...SCRIPT_PROJECTS];
 
 const MAIN_TABS = [
   { key: "short", label: "短剧" },
@@ -68,17 +62,117 @@ const MAIN_TABS = [
 
 type MainTabKey = (typeof MAIN_TABS)[number]["key"];
 
-const SHORT_SUB_TABS = ["短片", "剧本模式", "自由模式"] as const;
+const SHORT_SUB_TABS = ["剧本模式", "自由模式", "AI重绘"] as const;
 const SCRIPT_SUB_TABS = ["剧本创作", "网文改编", "剧本改编", "剧本评估", "拉片剧本"] as const;
 
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function ComicPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<MainTabKey>("short");
   const [activeShortSubTab, setActiveShortSubTab] = useState<string | null>(null);
   const [activeScriptSubTab, setActiveScriptSubTab] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest");
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "recycle">("list");
+
+  // ─── 创建项目表单 state（严格对齐 vibe-video useCreateProjectDialog）──────
+  const [formName, setFormName] = useState("");
+  const [formDescription, setFormDescription] = useState("");
+  const [formProjectType, setFormProjectType] = useState<ProjectType>("剧本模式");
+  const [formEpisodesCount, setFormEpisodesCount] = useState(3);
+  const [formUploadedFile, setFormUploadedFile] = useState<UploadedFile | null>(null);
+  const [formIsDragging, setFormIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const resetForm = useCallback(() => {
+    setFormName("");
+    setFormDescription("");
+    setFormProjectType("剧本模式");
+    setFormEpisodesCount(3);
+    setFormUploadedFile(null);
+    setFormIsDragging(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, []);
+
+  const closeCreateModal = useCallback(() => {
+    setCreateModalOpen(false);
+    resetForm();
+  }, [resetForm]);
+
+  // 与 vibe-video useCreateProjectDialog.captureFile 严格一致：txt/text 文件读取文本内容
+  const captureFile = useCallback(async (file: File) => {
+    const sizeStr = (file.size / 1024 / 1024).toFixed(2) + " MB";
+    const canReadText =
+      file.type.startsWith("text/") ||
+      file.name.toLowerCase().endsWith(".txt");
+    const content = canReadText ? await file.text() : undefined;
+    setFormUploadedFile({ name: file.name, size: sizeStr, content });
+  }, []);
+
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setFormIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setFormIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setFormIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      void captureFile(e.dataTransfer.files[0]);
+    }
+  }, [captureFile]);
+
+  const handleFileSelect = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      void captureFile(e.target.files[0]);
+    }
+  }, [captureFile]);
+
+  const removeFile = useCallback(() => {
+    setFormUploadedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, []);
+
+  // 提交校验：与 vibe-video useCreateProjectDialog.submit 严格一致
+  const canSubmit = (() => {
+    if (!formName.trim()) return false;
+    if ((formProjectType === "剧本模式" || formProjectType === "AI重绘") && !formUploadedFile) return false;
+    if (formProjectType === "自由模式" && (!Number.isFinite(formEpisodesCount) || formEpisodesCount < 1)) return false;
+    return true;
+  })();
+
+  // 与 vibe-video useCreateProjectDialog.submit 严格一致：补齐 tag/coverType/members/coverUrl/scriptContent 默认字段
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+    const submitData = {
+      name: formName,
+      tag: DEFAULT_TAG,
+      coverType: "gradient" as const,
+      members: DEFAULT_MEMBERS,
+      description: formDescription || DEFAULT_DESCRIPTION,
+      projectType: formProjectType,
+      plannedEpisodesCount:
+        formProjectType === "自由模式" ? formEpisodesCount : undefined,
+      scriptFileName: formUploadedFile?.name,
+      scriptContent: formUploadedFile?.content,
+      // vibe-video: coverType === 'image' 时才返回 coverUrl，默认 gradient 不返回
+      coverUrl: undefined,
+    };
+    // Mock 提交：与 vibe-video 一致，创建成功后自动进入项目详情工作台
+    console.log("创建项目", submitData);
+    closeCreateModal();
+    // 跳转到新项目的工作台（mock：使用下一个自增 ID）
+    const newProjectId = (Math.max(0, ...ALL_PROJECTS.map((p) => p.id)) || 0) + 1;
+    router.push(`/comic/${newProjectId}`);
+  };
 
   // Filter projects
   const filteredProjects = useMemo(() => {
@@ -171,8 +265,13 @@ export default function ComicPage() {
               {/* Recycle bin */}
               <button
                 type="button"
-                onClick={() => console.log("recycle bin")}
-                className="flex h-9 items-center gap-2 rounded-lg border border-white/[0.2] bg-white/[0.1] px-3 py-2 text-[14px] text-white transition-colors hover:bg-white/[0.12]"
+                aria-pressed={viewMode === "recycle"}
+                onClick={() => setViewMode((v) => (v === "recycle" ? "list" : "recycle"))}
+                className={`flex h-9 items-center gap-2 rounded-lg border px-3 py-2 text-[14px] transition-colors ${
+                  viewMode === "recycle"
+                    ? "border-brand/40 bg-brand/10 text-brand"
+                    : "border-white/[0.2] bg-white/[0.1] text-white hover:bg-white/[0.12]"
+                }`}
               >
                 <TrashIcon className="size-4" />
                 回收站
@@ -260,7 +359,24 @@ export default function ComicPage() {
 
           {/* Grid */}
           <div className="pb-10 pt-[32px]">
-            {filteredProjects.length === 0 ? (
+            {viewMode === "recycle" ? (
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-white/[0.04] text-white/30">
+                  <TrashIcon className="size-7" />
+                </div>
+                <p className="text-[15px] font-medium text-white/60">回收站为空</p>
+                <p className="mt-1 text-[13px] text-white/40">
+                  删除的项目会在此处保留 30 天，之后将永久删除
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className="mt-6 flex h-9 items-center rounded-lg border border-white/[0.15] bg-white/[0.04] px-4 text-[13px] text-white/80 transition-colors hover:bg-white/[0.08]"
+                >
+                  返回项目列表
+                </button>
+              </div>
+            ) : filteredProjects.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-white/[0.04] text-white/30">
                   <SearchIcon className="size-7" />
@@ -275,17 +391,33 @@ export default function ComicPage() {
             ) : (
               <div className="grid auto-rows-fr grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {/* Create new card */}
-                <Link
-                  href="/create"
-                  className="group flex h-full min-h-[240px] flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-white/[0.12] transition-colors hover:border-brand/40"
-                >
-                  <div className="flex size-12 items-center justify-center rounded-full bg-white/[0.04] text-white/40 transition-colors group-hover:bg-brand/10 group-hover:text-brand">
-                    <PlusIcon className="size-6" />
-                  </div>
-                  <span className="text-[14px] text-white/40 transition-colors group-hover:text-white/70">
-                    进入创作
-                  </span>
-                </Link>
+                {activeTab === "short" ? (
+                  <button
+                    type="button"
+                    onClick={() => setCreateModalOpen(true)}
+                    aria-label="创建短剧项目"
+                    className="group flex h-full min-h-[240px] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-white/[0.12] transition-colors hover:border-brand/40"
+                  >
+                    <div className="flex size-12 items-center justify-center rounded-full bg-white/[0.04] text-white/40 transition-colors group-hover:bg-brand/10 group-hover:text-brand">
+                      <PlusIcon className="size-6" />
+                    </div>
+                    <span className="text-[14px] text-white/40 transition-colors group-hover:text-white/70">
+                      进入创作
+                    </span>
+                  </button>
+                ) : (
+                  <Link
+                    href="/create"
+                    className="group flex h-full min-h-[240px] flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-white/[0.12] transition-colors hover:border-brand/40"
+                  >
+                    <div className="flex size-12 items-center justify-center rounded-full bg-white/[0.04] text-white/40 transition-colors group-hover:bg-brand/10 group-hover:text-brand">
+                      <PlusIcon className="size-6" />
+                    </div>
+                    <span className="text-[14px] text-white/40 transition-colors group-hover:text-white/70">
+                      进入创作
+                    </span>
+                  </Link>
+                )}
 
                 {filteredProjects.map((project) =>
                   project.type === "short" ? (
@@ -299,6 +431,190 @@ export default function ComicPage() {
           </div>
         </div>
       </div>
+
+      {/* 创建项目弹窗：严格对齐 vibe-video ProjectList.tsx 的 Create Project Modal */}
+      <Modal
+        open={createModalOpen}
+        onClose={closeCreateModal}
+        title="创建项目"
+        className="w-full max-w-lg p-6"
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <SparkleIcon className="size-5 text-brand" />
+            <h2 className="text-[18px] font-bold text-white">创建项目</h2>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* 项目名称 */}
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-white/40">
+              项目名称 &lt;必填&gt;
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="如: 媳妇井 / 绝境逃生"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              className="h-10 w-full rounded-lg border border-white/[0.12] bg-white/[0.04] px-4 text-[14px] text-white outline-none transition-colors placeholder:text-white/30 focus:border-brand"
+            />
+          </div>
+
+          {/* 项目简介 */}
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-white/40">
+              项目简介 &lt;选填&gt;
+            </label>
+            <textarea
+              rows={2}
+              placeholder="一句话描述项目定位，将展示在概览页全剧总览中"
+              value={formDescription}
+              onChange={(e) => setFormDescription(e.target.value)}
+              className="w-full resize-none rounded-lg border border-white/[0.12] bg-white/[0.04] px-4 py-2.5 text-[14px] text-white outline-none transition-colors placeholder:text-white/30 focus:border-brand"
+            />
+          </div>
+
+          {/* 创作模式（3 选 1，严格对齐 vibe-video） */}
+          <div>
+            <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-white/40">
+              创作模式
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              {PROJECT_TYPE_OPTIONS.map((opt) => {
+                const { Icon } = opt;
+                const active = formProjectType === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setFormProjectType(opt.value);
+                      // vibe-video：切到自由模式时清空已上传文件
+                      if (opt.value === "自由模式") removeFile();
+                    }}
+                    className={`flex min-h-[76px] flex-col items-start justify-center gap-1.5 rounded-[11px] border p-3.5 text-left transition-all ${
+                      active
+                        ? "border-brand bg-brand/[0.06] text-brand shadow-[0_0_22px_rgba(212,255,63,0.05)]"
+                        : "border-white/[0.1] bg-white/[0.025] text-white/90 hover:border-white/[0.2]"
+                    }`}
+                  >
+                    <Icon className="size-4" />
+                    <span className="text-[13px] font-semibold">{opt.label}</span>
+                    <small className="text-[10px] text-white/40">{opt.hint}</small>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 条件字段：上传 / 集数（严格对齐 vibe-video） */}
+          {formProjectType === "剧本模式" || formProjectType === "AI重绘" ? (
+            <div>
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                {formProjectType === "AI重绘" ? "上传原片 <必填>" : "上传剧本 <必填>"}
+              </label>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                accept={formProjectType === "AI重绘" ? ".mp4,.mov,.zip" : ".txt,.pdf,.docx,.doc"}
+                className="hidden"
+              />
+              {!formUploadedFile ? (
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-5 text-center transition-all ${
+                    formIsDragging
+                      ? "border-brand bg-brand/[0.05]"
+                      : "border-white/[0.12] bg-white/[0.03] hover:border-white/[0.25]"
+                  }`}
+                >
+                  <div className="flex items-center justify-center rounded-full bg-white/[0.06] p-2.5 text-brand">
+                    <UploadIcon className="size-5" />
+                  </div>
+                  <div>
+                    <p className="text-[12px] font-medium text-white/80">
+                      点击或将文件拖件到这里上传
+                    </p>
+                    <p className="mt-0.5 text-[10px] text-white/40">
+                      {formProjectType === "AI重绘"
+                        ? "mp4/mov ≤500M · 或上传 zip 批量导入"
+                        : "支持 PDF, TXT, WORD (最大 50MB)"}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between gap-2.5 rounded-xl border border-white/[0.12] bg-white/[0.04] p-3">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <div className="flex shrink-0 items-center justify-center rounded-lg bg-brand/10 p-1.5 text-brand">
+                      <ScriptIcon className="size-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-[12px] font-semibold text-white/90">
+                        {formUploadedFile.name}
+                      </p>
+                      <p className="mt-0.5 font-mono text-[10px] text-white/40">
+                        {formUploadedFile.size} • 已检测
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeFile}
+                    className="rounded-lg px-2 py-1 text-[11px] font-semibold text-red-400 transition-all hover:bg-red-500/10 hover:text-red-300"
+                  >
+                    删除
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                集数 &lt;必填&gt;
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={200}
+                required
+                value={formEpisodesCount}
+                onChange={(e) =>
+                  setFormEpisodesCount(Math.max(1, Number(e.target.value) || 1))
+                }
+                placeholder="请输入计划集数"
+                className="h-10 w-full rounded-lg border border-white/[0.12] bg-white/[0.04] px-4 text-[14px] text-white outline-none transition-colors placeholder:text-white/30 focus:border-brand"
+              />
+              <p className="mt-1.5 text-[10px] text-white/40">
+                自由模式会按集数创建空白剧集。
+              </p>
+            </div>
+          )}
+
+          {/* 操作按钮 */}
+          <div className="flex justify-end gap-3 pt-4 text-[14px] font-semibold">
+            <button
+              type="button"
+              onClick={closeCreateModal}
+              className="flex h-10 items-center rounded-lg bg-white/[0.06] px-4 text-white/60 transition-colors hover:bg-white/[0.12] hover:text-white/80"
+            >
+              取消
+            </button>
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className="flex h-10 items-center rounded-lg bg-brand px-6 font-semibold text-brand-foreground shadow-lg shadow-brand/10 transition-all hover:bg-brand-hover active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {formProjectType === "AI重绘" ? "创建重制项目" : "创建项目"}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </AppShell>
   );
 }

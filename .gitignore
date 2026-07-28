@@ -57,3 +57,14 @@ temp/
 
 # Embedded template repo (has its own .git, not part of this project)
 temp-template/
+
+# Reference repos (cloned source code for reference, not part of project)
+.vibe-video-ref/
+
+# Local design references (screenshots, research notes - too large/noisy for git)
+docs/design-references/screenshot-*.png
+docs/design-references/test-screenshots/
+docs/design-references/bugfix/
+
+# Memory files (user-specific)
+.trae-cn/
