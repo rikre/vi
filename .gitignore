@@ -68,3 +68,12 @@ docs/design-references/bugfix/
 
 # Memory files (user-specific)
 .trae-cn/
+
+# Coverage / test artifacts
+coverage/
+test-results/
+
+# Agent local configs
+.amazonq/
+.continue/
+.clinerules

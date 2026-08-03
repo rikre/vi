@@ -60,6 +60,76 @@ export type ScriptProject = {
 
 export type Project = ShortDramaProject | ScriptProject;
 
+// ─── 团队成员与协作（对齐 vibe-video data.ts） ─────────────────────────────
+
+export const ALL_MEMBERS = ["常谦", "张三", "李四", "王五", "赵六"] as const;
+
+export type ActivityType = "video" | "image" | "audio" | "script";
+
+export type Activity = {
+  id: string;
+  user: string;
+  action: string;
+  timeLabel: string;
+  type: ActivityType;
+};
+
+export type MemberStat = {
+  rank: number;
+  name: string;
+  avatarLetter: string;
+  computeCost: number;
+  outputSummary: string;
+};
+
+/** 判断项目归属（对齐 vibe-video useProjectFilter：members[0]==='常谦' 即我创建的） */
+export function isCreatedByMe(project: ShortDramaProject): boolean {
+  return project.members[0] === "常谦";
+}
+
+/** 生成项目动态 mock（对齐 vibe-video ProjectDetail 最近动态） */
+export function getProjectActivities(project: ShortDramaProject): Activity[] {
+  const users = project.members.length > 0 ? project.members : ["常谦"];
+  const templates: Omit<Activity, "id" | "user">[] = [
+    { action: `生成了第1集分镜视频`, timeLabel: "10分钟前", type: "video" },
+    { action: `生成了角色「${project.characters[0]?.name ?? "主角"}」形象`, timeLabel: "1小时前", type: "image" },
+    { action: "合成了第1集配音音频", timeLabel: "3小时前", type: "audio" },
+    { action: "创建了该短剧项目", timeLabel: project.updatedAt, type: "script" },
+  ];
+  return templates.map((t, i) => ({
+    id: `act-${project.id}-${i}`,
+    user: users[i % users.length],
+    ...t,
+  }));
+}
+
+/** 生成成员统计 mock（对齐 vibe-video memberStats） */
+export function getMemberStats(project: ShortDramaProject): MemberStat[] {
+  const per = Math.round(project.computeSpent / Math.max(project.members.length, 1));
+  const outputs = ["生视频 12 · 生图 8", "生视频 6 · 音频 4", "生图 10 · 脚本 2", "生视频 3"];
+  return project.members.map((name, i) => ({
+    rank: i + 1,
+    name,
+    avatarLetter: name.slice(0, 1).toUpperCase(),
+    computeCost: per + (project.members.length - i) * 37,
+    outputSummary: outputs[i % outputs.length],
+  }));
+}
+
+/** 相对时间（对齐 vibe-video formatProjectDate） */
+export function formatProjectDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return dateStr;
+  const diff = Date.now() - date.getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days <= 0) return "今天";
+  if (days === 1) return "昨天";
+  if (days < 30) return `${days}天前`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}个月前`;
+  return `${Math.floor(months / 12)}年前`;
+}
+
 // ─── 工作台子类型 ────────────────────────────────────────────────────────
 
 export type ScriptChapter = {
@@ -86,7 +156,7 @@ export type ShotItem = {
   characters: string[];
   scene: string;
   prompt: string;
-  status: "未开始" | "已生成" | "失败";
+  status: "未开始" | "生成中" | "已生成" | "失败";
 };
 
 // ─── Mock 数据 ───────────────────────────────────────────────────────────

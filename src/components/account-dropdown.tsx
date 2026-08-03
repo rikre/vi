@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   EditIcon,
@@ -92,6 +93,8 @@ function Row({
 }
 
 export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-right" }: AccountDropdownProps) {
+  const router = useRouter();
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -260,7 +263,7 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
                       </span>
                     ) : undefined
                   }
-                  onClick={() => console.log("团队管理")}
+                  onClick={() => { onClose(); router.push("/team"); }}
                 />
                 <Row
                   Icon={CoinsIcon}

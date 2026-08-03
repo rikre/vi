@@ -84,7 +84,7 @@ export function PublishDialog({ open, onClose }: PublishDialogProps) {
         <label className="flex h-[140px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/[0.02] transition-colors hover:border-white/30 hover:bg-white/[0.04]">
           <VideoCameraIcon className="mb-2 size-6 text-white/50" />
           <span className="text-[13px] font-medium text-white/70">
-            上传视频 <span className="text-pink-400">*</span>
+            上传视频 <span className="text-danger">*</span>
           </span>
           <span className="mt-1 text-[11px] text-white/35">
             点击或拖拽上传
@@ -102,7 +102,7 @@ export function PublishDialog({ open, onClose }: PublishDialogProps) {
         <label className="flex h-[140px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/[0.02] transition-colors hover:border-white/30 hover:bg-white/[0.04]">
           <ImageIcon className="mb-2 size-6 text-white/50" />
           <span className="text-[13px] font-medium text-white/70">
-            上传封面 <span className="text-pink-400">*</span>
+            上传封面 <span className="text-danger">*</span>
           </span>
           <span className="mt-1 text-[11px] text-white/35">
             点击或拖拽上传
@@ -121,7 +121,7 @@ export function PublishDialog({ open, onClose }: PublishDialogProps) {
       {/* 关联项目 */}
       <div className="mb-4 flex items-center justify-between">
         <label className="text-[14px] font-semibold text-white">
-          关联项目 <span className="text-pink-400">*</span>
+          关联项目 <span className="text-danger">*</span>
         </label>
         <button
           type="button"
@@ -135,7 +135,7 @@ export function PublishDialog({ open, onClose }: PublishDialogProps) {
       {/* 作品名称 */}
       <div className="mb-4">
         <label className="mb-2 block text-[14px] font-semibold text-white">
-          作品名称 <span className="text-pink-400">*</span>
+          作品名称 <span className="text-danger">*</span>
         </label>
         <div className="relative">
           <input
@@ -155,7 +155,7 @@ export function PublishDialog({ open, onClose }: PublishDialogProps) {
       {/* 作品描述 */}
       <div className="mb-4">
         <label className="mb-2 block text-[14px] font-semibold text-white">
-          作品描述 <span className="text-pink-400">*</span>
+          作品描述 <span className="text-danger">*</span>
         </label>
         <div className="relative">
           <textarea
@@ -194,7 +194,7 @@ export function PublishDialog({ open, onClose }: PublishDialogProps) {
           type="button"
           onClick={() => setPublicCanvas(!publicCanvas)}
           className={`relative h-[22px] w-[40px] rounded-full transition-colors ${
-            publicCanvas ? "bg-pink-500" : "bg-white/20"
+            publicCanvas ? "bg-danger" : "bg-white/20"
           }`}
           aria-label="公开画布开关"
         >

@@ -30,6 +30,38 @@ A reusable template for reverse-engineering any website into a clean, modern Nex
 - 2-space indentation
 - Responsive: mobile-first
 
+## 设计规范唯一来源：DESIGN.md
+
+**`DESIGN.md`（项目根目录）是本项目视觉设计的 single source of truth。** 所有颜色、字体、圆角、间距、组件样式的权威定义以 DESIGN.md 的 YAML front matter 为准，`src/app/globals.css` 的 CSS 变量与其保持一致。
+
+- 修改任何设计 token 时，**先改 DESIGN.md，再同步 globals.css**，最后跑 `npx @google/design.md lint DESIGN.md` 验证（必须 0 errors）
+- 新增组件样式时，对照 DESIGN.md 的 `components:` 区块，复用已定义的组件 token，不要自创新色值
+- 导出的 Tailwind theme 参考：`docs/design-review/design-tokens.css`（由 `npx @google/design.md export --format css-tailwind DESIGN.md` 生成）
+
+## Design Token 规范（Round 1 确立）
+
+- **禁止**使用 Tailwind 默认色板（`text-red-400`、`bg-green-500` 等）
+- **必须**使用语义 token：`text-danger`、`text-success`、`text-warning`、`text-info`
+- 品牌色使用 `text-brand` / `bg-brand` / `text-brand-foreground`
+- 页面级 max-width：列表页 `max-w-[1400px]`，详情页 `max-w-[960px]`
+- 图标统一使用 `@/components/icons`，禁止从 `lucide-react` 直接导入
+- 移动端侧边栏 <768px 收起为 64px（`w-[64px] md:w-[108px]`）
+
+## 模块状态追踪
+
+| 模块 | 状态 | Round | 备注 |
+|------|------|-------|------|
+| 设计 Token 层 | ✅ 生产就绪 | R1 | 语义色 token + ESLint 防护 + 移动端 |
+| 项目创建+列表 | ✅ 生产就绪 | R1 | localStorage 持久化 |
+| 项目工作台-概览 | ✅ 功能完整 | R2.1 | useProjectOverview Hook + 持久化 |
+| 剧本编辑器 | ✅ 功能完整 | R2.2 | useScriptEditor + 提取资产模拟 |
+| 资产管理 | ✅ 功能完整 | R2.3 | useAssetManager + CRUD/批量生成 |
+| 分镜工作台 | ✅ 功能完整 | R2.4 | useStoryboard + 批量生视频模拟 |
+| 成片组装 | ✅ 功能完整 | R2.5 | useFilmAssembly + 导出模拟 |
+| AI重绘向导 | ✅ 功能完整 | R2.6 | useRemakeStudio + 四步拆分 |
+| 广场/技能/资产库 | ✅ 功能完整 | R2.7 | 搜索/筛选/详情 + 孤儿清理 |
+| 发布中心 | ✅ 功能完整 | R2.8 | 平台绑定模拟 |
+
 ## Design Principles
 - **Pixel-perfect emulation** — match the target's spacing, colors, typography exactly
 - **No personal aesthetic changes during emulation phase** — match 1:1 first, customize later

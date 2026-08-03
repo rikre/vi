@@ -1,24 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { ShortDramaProject } from "@/lib/mock-projects";
+import { useProjectOverview } from "@/hooks/use-project-overview";
 import {
   EditIcon,
   DocumentIcon,
   LayersIcon,
-  UserGroupIcon,
-  PlusIcon,
-  CoinsIcon,
   AssetIcon,
+  UserIcon,
   SceneIcon,
   PropIcon,
-  UserIcon,
+  CoinsIcon,
 } from "@/components/icons";
-
-const txi = (prompt: string, size: string) =>
-  `https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=${encodeURIComponent(
-    prompt
-  )}&image_size=${size}`;
+import { EpisodeGrid } from "./overview/episode-grid";
+import { ActivityFeed, MemberPanel } from "./overview/activity-aside";
 
 type AssetRow = {
   label: string;
@@ -27,36 +23,31 @@ type AssetRow = {
   status: string;
 };
 
-type MemberRow = {
-  name: string;
-  role: string;
-  computeCost: number;
-  avatarLetter: string;
-};
-
 export default function OverviewTab({
   project,
 }: {
   project: ShortDramaProject;
 }) {
-  const [isEditingOverview, setIsEditingOverview] = useState(false);
   const [overviewText, setOverviewText] = useState(project.description);
-
   const {
+    isEditingOverview,
+    setIsEditingOverview,
+    inviteOpen,
+    inviteSelected,
+    inviteCandidates,
+    episodes,
+    activities,
+    memberStats,
     progress,
     completedEpisodes,
     totalEpisodes,
-  } = useMemo(() => {
-    const list = project.episodeList ?? [];
-    const total = list.length || project.episodes || 0;
-    const completed = list.filter((e) => e.status === "已完成").length;
-    const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
-    return {
-      progress: percent,
-      completedEpisodes: completed,
-      totalEpisodes: total,
-    };
-  }, [project.episodeList, project.episodes]);
+    saveOverview,
+    markAllEpisodesDone,
+    toggleInviteCandidate,
+    confirmInvite,
+    closeInvite,
+    openInvite,
+  } = useProjectOverview(project);
 
   const assetRows: AssetRow[] = [
     { label: "角色", count: project.assets.characters, Icon: UserIcon, status: "已就绪" },
@@ -64,24 +55,10 @@ export default function OverviewTab({
     { label: "道具", count: project.assets.props, Icon: PropIcon, status: "部分待补" },
   ];
 
-  const members: MemberRow[] = useMemo(() => {
-    return project.members.map((name, idx) => {
-      const computeCost = Math.round(project.computeSpent / Math.max(project.members.length, 1));
-      const role = idx === 0 ? "负责人" : "协作者";
-      return {
-        name,
-        role,
-        computeCost,
-        avatarLetter: name.slice(0, 1).toUpperCase(),
-      };
-    });
-  }, [project.members, project.computeSpent]);
-
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-      {/* Left Main Dashboard (3 columns wide) */}
       <div className="space-y-8 lg:col-span-3">
-        {/* Section A: 全剧总览 */}
+        {/* 全剧总览 */}
         <div className="rounded-2xl bg-[#141414] p-6 ring-1 ring-white/[0.08] backdrop-blur-sm">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -95,7 +72,7 @@ export default function OverviewTab({
             {isEditingOverview ? (
               <button
                 type="button"
-                onClick={() => setIsEditingOverview(false)}
+                onClick={() => saveOverview(overviewText)}
                 className="flex items-center gap-1 rounded-full bg-brand px-3 py-1 text-[11px] font-semibold text-black shadow-lg shadow-brand/20 transition-colors hover:brightness-110"
               >
                 完成编辑
@@ -121,12 +98,12 @@ export default function OverviewTab({
             />
           ) : (
             <p className="whitespace-pre-line text-[14px] leading-relaxed text-white/60">
-              {overviewText || "待补充全剧总览"}
+              {project.description || "待补充全剧总览"}
             </p>
           )}
         </div>
 
-        {/* Section B: 项目概览 */}
+        {/* 项目概览 */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-full bg-brand/15 p-1.5 text-brand ring-1 ring-brand/20">
@@ -138,7 +115,6 @@ export default function OverviewTab({
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {/* Card 1: 进度 */}
             <div className="flex flex-col justify-between rounded-2xl bg-[#141414] p-6 ring-1 ring-white/[0.08] backdrop-blur-sm">
               <div>
                 <span className="text-[12px] font-medium text-white/40">项目总进度</span>
@@ -151,7 +127,6 @@ export default function OverviewTab({
               </span>
             </div>
 
-            {/* Card 2: 资产 */}
             <div className="flex flex-col justify-between rounded-2xl bg-[#141414] p-6 ring-1 ring-white/[0.08] backdrop-blur-sm">
               <div>
                 <span className="text-[12px] font-medium text-white/40">资产总数</span>
@@ -165,7 +140,6 @@ export default function OverviewTab({
               </span>
             </div>
 
-            {/* Card 3: 算力 */}
             <div className="flex flex-col justify-between rounded-2xl bg-[#141414] p-6 ring-1 ring-white/[0.08] backdrop-blur-sm">
               <div>
                 <span className="text-[12px] font-medium text-white/40">算力消耗</span>
@@ -181,7 +155,7 @@ export default function OverviewTab({
           </div>
         </div>
 
-        {/* Section C: 资产统计 */}
+        {/* 资产统计 */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-full bg-brand/15 p-1.5 text-brand ring-1 ring-brand/20">
@@ -222,54 +196,24 @@ export default function OverviewTab({
             ))}
           </div>
         </div>
+
+        <EpisodeGrid episodes={episodes} onMarkAllDone={markAllEpisodesDone} />
+
+        <ActivityFeed activities={activities} />
       </div>
 
       {/* Right Column: 成员统计 */}
       <div className="lg:col-span-1">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-full bg-brand/15 p-1.5 text-brand ring-1 ring-brand/20">
-                <UserGroupIcon className="size-4" />
-              </span>
-              <h3 className="text-[13px] font-bold uppercase tracking-wider text-white/70">
-                成员统计
-              </h3>
-            </div>
-            <button
-              type="button"
-              className="flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-[11px] font-bold text-black shadow-lg shadow-brand/20 transition-colors hover:brightness-110"
-            >
-              <PlusIcon className="size-3" />
-              邀请
-            </button>
-          </div>
-
-          <div className="rounded-2xl bg-[#141414] p-4 ring-1 ring-white/[0.08] backdrop-blur-sm">
-            <ul className="space-y-3">
-              {members.map((m) => (
-                <li
-                  key={m.name}
-                  className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/[0.04]"
-                >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-brand/30 bg-brand/10 text-[12px] font-bold text-brand">
-                    {m.avatarLetter}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-semibold text-white">{m.name}</p>
-                    <p className="text-[11px] text-white/40">{m.role}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-mono text-[12px] font-bold text-brand">
-                      +{m.computeCost}
-                    </p>
-                    <p className="text-[10px] text-white/30">算力</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        <MemberPanel
+          memberStats={memberStats}
+          inviteOpen={inviteOpen}
+          inviteSelected={inviteSelected}
+          inviteCandidates={inviteCandidates}
+          onOpenInvite={openInvite}
+          onToggleInvite={toggleInviteCandidate}
+          onConfirmInvite={confirmInvite}
+          onCloseInvite={closeInvite}
+        />
       </div>
     </div>
   );

@@ -27,8 +27,8 @@ const MODE_META: Record<
   { label: string; Icon: React.ComponentType<{ className?: string }>; accent: string }
 > = {
   剧本模式: { label: "剧本模式", Icon: ScriptIcon, accent: "text-brand" },
-  自由模式: { label: "自由模式", Icon: LayersIcon, accent: "text-purple-400" },
-  AI重绘: { label: "AI重绘", Icon: RefreshCwIcon, accent: "text-pink-400" },
+  自由模式: { label: "自由模式", Icon: LayersIcon, accent: "text-info" },
+  AI重绘: { label: "AI重绘", Icon: RefreshCwIcon, accent: "text-info" },
 };
 
 interface WorkbenchProps {
@@ -161,7 +161,7 @@ export function Workbench({ project }: WorkbenchProps) {
               <button
                 type="button"
                 aria-label="删除项目"
-                className="flex size-9 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] text-white/60 backdrop-blur-sm transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+                className="flex size-9 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] text-white/60 backdrop-blur-sm transition-colors hover:border-danger/30 hover:bg-danger/10 hover:text-danger"
               >
                 <TrashIcon className="size-4" />
               </button>

@@ -14,13 +14,13 @@ import {
   DownloadIcon,
   CheckIcon,
 } from "@/components/icons";
+import { useFilmAssembly } from "@/hooks/use-film-assembly";
+import { FinalModule, ModulePanel } from "./film/module-panel";
 
 const txi = (prompt: string, size: string) =>
   `https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=${encodeURIComponent(
     prompt
   )}&image_size=${size}`;
-
-type FinalModule = "分镜视频" | "配音" | "配字幕";
 
 const MODULE_TABS: { key: FinalModule; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
   { key: "分镜视频", label: "分镜视频", Icon: VideoCameraIcon },
@@ -30,35 +30,32 @@ const MODULE_TABS: { key: FinalModule; label: string; Icon: React.ComponentType<
 
 const TIMELINE_SEGMENTS = [
   { label: "分镜 1", duration: "00:02", color: "bg-brand/70" },
-  { label: "分镜 2", duration: "00:02", color: "bg-cyan-400/70" },
-  { label: "分镜 3", duration: "00:02", color: "bg-purple-400/70" },
-  { label: "分镜 4", duration: "00:02", color: "bg-amber-400/70" },
+  { label: "分镜 2", duration: "00:02", color: "bg-info/70" },
+  { label: "分镜 3", duration: "00:02", color: "bg-info/70" },
+  { label: "分镜 4", duration: "00:02", color: "bg-warning/70" },
 ];
 
 function statusDotClass(status: Episode["status"]) {
   if (status === "已完成") return "bg-brand";
-  if (status === "进行中") return "bg-amber-400";
+  if (status === "进行中") return "bg-warning";
   return "bg-white/30";
 }
-
 export default function FilmTab({
   project,
 }: {
   project: ShortDramaProject;
 }) {
-  const episodes = useMemo<Episode[]>(() => {
-    return (
-      project.episodeList ?? [
-        {
-          id: "ep-1",
-          number: 1,
-          title: "第1集",
-          status: "进行中",
-          progress: 50,
-        },
-      ]
-    );
-  }, [project.episodeList]);
+  const {
+    episodes,
+    subtitles,
+    setSubtitles,
+    generateShotVideo,
+    generatingShotIds,
+    exportVideo,
+    downloadVideo,
+    isExporting,
+    exportSuccess,
+  } = useFilmAssembly(project);
 
   const [activeEpisodeIdx, setActiveEpisodeIdx] = useState(0);
   const [finalModule, setFinalModule] = useState<FinalModule>("分镜视频");
@@ -71,6 +68,12 @@ export default function FilmTab({
     if (!activeEpisode) return [];
     return (project.shots ?? []).filter((s) => s.episode === activeEpisode.number);
   }, [project.shots, activeEpisode]);
+
+  const currentShotId = episodeShots[activeSegmentIdx]?.id;
+  const isGeneratingCurrentShot = !!currentShotId && generatingShotIds.has(currentShotId);
+  const handleGenerateCurrentShot = () => {
+    if (currentShotId) generateShotVideo(currentShotId);
+  };
 
   return (
     <div className="flex gap-4">
@@ -106,7 +109,6 @@ export default function FilmTab({
           })}
         </ul>
       </aside>
-
       {/* 右侧：主工作区 */}
       <section className="flex-1 space-y-6 p-2">
         {/* 1. 顶部操作栏 */}
@@ -120,13 +122,20 @@ export default function FilmTab({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-white/80 backdrop-blur-sm transition-colors hover:bg-white/[0.08]"
+              onClick={exportVideo}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-white/80 backdrop-blur-sm transition-colors hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <UploadIcon className="size-3.5" />
-              导出
+              {exportSuccess ? (
+                <CheckIcon className="size-3.5 text-success" />
+              ) : (
+                <UploadIcon className="size-3.5" />
+              )}
+              {isExporting ? "导出中..." : exportSuccess ? "导出成功" : "导出"}
             </button>
             <button
               type="button"
+              onClick={downloadVideo}
               className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-white/80 backdrop-blur-sm transition-colors hover:bg-white/[0.08]"
             >
               <DownloadIcon className="size-3.5" />
@@ -134,7 +143,6 @@ export default function FilmTab({
             </button>
           </div>
         </header>
-
         {/* 2. 播放器卡片 */}
         <div className="overflow-hidden rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] backdrop-blur-sm">
           <div className="relative aspect-video w-full">
@@ -204,7 +212,6 @@ export default function FilmTab({
             <span className="text-[11px] text-white/40">1x</span>
           </div>
         </div>
-
         {/* 3. 模块 Tab */}
         <div className="flex w-fit items-center gap-1 rounded-full bg-white/15 p-1 ring-1 ring-white/10 backdrop-blur-md">
           {MODULE_TABS.map(({ key, label, Icon }) => {
@@ -226,7 +233,6 @@ export default function FilmTab({
             );
           })}
         </div>
-
         {/* 4. 时间轴 */}
         <div className="rounded-2xl bg-[#1b1b1b]/90 p-4 ring-1 ring-white/10 backdrop-blur-sm">
           {/* 时间标尺 */}
@@ -272,7 +278,6 @@ export default function FilmTab({
             })}
           </div>
         </div>
-
         {/* 5. 模块面板 */}
         <ModulePanel
           module={finalModule}
@@ -283,174 +288,12 @@ export default function FilmTab({
             role: c.role,
             hasVoice: false,
           }))}
+          subtitles={subtitles}
+          onSubtitlesChange={setSubtitles}
+          onGenerateCurrentShot={handleGenerateCurrentShot}
+          isGeneratingCurrentShot={isGeneratingCurrentShot}
         />
       </section>
-    </div>
-  );
-}
-
-// ─── 模块面板 ─────────────────────────────────────────────────────────────
-
-type ModulePanelProps = {
-  module: FinalModule;
-  shots: ShotItem[];
-  characters: { id: string; name: string; role: string; hasVoice: boolean }[];
-};
-
-function ModulePanel({ module, shots, characters }: ModulePanelProps) {
-  if (module === "分镜视频") {
-    return (
-      <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-white/[0.08] backdrop-blur-sm">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h4 className="flex items-center gap-2 text-[14px] font-semibold text-white">
-              <VideoCameraIcon className="size-4 text-brand" />
-              分镜视频
-            </h4>
-            <p className="mt-1 text-[12px] text-white/50">
-              查看当前集的分镜片段，支持逐段生成、编辑和替换。
-            </p>
-          </div>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded-full bg-brand px-3 py-1.5 text-[12px] font-semibold text-black shadow-lg shadow-brand/20 transition-colors hover:bg-brand-hover"
-          >
-            <VideoCameraIcon className="size-3.5" />
-            生成当前分镜视频
-          </button>
-        </div>
-        <ul className="space-y-2">
-          {shots.length === 0 ? (
-            <li className="rounded-lg border border-dashed border-white/[0.08] px-3 py-4 text-center text-[12px] text-white/30">
-              暂无分镜片段
-            </li>
-          ) : (
-            shots.map((shot) => (
-              <li
-                key={shot.id}
-                className="flex items-center gap-3 rounded-lg bg-white/[0.02] px-3 py-2 ring-1 ring-white/[0.06]"
-              >
-                <span className="font-mono text-[11px] text-white/40">
-                  #{shot.index}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[12px] font-medium text-white/80">
-                    {shot.description}
-                  </p>
-                  <p className="text-[10px] text-white/40">
-                    {shot.scene} · {shot.duration}
-                  </p>
-                </div>
-                <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ring-1 ${
-                    shot.status === "已生成"
-                      ? "bg-brand/15 text-brand ring-brand/30"
-                      : shot.status === "失败"
-                      ? "bg-red-500/15 text-red-400 ring-red-500/30"
-                      : "bg-white/[0.06] text-white/40 ring-white/10"
-                  }`}
-                >
-                  {shot.status}
-                </span>
-              </li>
-            ))
-          )}
-        </ul>
-      </div>
-    );
-  }
-
-  if (module === "配音") {
-    return (
-      <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-white/[0.08] backdrop-blur-sm">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h4 className="flex items-center gap-2 text-[14px] font-semibold text-white">
-              <MicrophoneIcon className="size-4 text-brand" />
-              配音
-            </h4>
-            <p className="mt-1 text-[12px] text-white/50">
-              为角色对白绑定音色，生成旁白和对白音轨。
-            </p>
-          </div>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded-full bg-brand px-3 py-1.5 text-[12px] font-semibold text-black shadow-lg shadow-brand/20 transition-colors hover:bg-brand-hover"
-          >
-            <MicrophoneIcon className="size-3.5" />
-            进入配音
-          </button>
-        </div>
-        <ul className="space-y-2">
-          {characters.length === 0 ? (
-            <li className="rounded-lg border border-dashed border-white/[0.08] px-3 py-4 text-center text-[12px] text-white/30">
-              暂无角色对白
-            </li>
-          ) : (
-            characters.map((c) => (
-              <li
-                key={c.id}
-                className="flex items-center gap-3 rounded-lg bg-white/[0.02] px-3 py-2 ring-1 ring-white/[0.06]"
-              >
-                <span className="flex size-7 items-center justify-center rounded-full bg-brand/10 text-[11px] font-semibold text-brand">
-                  {c.name.slice(0, 1)}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[12px] font-medium text-white/80">
-                    {c.name}
-                  </p>
-                  <p className="text-[10px] text-white/40">{c.role}</p>
-                </div>
-                <span
-                  className={`flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium ring-1 ${
-                    c.hasVoice
-                      ? "bg-brand/15 text-brand ring-brand/30"
-                      : "bg-amber-500/15 text-amber-300 ring-amber-500/30"
-                  }`}
-                >
-                  {c.hasVoice ? (
-                    <>
-                      <CheckIcon className="size-2.5" />
-                      已绑定
-                    </>
-                  ) : (
-                    "未绑定"
-                  )}
-                </span>
-              </li>
-            ))
-          )}
-        </ul>
-      </div>
-    );
-  }
-
-  // 配字幕
-  return (
-    <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-white/[0.08] backdrop-blur-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h4 className="flex items-center gap-2 text-[14px] font-semibold text-white">
-            <ScriptIcon className="size-4 text-brand" />
-            配字幕
-          </h4>
-          <p className="mt-1 text-[12px] text-white/50">
-            编辑字幕文本、时间轴和字幕样式。
-          </p>
-        </div>
-        <button
-          type="button"
-          className="flex items-center gap-1.5 rounded-full bg-brand px-3 py-1.5 text-[12px] font-semibold text-black shadow-lg shadow-brand/20 transition-colors hover:bg-brand-hover"
-        >
-          <ScriptIcon className="size-3.5" />
-          进入配字幕
-        </button>
-      </div>
-      <textarea
-        rows={6}
-        defaultValue={`[00:00] 第${1}集 字幕样例\n[00:08] （旁白）冬日院落，水缸结冰\n[00:23] 林安：又是这一缸冷水`}
-        className="w-full resize-none rounded-lg border border-white/[0.08] bg-black p-3 text-[12px] leading-relaxed text-white/80 outline-none transition-colors focus:border-brand/40"
-      />
     </div>
   );
 }

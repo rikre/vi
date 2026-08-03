@@ -52,22 +52,22 @@ export function Sidebar({ onOpenSubscription, onOpenMessages }: SidebarProps) {
     <>
       <nav
         aria-label="Home v2 side navigation"
-        className="relative flex h-full w-[108px] shrink-0 flex-col items-stretch overflow-y-auto bg-black"
+        className="relative flex h-full w-[64px] shrink-0 flex-col items-stretch overflow-y-auto bg-black md:w-[108px]"
       >
         {/* Logo */}
-        <div className="flex justify-center px-3 pt-[20px]">
+        <div className="flex justify-center px-2 pt-[20px] md:px-3">
           <Link
             href="/home"
             aria-label="bollo 首页"
             title="回到首页"
-            className="inline-flex w-full items-center text-foreground"
+            className="inline-flex w-full items-center justify-center text-foreground"
           >
-            <BolloLogo className="w-full h-auto" />
+            <BolloLogo className="w-[36px] h-auto md:w-full md:h-auto" />
           </Link>
         </div>
 
         {/* Top nav group */}
-        <div className="flex flex-col items-center gap-1 px-[12px] pt-[24px]">
+        <div className="flex flex-col items-center gap-1 px-2 pt-[24px] md:px-[12px]">
           {NAV_ITEMS.map((item) => {
             const active = !item.action && pathname === item.href;
             const { Icon } = item;
@@ -76,11 +76,11 @@ export function Sidebar({ onOpenSubscription, onOpenMessages }: SidebarProps) {
                 <span className="flex shrink-0 items-center justify-center text-current">
                   <Icon className="size-4" />
                 </span>
-                <span className="text-[14px] leading-none">{item.label}</span>
+                <span className="hidden text-[14px] leading-none md:inline">{item.label}</span>
               </>
             );
             const cls = cn(
-              "flex h-[54px] w-[84px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-[12px] px-2 py-[8px] transition-colors",
+              "flex h-[54px] w-[48px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-[12px] px-2 py-[8px] transition-colors md:w-[84px]",
               active
                 ? "bg-brand/10 text-brand"
                 : "text-white/60 hover:bg-white/[0.05] hover:text-white"
@@ -115,10 +115,10 @@ export function Sidebar({ onOpenSubscription, onOpenMessages }: SidebarProps) {
         </div>
 
         {/* Divider line */}
-        <div className="mx-[12px] my-2 h-px bg-white/10" />
+        <div className="mx-2 my-2 h-px bg-white/10 md:mx-[12px]" />
 
         {/* Bottom group — help, avatar, messages (vertical stack) */}
-        <div className="flex flex-col items-center gap-1 px-[12px] pb-[20px]">
+        <div className="flex flex-col items-center gap-1 px-2 pb-[20px] md:px-[12px]">
           {/* Help / QR */}
           <button
             type="button"

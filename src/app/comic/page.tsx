@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect, useSyncExternalStore } from "react";
 import type { DragEvent, ChangeEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,14 +16,24 @@ import {
   RefreshCwIcon,
   SparkleIcon,
   UploadIcon,
+  MoreIcon,
+  EditIcon,
+  UserGroupIcon,
+  CoinsIcon,
+  CheckIcon,
 } from "@/components/icons";
 import {
-  SHORT_DRAMA_PROJECTS,
-  SCRIPT_PROJECTS,
   ALL_PROJECTS,
+  ALL_MEMBERS,
+  formatProjectDate,
   type ShortDramaProject,
   type ScriptProject,
 } from "@/lib/mock-projects";
+import {
+  createProject,
+  getProjects,
+  subscribeToProjects,
+} from "@/lib/project-store";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -36,9 +46,6 @@ type UploadedFile = {
   content?: string; // txt 文件读取的文本内容（与 vibe-video 一致）
 };
 
-// vibe-video useCreateProjectDialog 的默认提交字段（不在 UI 暴露）
-const DEFAULT_TAG = "创作中";
-const DEFAULT_MEMBERS = ["常谦", "张三"];
 const DEFAULT_DESCRIPTION = "新创建的短剧项目概括描述。";
 
 // 创建模式卡片配置（与 vibe-video ProjectList.tsx 一致：3 选 1）
@@ -77,6 +84,26 @@ export default function ComicPage() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "recycle">("list");
 
+  // 归属筛选
+  // 卡片更多菜单
+  const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
+
+  // 重命名弹窗
+  const [renameTarget, setRenameTarget] = useState<ShortDramaProject | null>(null);
+  const [renameInput, setRenameInput] = useState("");
+
+  // 删除确认
+  const [deleteTarget, setDeleteTarget] = useState<ShortDramaProject | null>(null);
+
+  // 邀请弹窗
+  const [inviteTarget, setInviteTarget] = useState<ShortDramaProject | null>(null);
+  const [inviteSelected, setInviteSelected] = useState<string[]>([]);
+  const projects = useSyncExternalStore(
+    subscribeToProjects,
+    getProjects,
+    () => ALL_PROJECTS
+  );
+
   // ─── 创建项目表单 state（严格对齐 vibe-video useCreateProjectDialog）──────
   const [formName, setFormName] = useState("");
   const [formDescription, setFormDescription] = useState("");
@@ -100,6 +127,26 @@ export default function ComicPage() {
     setCreateModalOpen(false);
     resetForm();
   }, [resetForm]);
+
+  // 点击外部/ESC 关闭更多菜单
+  useEffect(() => {
+    if (activeMenuId === null) return;
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest("[data-more-menu-root]")) return;
+      setActiveMenuId(null);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveMenuId(null);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [activeMenuId]);
 
   // 与 vibe-video useCreateProjectDialog.captureFile 严格一致：txt/text 文件读取文本内容
   const captureFile = useCallback(async (file: File) => {
@@ -152,46 +199,101 @@ export default function ComicPage() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!canSubmit) return;
-    const submitData = {
-      name: formName,
-      tag: DEFAULT_TAG,
-      coverType: "gradient" as const,
-      members: DEFAULT_MEMBERS,
+    const project = createProject({
+      title: formName,
       description: formDescription || DEFAULT_DESCRIPTION,
-      projectType: formProjectType,
-      plannedEpisodesCount:
-        formProjectType === "自由模式" ? formEpisodesCount : undefined,
-      scriptFileName: formUploadedFile?.name,
+      mode: formProjectType,
+      plannedEpisodes: formProjectType === "自由模式" ? formEpisodesCount : undefined,
+      sourceFileName: formUploadedFile?.name,
       scriptContent: formUploadedFile?.content,
-      // vibe-video: coverType === 'image' 时才返回 coverUrl，默认 gradient 不返回
-      coverUrl: undefined,
-    };
-    // Mock 提交：与 vibe-video 一致，创建成功后自动进入项目详情工作台
-    console.log("创建项目", submitData);
+    });
     closeCreateModal();
-    // 跳转到新项目的工作台（mock：使用下一个自增 ID）
-    const newProjectId = (Math.max(0, ...ALL_PROJECTS.map((p) => p.id)) || 0) + 1;
-    router.push(`/comic/${newProjectId}`);
+    router.push(`/comic/${project.id}`);
   };
+
+  // 重命名
+  const openRename = useCallback((p: ShortDramaProject) => {
+    setActiveMenuId(null);
+    setRenameTarget(p);
+    setRenameInput(p.title);
+  }, []);
+  const closeRename = useCallback(() => {
+    setRenameTarget(null);
+    setRenameInput("");
+  }, []);
+  const handleRenameSave = useCallback(() => {
+    if (!renameTarget) return;
+    const trimmed = renameInput.trim();
+    if (!trimmed) return;
+    console.log("重命名项目", { id: renameTarget.id, oldName: renameTarget.title, newName: trimmed });
+    closeRename();
+  }, [renameTarget, renameInput, closeRename]);
+
+  // 删除
+  const openDelete = useCallback((p: ShortDramaProject) => {
+    setActiveMenuId(null);
+    setDeleteTarget(p);
+  }, []);
+  const closeDelete = useCallback(() => setDeleteTarget(null), []);
+  // ESC 关闭删除确认
+  useEffect(() => {
+    if (!deleteTarget) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeDelete();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [deleteTarget, closeDelete]);
+  const handleDeleteConfirm = useCallback(() => {
+    if (!deleteTarget) return;
+    console.log("删除项目", { id: deleteTarget.id, name: deleteTarget.title });
+    closeDelete();
+  }, [deleteTarget, closeDelete]);
+
+  // 邀请
+  const openInvite = useCallback((p: ShortDramaProject) => {
+    setActiveMenuId(null);
+    setInviteTarget(p);
+    setInviteSelected([]);
+  }, []);
+  const closeInvite = useCallback(() => {
+    setInviteTarget(null);
+    setInviteSelected([]);
+  }, []);
+  const toggleInviteMember = useCallback((name: string) => {
+    setInviteSelected((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
+    );
+  }, []);
+  const handleInviteConfirm = useCallback(() => {
+    if (!inviteTarget) return;
+    if (inviteSelected.length === 0) return;
+    console.log("邀请成员", {
+      projectId: inviteTarget.id,
+      projectName: inviteTarget.title,
+      members: inviteSelected,
+    });
+    closeInvite();
+  }, [inviteTarget, inviteSelected, closeInvite]);
 
   // Filter projects
   const filteredProjects = useMemo(() => {
-    let projects = ALL_PROJECTS;
+    let visibleProjects = projects;
 
     // Filter by main tab
     if (activeTab === "short") {
-      projects = projects.filter((p) => p.type === "short");
+      visibleProjects = visibleProjects.filter((p) => p.type === "short");
       // Filter by short sub-tab
       if (activeShortSubTab) {
-        projects = projects.filter(
+          visibleProjects = visibleProjects.filter(
           (p) => p.type === "short" && p.mode === activeShortSubTab
         );
       }
     } else if (activeTab === "script") {
-      projects = projects.filter((p) => p.type === "script");
+      visibleProjects = visibleProjects.filter((p) => p.type === "script");
       // Filter by script sub-tab
       if (activeScriptSubTab) {
-        projects = projects.filter(
+          visibleProjects = visibleProjects.filter(
           (p) => p.type === "script" && p.scriptType === activeScriptSubTab
         );
       }
@@ -199,29 +301,28 @@ export default function ComicPage() {
 
     // Filter by search
     if (searchQuery) {
-      projects = projects.filter((p) =>
+      visibleProjects = visibleProjects.filter((p) =>
         p.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Sort by createdAt
-    projects = [...projects].sort((a, b) => {
+    visibleProjects = [...visibleProjects].sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
       return sortBy === "newest" ? dateB - dateA : dateA - dateB;
     });
 
-    return projects;
-  }, [activeTab, activeShortSubTab, activeScriptSubTab, searchQuery, sortBy]);
+    return visibleProjects;
+  }, [activeTab, activeShortSubTab, activeScriptSubTab, projects, searchQuery, sortBy]);
 
   const countFor = (key: MainTabKey) => {
-    if (key === "short") return SHORT_DRAMA_PROJECTS.length;
-    return SCRIPT_PROJECTS.length;
+    return projects.filter((project) => project.type === key).length;
   };
 
+  // 归属筛选数量徽标
   const handleTabChange = (tab: MainTabKey) => {
     setActiveTab(tab);
-    // Reset sub-tabs when switching main tab
     setActiveShortSubTab(null);
     setActiveScriptSubTab(null);
   };
@@ -377,17 +478,13 @@ export default function ComicPage() {
                 </button>
               </div>
             ) : filteredProjects.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-white/[0.04] text-white/30">
-                  <SearchIcon className="size-7" />
-                </div>
-                <p className="text-[15px] font-medium text-white/60">
-                  未找到匹配的项目
-                </p>
-                <p className="mt-1 text-[13px] text-white/40">
-                  尝试更换关键词或创建新项目
-                </p>
-              </div>
+              <EmptyProjectsState
+                hasFilter={
+                  !!searchQuery ||
+                  !!activeShortSubTab ||
+                  !!activeScriptSubTab
+                }
+              />
             ) : (
               <div className="grid auto-rows-fr grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {/* Create new card */}
@@ -421,7 +518,19 @@ export default function ComicPage() {
 
                 {filteredProjects.map((project) =>
                   project.type === "short" ? (
-                    <ShortDramaCard key={project.id} project={project} />
+                    <ShortDramaCard
+                      key={project.id}
+                      project={project}
+                      menuOpen={activeMenuId === project.id}
+                      onToggleMenu={() =>
+                        setActiveMenuId(
+                          activeMenuId === project.id ? null : project.id
+                        )
+                      }
+                      onRename={() => openRename(project)}
+                      onInvite={() => openInvite(project)}
+                      onDelete={() => openDelete(project)}
+                    />
                   ) : (
                     <ScriptCard key={project.id} project={project} />
                   )
@@ -566,7 +675,7 @@ export default function ComicPage() {
                   <button
                     type="button"
                     onClick={removeFile}
-                    className="rounded-lg px-2 py-1 text-[11px] font-semibold text-red-400 transition-all hover:bg-red-500/10 hover:text-red-300"
+                    className="rounded-lg px-2 py-1 text-[11px] font-semibold text-danger transition-all hover:bg-danger/10 hover:text-danger"
                   >
                     删除
                   </button>
@@ -615,49 +724,321 @@ export default function ComicPage() {
           </div>
         </form>
       </Modal>
+
+      {/* 重命名弹窗 */}
+      <Modal
+        open={!!renameTarget}
+        onClose={closeRename}
+        title="重命名项目"
+        className="w-full max-w-md p-6"
+      >
+        <h2 className="mb-1 text-[18px] font-bold text-white">重命名项目</h2>
+        <p className="mb-5 text-[13px] text-white/50">修改项目名称以便更好地识别。</p>
+        <input
+          type="text"
+          autoFocus
+          value={renameInput}
+          onChange={(e) => setRenameInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleRenameSave();
+          }}
+          placeholder="请输入项目名称"
+          className="h-10 w-full rounded-lg border border-white/[0.12] bg-white/[0.04] px-4 text-[14px] text-white outline-none transition-colors placeholder:text-white/30 focus:border-brand"
+        />
+        <div className="mt-6 flex justify-end gap-3 text-[14px] font-semibold">
+          <button
+            type="button"
+            onClick={closeRename}
+            className="flex h-10 items-center rounded-lg bg-white/[0.06] px-4 text-white/60 transition-colors hover:bg-white/[0.12] hover:text-white/80"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            onClick={handleRenameSave}
+            disabled={!renameInput.trim()}
+            className="flex h-10 items-center rounded-lg bg-brand px-6 font-semibold text-brand-foreground transition-all hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            保存
+          </button>
+        </div>
+      </Modal>
+
+      {/* 邀请成员弹窗 */}
+      <Modal
+        open={!!inviteTarget}
+        onClose={closeInvite}
+        title={`邀请成员到「${inviteTarget?.title ?? ""}」`}
+        className="w-full max-w-md p-6"
+      >
+        <h2 className="mb-1 text-[18px] font-bold text-white">
+          邀请成员到「{inviteTarget?.title}」
+        </h2>
+        <p className="mb-5 text-[13px] text-white/50">
+          选择要邀请加入该项目的成员。
+        </p>
+        {inviteTarget && (() => {
+          const candidates = ALL_MEMBERS.filter(
+            (m) => !inviteTarget.members.includes(m)
+          );
+          if (candidates.length === 0) {
+            return (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.02] py-10 text-center">
+                <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-white/[0.04] text-white/30">
+                  <UserGroupIcon className="size-5" />
+                </div>
+                <p className="text-[14px] font-medium text-white/60">
+                  所有成员都已加入该项目
+                </p>
+              </div>
+            );
+          }
+          return (
+            <div className="flex flex-wrap gap-2">
+              {candidates.map((name) => {
+                const selected = inviteSelected.includes(name);
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => toggleInviteMember(name)}
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-all ${
+                      selected
+                        ? "border-brand/40 bg-brand/10 text-brand"
+                        : "border-white/[0.1] bg-white/[0.04] text-white/70 hover:border-white/[0.2] hover:text-white"
+                    }`}
+                  >
+                    {selected && <CheckIcon className="size-3.5" />}
+                    {name}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })()}
+        <div className="mt-6 flex justify-end gap-3 text-[14px] font-semibold">
+          <button
+            type="button"
+            onClick={closeInvite}
+            className="flex h-10 items-center rounded-lg bg-white/[0.06] px-4 text-white/60 transition-colors hover:bg-white/[0.12] hover:text-white/80"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            onClick={handleInviteConfirm}
+            disabled={inviteSelected.length === 0}
+            className="flex h-10 items-center rounded-lg bg-brand px-6 font-semibold text-brand-foreground transition-all hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            确认邀请{inviteSelected.length > 0 ? ` (${inviteSelected.length})` : ""}
+          </button>
+        </div>
+      </Modal>
+
+      {/* 删除确认模态 */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeDelete();
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#141414] p-6 outline-none"
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-danger/10 text-danger">
+                <TrashIcon className="size-7" />
+              </div>
+              <h2 className="text-[18px] font-bold text-white">确认删除项目</h2>
+              <p className="mt-2 max-w-sm text-[13px] leading-relaxed text-white/50">
+                项目「<span className="text-white/80">{deleteTarget.title}</span>」将被永久移除，项目下的所有剧本、资产、分镜和成片数据将不可恢复。
+              </p>
+            </div>
+            <div className="mt-6 flex justify-end gap-3 text-[14px] font-semibold">
+              <button
+                type="button"
+                onClick={closeDelete}
+                className="flex h-10 items-center rounded-lg bg-white/[0.06] px-4 text-white/60 transition-colors hover:bg-white/[0.12] hover:text-white/80"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConfirm}
+                className="flex h-10 items-center rounded-lg bg-danger px-6 font-semibold text-white transition-all hover:bg-danger"
+              >
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
 
 // ─── Short Drama Card (图一风格) ─────────────────────────────────────────────
 
-function ShortDramaCard({ project }: { project: ShortDramaProject }) {
+function formatNumber(n: number): string {
+  return n.toLocaleString("en-US");
+}
+
+type ShortDramaCardProps = {
+  project: ShortDramaProject;
+  menuOpen: boolean;
+  onToggleMenu: () => void;
+  onRename: () => void;
+  onInvite: () => void;
+  onDelete: () => void;
+};
+
+function ShortDramaCard({
+  project,
+  menuOpen,
+  onToggleMenu,
+  onRename,
+  onInvite,
+  onDelete,
+}: ShortDramaCardProps) {
   return (
-    <Link
-      href={`/comic/${project.id}`}
-      className="group block overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141414] transition-all hover:border-white/[0.15]"
+    <div className="group relative">
+      <Link
+        href={`/comic/${project.id}`}
+        className="block overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141414] transition-all hover:border-white/[0.15]"
+      >
+        {/* Cover */}
+        <div className="relative aspect-[16/9] overflow-hidden">
+          <img
+            src={`https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=${encodeURIComponent(
+              project.coverPrompt
+            )}&image_size=landscape_4_3`}
+            alt={project.title}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-80"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
+          {/* Mode badge — top left */}
+          <div className="absolute left-2.5 top-2.5 rounded-md bg-brand/20 px-2 py-0.5 text-[11px] font-medium text-brand backdrop-blur-sm">
+            {project.mode}
+          </div>
+
+          {/* Episodes badge — top right (left of more button) */}
+          <div className="absolute right-10 top-2.5 rounded-md bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white/80 backdrop-blur-sm">
+            {project.episodes} 集
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="px-3.5 py-3">
+          <h3 className="truncate pr-7 text-[15px] font-semibold text-white">
+            {project.title}
+          </h3>
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <p className="truncate text-[12px] text-white/40">
+              {formatProjectDate(project.updatedAt)}
+            </p>
+            <div className="flex shrink-0 items-center gap-1 text-white/50">
+              <CoinsIcon className="size-3" />
+              <span className="text-[11px] tabular-nums">
+                {formatNumber(project.computeSpent)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Link>
+
+      {/* More button (card top-right, over cover) */}
+      <div data-more-menu-root className="absolute right-2 top-2 z-10">
+        <button
+          type="button"
+          aria-label="更多操作"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleMenu();
+          }}
+          className={`flex size-7 items-center justify-center rounded-md backdrop-blur-sm transition-all ${
+            menuOpen
+              ? "bg-black/70 text-white"
+              : "bg-black/40 text-white/70 opacity-0 hover:bg-black/70 hover:text-white group-hover:opacity-100"
+          }`}
+        >
+          <MoreIcon className="size-3.5" />
+        </button>
+
+        {/* Dropdown menu */}
+        {menuOpen && (
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="absolute right-0 top-9 z-20 w-40 overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a1c] py-1 shadow-xl shadow-black/40"
+          >
+            <MenuItem
+              label="编辑名称"
+              Icon={EditIcon}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onRename();
+              }}
+            />
+            <MenuItem
+              label="邀请分享"
+              Icon={UserGroupIcon}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onInvite();
+              }}
+            />
+            <div className="my-1 h-px bg-white/[0.06]" />
+            <MenuItem
+              label="删除项目"
+              Icon={TrashIcon}
+              danger
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete();
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MenuItem({
+  label,
+  Icon,
+  onClick,
+  danger,
+}: {
+  label: string;
+  Icon: React.ComponentType<{ className?: string }>;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full items-center gap-2 px-3 py-2 text-[13px] transition-colors ${
+        danger
+          ? "text-danger hover:bg-danger/10 hover:text-danger"
+          : "text-white/80 hover:bg-white/[0.06] hover:text-white"
+      }`}
     >
-      {/* Cover */}
-      <div className="relative aspect-[16/9] overflow-hidden">
-        <img
-          src={`https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=${encodeURIComponent(
-            project.coverPrompt
-          )}&image_size=landscape_4_3`}
-          alt={project.title}
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover opacity-60 transition-opacity duration-300 group-hover:opacity-80"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-
-        {/* Mode badge — top left */}
-        <div className="absolute left-2.5 top-2.5 rounded-md bg-brand/20 px-2 py-0.5 text-[11px] font-medium text-brand backdrop-blur-sm">
-          {project.mode}
-        </div>
-
-        {/* Episodes badge — top right */}
-        <div className="absolute right-2.5 top-2.5 rounded-md bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white/80 backdrop-blur-sm">
-          {project.episodes} 集
-        </div>
-      </div>
-
-      {/* Info */}
-      <div className="px-3.5 py-3">
-        <h3 className="truncate text-[15px] font-semibold text-white">
-          {project.title}
-        </h3>
-        <p className="mt-1 text-[12px] text-white/40">{project.updatedAt}</p>
-      </div>
-    </Link>
+      <Icon className="size-3.5" />
+      {label}
+    </button>
   );
 }
 
@@ -733,5 +1114,36 @@ function ScriptCard({ project }: { project: ScriptProject }) {
         <span className="text-[12px] text-white/30">{project.dateStr}</span>
       </div>
     </Link>
+  );
+}
+
+// ─── Empty State ────────────────────────────────────────────────────────────
+
+function EmptyProjectsState({ hasFilter }: { hasFilter: boolean }) {
+  if (hasFilter) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-white/[0.04] text-white/30">
+          <SearchIcon className="size-7" />
+        </div>
+        <p className="text-[15px] font-medium text-white/60">
+          未找到匹配的项目
+        </p>
+        <p className="mt-1 text-[13px] text-white/40">
+          尝试更换关键词或调整筛选条件
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-white/[0.04] text-white/30">
+        <LayersIcon className="size-7" />
+      </div>
+      <p className="text-[15px] font-medium text-white/60">还没有任何项目</p>
+      <p className="mt-1 text-[13px] text-white/40">
+        点击上方「进入创作」开始你的第一个项目
+      </p>
+    </div>
   );
 }

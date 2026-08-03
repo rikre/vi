@@ -125,7 +125,7 @@ function KindIcon({ kind }: { kind: MsgKind }) {
     like: { Icon: HeartIcon, color: "text-[#ff5cb0]" },
     comment: { Icon: MessageSquareIcon, color: "text-[#00e5c8]" },
     system: { Icon: SparkleIcon, color: "text-brand" },
-    reward: { Icon: GiftIcon, color: "text-orange-300" },
+    reward: { Icon: GiftIcon, color: "text-warning" },
     notice: { Icon: InfoIcon, color: "text-white/70" },
   };
   const s = map[kind] ?? map.notice;
@@ -188,7 +188,7 @@ export function MessageCenter({ open, onClose }: MessageCenterProps) {
         role="dialog"
         aria-modal="true"
         aria-label="消息中心"
-        className="fixed bottom-0 top-0 left-[108px] z-50 flex w-[420px] max-w-[calc(100vw-108px)] flex-col bg-[#1a1a1a] shadow-2xl"
+        className="fixed bottom-0 top-0 left-[64px] z-50 flex w-[420px] max-w-[calc(100vw-64px)] flex-col bg-[#1a1a1a] shadow-2xl md:left-[108px] md:max-w-[calc(100vw-108px)]"
       >
         {/* Header */}
         <div className="flex h-[52px] shrink-0 items-center justify-between px-5">

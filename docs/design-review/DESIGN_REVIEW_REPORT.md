@@ -7,6 +7,26 @@
 
 ---
 
+## 修复状态（Round 1 更新 — 2026-07-31）
+
+| 编号 | 问题 | 状态 | 修复方式 |
+|------|------|------|---------|
+| CRIT-1 | --brand-foreground 未定义 | ✅ 已修复 | globals.css 定义 #11130f + @theme inline 映射 |
+| CRIT-2 | 空状态缺失 | ⚠️ /comic 已修复，/asset 待处理 | 移至 Round 2 |
+| CRIT-3 | 移动端无响应式 | ✅ Round 1 修复 | 侧边栏 <768px 收起为 64px，文字标签隐藏 |
+| CRIT-4 | 彩虹渐变 | ✅ 已修复 | 已替换为品牌色渐变 |
+| CRIT-5 | emoji 图标 | ✅ 已修复 | 替换为自定义 SVG |
+| CRIT-6 | font-[834] 字重 | ✅ 已修复 | 统一为 font-bold |
+| MED-1 | 图标库混用 | ✅ 已修复 | lucide-react 导入已清零 |
+| MED-2 | Tailwind 色板泄漏 | ✅ Round 1 修复 | 50 处 → 语义 token（success/warning/danger/info） |
+| MED-4 | max-width 不统一 | ✅ 已统一 | 页面级统一 1400px |
+| MED-5 | 语义状态色未令牌化 | ✅ Round 1 修复 | 新增 4 个语义 token + @theme inline 映射 |
+| MED-3 | 卡片宽高比不统一 | ⚠️ 待处理 | 移至 Round 2 |
+| MED-6 | "我的技能"按钮低可见度 | ⚠️ 待处理 | 移至 Round 2 |
+| MED-7 | 语义图标误用 | ⚠️ 待处理 | 移至 Round 2 |
+
+---
+
 ## 一、各页面视觉问题详述
 
 ### 1. /home（发现页）

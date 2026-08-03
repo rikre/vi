@@ -1,21 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useSyncExternalStore } from "react";
 import { useParams } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { Workbench } from "@/components/project-detail/workbench";
 import { getProjectById } from "@/lib/mock-projects";
+import { getProject, subscribeToProjects } from "@/lib/project-store";
 import { FolderIcon, ChevronLeftIcon } from "@/components/icons";
 import Link from "next/link";
 
 // ─── 旧详情页样式（剧本类型项目用） ────────────────────────────────────────
 // 剧本类型项目仍走简化详情页（无工作台）
 import type { ScriptProject } from "@/lib/mock-projects";
-
-const txi = (prompt: string, size: string) =>
-  `https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=${encodeURIComponent(
-    prompt
-  )}&image_size=${size}`;
 
 function ScriptProjectDetail({ project }: { project: ScriptProject }) {
   return (
@@ -131,9 +127,10 @@ export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
   const projectId = Number(params?.id);
 
-  const project = useMemo(
-    () => (Number.isFinite(projectId) ? getProjectById(projectId) : undefined),
-    [projectId]
+  const project = useSyncExternalStore(
+    subscribeToProjects,
+    () => (Number.isFinite(projectId) ? getProject(projectId) : undefined),
+    () => (Number.isFinite(projectId) ? getProjectById(projectId) : undefined)
   );
 
   if (!project) {

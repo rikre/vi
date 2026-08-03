@@ -1,7 +1,9 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
-import { PublishIcon } from "@/components/icons";
+import { CheckIcon, PublishIcon } from "@/components/icons";
+import { cn } from "@/lib/utils";
 
 const PLATFORMS = [
   {
@@ -42,7 +44,18 @@ const PLATFORMS = [
   },
 ];
 
+type BindStatus = "未绑定" | "绑定中" | "已绑定";
+
 export default function PublishPage() {
+  const [statuses, setStatuses] = useState<Record<string, BindStatus>>({});
+
+  const bindPlatform = useCallback((id: string) => {
+    setStatuses((prev) => ({ ...prev, [id]: "绑定中" }));
+    setTimeout(() => {
+      setStatuses((prev) => ({ ...prev, [id]: "已绑定" }));
+    }, 1200);
+  }, []);
+
   return (
     <AppShell>
       <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-6 pb-10">
@@ -61,7 +74,9 @@ export default function PublishPage() {
               <PublishIcon className="size-5" />
             </div>
             <div>
-              <h2 className="text-[16px] font-semibold text-white">绑定发布平台</h2>
+              <h2 className="text-[16px] font-semibold text-white">
+                绑定发布平台
+              </h2>
               <p className="mt-0.5 text-[13px] text-white/55">
                 绑定后可批量发布作品到多个平台
               </p>
@@ -70,33 +85,62 @@ export default function PublishPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {PLATFORMS.map((p) => (
-            <div
-              key={p.id}
-              className="flex flex-col gap-3 rounded-2xl bg-card p-5 ring-1 ring-white/[0.06]"
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="text-[15px] font-semibold text-white">{p.name}</h3>
-                <span className="rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[11px] font-medium text-white/60">
-                  {p.status}
-                </span>
-              </div>
-              <p className="text-[13px] text-white/55">{p.desc}</p>
-              <button
-                type="button"
-                onClick={() => console.log("绑定账号", p.name)}
-                className="mt-auto inline-flex h-9 items-center justify-center rounded-xl bg-white/[0.08] text-[13px] font-medium text-white transition-colors hover:bg-white/[0.12]"
+          {PLATFORMS.map((p) => {
+            const status: BindStatus = statuses[p.id] ?? "未绑定";
+            return (
+              <div
+                key={p.id}
+                className="flex flex-col gap-3 rounded-2xl bg-card p-5 ring-1 ring-white/[0.06]"
               >
-                绑定账号
-              </button>
-            </div>
-          ))}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[15px] font-semibold text-white">
+                    {p.name}
+                  </h3>
+                  <span
+                    className={cn(
+                      "flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium",
+                      status === "已绑定"
+                        ? "bg-brand/15 text-brand"
+                        : status === "绑定中"
+                          ? "bg-warning/15 text-warning"
+                          : "bg-white/[0.08] text-white/60",
+                    )}
+                  >
+                    {status === "已绑定" && <CheckIcon className="size-3" />}
+                    {status}
+                  </span>
+                </div>
+                <p className="text-[13px] text-white/55">{p.desc}</p>
+                <button
+                  type="button"
+                  disabled={status !== "未绑定"}
+                  onClick={() => bindPlatform(p.id)}
+                  className={cn(
+                    "mt-auto inline-flex h-9 items-center justify-center rounded-xl text-[13px] font-medium transition-colors",
+                    status === "已绑定"
+                      ? "cursor-default bg-brand/10 text-brand"
+                      : status === "绑定中"
+                        ? "cursor-wait bg-white/[0.06] text-white/40"
+                        : "bg-white/[0.08] text-white hover:bg-white/[0.12]",
+                  )}
+                >
+                  {status === "已绑定"
+                    ? "已绑定"
+                    : status === "绑定中"
+                      ? "绑定中..."
+                      : "绑定账号"}
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         <div className="mt-10 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
           <p className="text-[14px] text-white/50">
             暂无可发布作品，请先在
-            <a href="/project" className="mx-1 text-brand hover:underline">项目页</a>
+            <a href="/project" className="mx-1 text-brand hover:underline">
+              项目页
+            </a>
             完成创作
           </p>
         </div>

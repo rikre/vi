@@ -112,7 +112,7 @@ export function Modal({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          "overscroll-contain bg-[#141414] border border-white/[0.06] rounded-2xl outline-none",
+          "relative overscroll-contain bg-[#141414] border border-white/[0.06] rounded-2xl outline-none",
           className
         )}
       >
