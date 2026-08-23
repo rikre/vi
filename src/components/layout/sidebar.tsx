@@ -35,14 +35,13 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 type SidebarProps = {
-  onOpenSubscription: () => void;
   onOpenMessages: () => void;
 };
 
 const ICON_BTN =
   "flex size-9 items-center justify-center rounded-[10px] text-white/60 transition-colors hover:bg-white/[0.05] hover:text-white";
 
-export function Sidebar({ onOpenSubscription, onOpenMessages }: SidebarProps) {
+export function Sidebar({ onOpenMessages }: SidebarProps) {
   const pathname = usePathname();
   const [publishOpen, setPublishOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
@@ -161,10 +160,6 @@ export function Sidebar({ onOpenSubscription, onOpenMessages }: SidebarProps) {
               <AccountDropdown
                 open={menuOpen}
                 onClose={() => setMenuOpen(false)}
-                onUpgrade={() => {
-                  setMenuOpen(false);
-                  onOpenSubscription();
-                }}
                 placement="top-center"
               />
             </div>

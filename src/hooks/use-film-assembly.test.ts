@@ -17,7 +17,11 @@ describe("useFilmAssembly", () => {
     const { result } = renderHook(() => useFilmAssembly(project));
     expect(result.current.subtitles).toBe("旧字幕");
     act(() => result.current.setSubtitles("新字幕"));
-    expect(getProject(project.id)?.scriptContent).toBe("新字幕");
+    const stored = getProject(project.id);
+    expect(stored?.type).toBe("short");
+    if (stored?.type === "short") {
+      expect(stored.scriptContent).toBe("新字幕");
+    }
   });
 
   it("exportVideo 应经历 导出中→成功→复位 三阶段", () => {

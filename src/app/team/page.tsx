@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
+import { UserGroupIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -459,6 +460,32 @@ export default function TeamPage() {
                 查看团队数据
               </Link>
             </div>
+          </div>
+
+          {/* 团队版订阅引导（T-2：团队管理员常驻页面提供升级/加席入口） */}
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-brand/[0.12] to-transparent p-4 ring-1 ring-brand/30">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/15">
+                <UserGroupIcon className="size-5 text-brand" />
+              </div>
+              <div>
+                <p className="flex items-center gap-2 text-[14px] font-semibold text-white">
+                  团队版 · 席位共享积分池
+                  <span className="rounded-full bg-brand/20 px-2 py-px text-[10px] font-bold text-brand">
+                    3 席位起步 · 可加购
+                  </span>
+                </p>
+                <p className="mt-0.5 text-[12px] text-white/55">
+                  积分池成员共享、按席位线性扩容，单席位成本比个人版低约 33%，年付低至 49 折
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/pricing?tab=membership"
+              className="shrink-0 rounded-lg bg-gradient-to-r from-[#00e5c8] to-[#7dff8c] px-4 py-2 text-[13px] font-semibold text-black transition-opacity hover:opacity-90"
+            >
+              升级团队版 / 加购席位
+            </Link>
           </div>
 
           {/* Tabs */}

@@ -20,11 +20,11 @@ import {
   DocumentIcon,
   SparkleIcon,
 } from "@/components/icons";
+import { yearlyDiscountLabel } from "@/app/pricing/data";
 
 interface AccountDropdownProps {
   open: boolean;
   onClose: () => void;
-  onUpgrade: () => void;
   placement?: "bottom-right" | "top-center";
 }
 
@@ -92,8 +92,15 @@ function Row({
   );
 }
 
-export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-right" }: AccountDropdownProps) {
+export function AccountDropdown({ open, onClose, placement = "bottom-right" }: AccountDropdownProps) {
   const router = useRouter();
+
+  // 商业化引导统一跳转 /pricing 对应入口（积分充值 / 会员订阅），
+  // 与定价页单一事实来源保持一致
+  const goTo = (tab: "credits" | "membership") => {
+    onClose();
+    router.push(`/pricing?tab=${tab}`);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -181,7 +188,7 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
                   )}
                   <button
                     type="button"
-                    onClick={() => { console.log("升级会员"); onUpgrade(); }}
+                    onClick={() => goTo("membership")}
                     className="flex items-center gap-1 rounded-md bg-brand px-2 py-0.5 text-[11px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
                   >
                     <CrownIcon className="size-3" />
@@ -225,7 +232,7 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
               </button>
               <button
                 type="button"
-                onClick={() => console.log("立即充值")}
+                onClick={() => goTo("credits")}
                 className="rounded-lg bg-brand px-3 py-1.5 text-[12px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
               >
                 立即充值
@@ -246,10 +253,10 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
                   sub="查看会员权益、升级方案"
                   badge={
                     <span className="rounded bg-[#ff2d6b]/15 px-1.5 py-px text-[10px] font-bold text-[#ff5c8a]">
-                      首月5折
+                      {yearlyDiscountLabel()}
                     </span>
                   }
-                  onClick={onUpgrade}
+                  onClick={() => goTo("membership")}
                 />
                 <Row
                   Icon={UserGroupIcon}
@@ -270,7 +277,7 @@ export function AccountDropdown({ open, onClose, onUpgrade, placement = "bottom-
                   title="我的积分"
                   sub="积分余额、充值、消费记录"
                   right={<span className="text-[13px] font-bold tabular-nums text-brand">{USER.points.toLocaleString()}</span>}
-                  onClick={() => console.log("我的积分")}
+                  onClick={() => goTo("credits")}
                 />
                 <Row
                   Icon={GiftIcon}
