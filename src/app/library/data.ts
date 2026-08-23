@@ -20,6 +20,7 @@ export type Artist = {
   tags: string[];
   fitRoles: string;
   imagePrompt: string;
+  video: string;
 };
 
 export type Voice = {
@@ -65,17 +66,75 @@ export const ARTIST_CATEGORIES: ArtistCategory[] = [
   "新锐演员",
 ];
 
-export const MAKEUP_STYLES = [
-  { id: "ancient", label: "古装妆容", prompt: "ancient Chinese royal makeup" },
-  { id: "modern", label: "现代妆容", prompt: "modern natural makeup" },
-  { id: "republic", label: "民国妆容", prompt: "1920s Shanghai makeup" },
+// AI试戏：喜怒哀乐四大类表情包视频预览
+export const EMOTION_PERFORMANCES = [
+  {
+    id: "happy",
+    label: "喜",
+    prompt: "joyful laughing expression, exaggerated happy face close-up, emotional acting",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  },
+  {
+    id: "angry",
+    label: "怒",
+    prompt: "angry furious expression, exaggerated angry face close-up, emotional acting",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  },
+  {
+    id: "sad",
+    label: "哀",
+    prompt: "sad crying expression, exaggerated sorrowful face close-up, emotional acting",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  },
+  {
+    id: "joy",
+    label: "乐",
+    prompt: "delighted gleeful expression, exaggerated joyful face close-up, emotional acting",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  },
 ];
 
-export const LOOKS = [
-  { id: "look1", label: "白色礼服", prompt: "elegant white dress, formal gown" },
-  { id: "look2", label: "黑色西装", prompt: "black business suit, professional" },
-  { id: "look3", label: "古装红衣", prompt: "ancient Chinese red hanfu" },
-  { id: "look4", label: "休闲牛仔", prompt: "casual denim jacket, street style" },
+// AI试装：四大时代代表妆造（不分男女，每个时代一款代表服饰，人物居中脸清晰）
+export type EraOutfit = {
+  id: string;
+  label: string;
+  outfitLabel: string;
+  prompt: string;
+};
+
+export const ERA_OUTFITS: EraOutfit[] = [
+  {
+    id: "tang",
+    label: "唐代",
+    outfitLabel: "齐胸襦裙",
+    prompt:
+      "centered upper body portrait of a woman in Tang dynasty chest-high ruqun dress, face centered and clearly visible, looking at camera, elegant, soft studio lighting",
+  },
+  {
+    id: "qing",
+    label: "清代",
+    outfitLabel: "旗装长袍",
+    prompt:
+      "centered upper body portrait of a woman in Qing dynasty Manchu qipao long robe, face centered and clearly visible, looking at camera, regal, soft studio lighting",
+  },
+  {
+    id: "republic",
+    label: "民国",
+    outfitLabel: "旗袍",
+    prompt:
+      "centered upper body portrait of a woman in a 1930s Shanghai cheongsam, face centered and clearly visible, looking at camera, elegant, vintage tones",
+  },
+  {
+    id: "urban",
+    label: "当代",
+    outfitLabel: "通勤套装",
+    prompt:
+      "centered upper body portrait of a professional woman in a modern commute suit, face centered and clearly visible, looking at camera, confident, studio lighting",
+  },
 ];
 
 export const DRAMA_THEMES = [
@@ -97,6 +156,8 @@ export const ARTISTS: Artist[] = [
     fitRoles: "战斗 · 古装",
     imagePrompt:
       "professional female actor portrait, black turtleneck, neutral background, elegant Chinese woman, soft studio lighting",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
   },
   {
     id: 2,
@@ -109,6 +170,8 @@ export const ARTISTS: Artist[] = [
     fitRoles: "都市 · 甜宠",
     imagePrompt:
       "young Korean actor portrait, yellow sweater, cozy bedroom background, warm smile",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   },
   {
     id: 3,
@@ -121,6 +184,8 @@ export const ARTISTS: Artist[] = [
     fitRoles: "仙侠 · 玄幻",
     imagePrompt:
       "ethereal fantasy female character, flowing white robes, misty mountain background",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
   },
   {
     id: 4,
@@ -133,6 +198,8 @@ export const ARTISTS: Artist[] = [
     fitRoles: "商战 · 悬疑",
     imagePrompt:
       "mature Chinese businessman portrait, dark suit, confident expression, modern office",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
   },
   {
     id: 5,
@@ -145,6 +212,8 @@ export const ARTISTS: Artist[] = [
     fitRoles: "校园 · 青春",
     imagePrompt:
       "cheerful young female character, school uniform, bright classroom background",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
   },
   {
     id: 6,
@@ -157,6 +226,8 @@ export const ARTISTS: Artist[] = [
     fitRoles: "警匪 · 动作",
     imagePrompt:
       "tough young male actor portrait, leather jacket, urban night background",
+    video:
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
   },
 ];
 

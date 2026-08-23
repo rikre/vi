@@ -4,6 +4,7 @@ import {
   ChevronDownIcon,
   MoreIcon,
   PlayIcon,
+  RefreshCwIcon,
   SparkleIcon,
 } from "@/components/icons";
 import type { ShotCard } from "@/hooks/use-remake-studio";
@@ -14,6 +15,7 @@ interface StoryboardStepProps {
   onEpisodeChange: (ep: number) => void;
   shots: ShotCard[];
   onGenerateShot: (id: string) => void;
+  onRetryShot: (id: string) => void;
   onBatchGenerate: () => void;
   onPromptChange: (id: string, prompt: string) => void;
   onNext: () => void;
@@ -24,6 +26,7 @@ export function StoryboardStep({
   onEpisodeChange,
   shots,
   onGenerateShot,
+  onRetryShot,
   onBatchGenerate,
   onPromptChange,
   onNext,
@@ -161,20 +164,34 @@ export function StoryboardStep({
               </div>
               <button
                 type="button"
-                onClick={() => onGenerateShot(shot.id)}
+                onClick={() => {
+                  if (shot.status === "生成中") return;
+                  if (shot.status === "失败") {
+                    onRetryShot(shot.id);
+                  } else {
+                    onGenerateShot(shot.id);
+                  }
+                }}
                 disabled={shot.status === "生成中"}
                 className={`inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-colors ${
                   shot.status === "生成中"
                     ? "cursor-wait bg-white/[0.06] text-white/40"
                     : shot.status === "已生成"
                       ? "bg-white/[0.04] text-white/60 hover:bg-white/[0.08] hover:text-white"
-                      : "bg-brand text-brand-foreground hover:bg-brand-hover"
+                      : shot.status === "失败"
+                        ? "bg-danger/10 text-danger ring-1 ring-danger/30 hover:bg-danger/20"
+                        : "bg-brand text-brand-foreground hover:bg-brand-hover"
                 }`}
               >
                 {shot.status === "生成中" ? (
                   <>生成中...</>
                 ) : shot.status === "已生成" ? (
                   <>重新生成</>
+                ) : shot.status === "失败" ? (
+                  <>
+                    <RefreshCwIcon className="size-3" />
+                    重试
+                  </>
                 ) : (
                   <>
                     <SparkleIcon className="size-3" />

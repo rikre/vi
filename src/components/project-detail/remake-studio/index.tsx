@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   ArrowLeftIcon,
   CheckIcon,
@@ -23,6 +24,7 @@ export default function RemakeStudio({
 }: {
   project: ShortDramaProject;
 }) {
+  const router = useRouter();
   const studio = useRemakeStudio(project);
   const {
     step,
@@ -38,10 +40,12 @@ export default function RemakeStudio({
     mappingsInCategory,
     batchGenerateMappings,
     addMapping,
+    removeMapping,
     activeEpisode,
     setActiveEpisode,
     shots,
     generateShot,
+    retryShot,
     batchGenerateShots,
     updateShotPrompt,
     syncTimeline,
@@ -54,6 +58,23 @@ export default function RemakeStudio({
     downloadVideo,
   } = studio;
 
+  const handleBack = () => {
+    router.push("/comic");
+  };
+
+  const handleComplete = () => {
+    // 模拟完成：清掉持久化并返回列表
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.removeItem(`vi:remake:${project.id}`);
+      } catch {
+        // 静默失败
+      }
+    }
+    alert("重绘完成！已保存成片到项目列表。");
+    router.push("/comic");
+  };
+
   return (
     <div className="flex h-full flex-col bg-[#0d0d0d] text-white">
       {/* ===== 顶部栏 ===== */}
@@ -61,9 +82,10 @@ export default function RemakeStudio({
         <div className="flex items-center gap-3">
           <button
             type="button"
+            onClick={handleBack}
             className="flex size-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] backdrop-blur-sm text-white/60 transition-colors hover:bg-white/[0.06] hover:text-white"
-            aria-label="返回"
-            title="返回"
+            aria-label="返回项目列表"
+            title="返回项目列表"
           >
             <ArrowLeftIcon className="size-4" />
           </button>
@@ -161,6 +183,7 @@ export default function RemakeStudio({
             onCategoryChange={setAssetCategory}
             mappings={mappingsInCategory}
             onAdd={addMapping}
+            onRemove={removeMapping}
             onBatchGenerate={batchGenerateMappings}
             onNext={goNext}
           />
@@ -171,6 +194,7 @@ export default function RemakeStudio({
             onEpisodeChange={setActiveEpisode}
             shots={shots}
             onGenerateShot={generateShot}
+            onRetryShot={retryShot}
             onBatchGenerate={batchGenerateShots}
             onPromptChange={updateShotPrompt}
             onNext={goNext}
@@ -201,7 +225,16 @@ export default function RemakeStudio({
               步骤 {stepIndex + 1} / {REMAKE_STEPS.length} · {step}
             </span>
           </div>
-          {!isLastStep && (
+          {isLastStep ? (
+            <button
+              type="button"
+              onClick={handleComplete}
+              className="inline-flex items-center gap-1 rounded-full bg-brand text-black shadow-lg shadow-brand/20 px-4 py-1.5 text-[12px] font-semibold transition-opacity hover:opacity-90"
+            >
+              <CheckIcon className="size-3.5" />
+              完成重绘
+            </button>
+          ) : (
             <button
               type="button"
               onClick={goNext}

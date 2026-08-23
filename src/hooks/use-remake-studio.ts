@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ShortDramaProject } from "@/lib/mock-projects";
 import { REMAKE_STEPS, type RemakeStep } from "@/lib/mock-projects";
 
@@ -11,6 +11,50 @@ const txi = (prompt: string, size: string = "square") =>
   )}&image_size=${size}`;
 
 export { txi };
+
+// ─── localStorage 持久化工具 ─────────────────────────────────────────────
+const STORAGE_PREFIX = "vi:remake:";
+
+type PersistentShape = {
+  step: RemakeStep;
+  assetCategory: AssetCategory;
+  activeEpisode: number;
+  syncTimeline: boolean;
+  compareSource: boolean;
+  exportFormat: ExportFormat;
+  episodes: SourceEpisode[];
+  mappings: AssetMapping[];
+  shots: ShotCard[];
+};
+
+function loadPersistentState(projectId: number): Partial<PersistentShape> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(`${STORAGE_PREFIX}${projectId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== "object") return null;
+    return parsed as Partial<PersistentShape>;
+  } catch (err) {
+    console.warn(`[useRemakeStudio] localStorage 解析失败，已重置:`, err);
+    return null;
+  }
+}
+
+function savePersistentState(
+  projectId: number,
+  state: PersistentShape,
+): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      `${STORAGE_PREFIX}${projectId}`,
+      JSON.stringify(state),
+    );
+  } catch (err) {
+    console.warn(`[useRemakeStudio] localStorage 写入失败:`, err);
+  }
+}
 
 // ─── 步骤1 · 原片 ─────────────────────────────────────────────────────────
 export type EpisodeStatus = "已完成" | "上传中" | "未开始" | "失败";
@@ -227,22 +271,85 @@ export type ExportFormat = (typeof EXPORT_FORMATS)[number];
 // ─── Hook ──────────────────────────────────────────────────────────────────
 
 export function useRemakeStudio(project: ShortDramaProject) {
-  const [step, setStep] = useState<RemakeStep>("原片");
-  const [assetCategory, setAssetCategory] = useState<AssetCategory>("角色");
-  const [activeEpisode, setActiveEpisode] = useState(1);
-  const [syncTimeline, setSyncTimeline] = useState(true);
-  const [compareSource, setCompareSource] = useState(true);
-  const [exportFormat, setExportFormat] = useState<ExportFormat>(
-    EXPORT_FORMATS[0],
+  const projectId = project.id;
+
+  // 初始状态：优先读取 localStorage
+  const initial = useMemo(
+    () => loadPersistentState(projectId) ?? {},
+    [projectId],
   );
 
-  const [episodes, setEpisodes] = useState<SourceEpisode[]>(SOURCE_EPISODES);
-  const [mappings, setMappings] = useState<AssetMapping[]>(ASSET_MAPPINGS);
-  const [shots, setShots] = useState<ShotCard[]>(SHOT_CARDS);
+  const [step, setStep] = useState<RemakeStep>(initial.step ?? "原片");
+  const [assetCategory, setAssetCategory] = useState<AssetCategory>(
+    initial.assetCategory ?? "角色",
+  );
+  const [activeEpisode, setActiveEpisode] = useState<number>(
+    initial.activeEpisode ?? 1,
+  );
+  const [syncTimeline, setSyncTimeline] = useState<boolean>(
+    initial.syncTimeline ?? true,
+  );
+  const [compareSource, setCompareSource] = useState<boolean>(
+    initial.compareSource ?? true,
+  );
+  const [exportFormat, setExportFormat] = useState<ExportFormat>(
+    initial.exportFormat ?? EXPORT_FORMATS[0],
+  );
+
+  const [episodes, setEpisodes] = useState<SourceEpisode[]>(
+    initial.episodes ?? SOURCE_EPISODES,
+  );
+  const [mappings, setMappings] = useState<AssetMapping[]>(
+    initial.mappings ?? ASSET_MAPPINGS,
+  );
+  const [shots, setShots] = useState<ShotCard[]>(initial.shots ?? SHOT_CARDS);
   const [downloading, setDownloading] = useState(false);
 
   const stepIndex = REMAKE_STEPS.indexOf(step);
   const isLastStep = stepIndex === REMAKE_STEPS.length - 1;
+
+  // ─── 持久化副作用 ────────────────────────────────────────────────────
+  // 追踪 projectId 切换，避免旧项目写入新项目
+  const lastProjectIdRef = useRef(projectId);
+  useEffect(() => {
+    if (lastProjectIdRef.current === projectId) return;
+    lastProjectIdRef.current = projectId;
+    const next = loadPersistentState(projectId) ?? {};
+    setStep(next.step ?? "原片");
+    setAssetCategory(next.assetCategory ?? "角色");
+    setActiveEpisode(next.activeEpisode ?? 1);
+    setSyncTimeline(next.syncTimeline ?? true);
+    setCompareSource(next.compareSource ?? true);
+    setExportFormat(next.exportFormat ?? EXPORT_FORMATS[0]);
+    setEpisodes(next.episodes ?? SOURCE_EPISODES);
+    setMappings(next.mappings ?? ASSET_MAPPINGS);
+    setShots(next.shots ?? SHOT_CARDS);
+  }, [projectId]);
+
+  useEffect(() => {
+    savePersistentState(projectId, {
+      step,
+      assetCategory,
+      activeEpisode,
+      syncTimeline,
+      compareSource,
+      exportFormat,
+      episodes,
+      mappings,
+      shots,
+    });
+  }, [
+    projectId,
+    step,
+    assetCategory,
+    activeEpisode,
+    syncTimeline,
+    compareSource,
+    exportFormat,
+    episodes,
+    mappings,
+    shots,
+  ]);
 
   const goNext = useCallback(() => {
     if (isLastStep) return;
@@ -311,7 +418,34 @@ export function useRemakeStudio(project: ShortDramaProject) {
     ]);
   }, [assetCategory]);
 
+  const removeMapping = useCallback((id: string) => {
+    setMappings((prev) => prev.filter((m) => m.id !== id));
+  }, []);
+
   const generateShot = useCallback((id: string) => {
+    setShots((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, status: "生成中" } : s)),
+    );
+    setTimeout(() => {
+      setShots((prev) =>
+        prev.map((s) =>
+          s.id === id
+            ? {
+                ...s,
+                status: "已生成",
+                preview: txi(
+                  `hospital drama remake shot ${s.index}, cinematic`,
+                  "landscape_16_9",
+                ),
+              }
+            : s,
+        ),
+      );
+    }, 1500);
+  }, []);
+
+  const retryShot = useCallback((id: string) => {
+    // 从「失败」或「生成中」重新触发
     setShots((prev) =>
       prev.map((s) => (s.id === id ? { ...s, status: "生成中" } : s)),
     );
@@ -383,11 +517,13 @@ export function useRemakeStudio(project: ShortDramaProject) {
     mappingsInCategory,
     batchGenerateMappings,
     addMapping,
+    removeMapping,
     // step 3
     activeEpisode,
     setActiveEpisode,
     shots,
     generateShot,
+    retryShot,
     batchGenerateShots,
     updateShotPrompt,
     // step 4

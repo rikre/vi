@@ -93,20 +93,55 @@ function ArtistCard({
   artist: Artist;
   onOpenDetail: () => void;
 }) {
+  const [hovered, setHovered] = useState(false);
+
+  // 排查日志：卡片 hover 视频播放
+  const handleMouseEnter = () => {
+    console.log(`[ArtistCard] hover 进入，开始播放视频`, {
+      id: artist.id,
+      name: artist.name,
+      video: artist.video,
+    });
+    setHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    console.log(`[ArtistCard] hover 离开，停止播放视频`, {
+      id: artist.id,
+      name: artist.name,
+    });
+    setHovered(false);
+  };
+
   return (
-    <div className="group relative overflow-hidden rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] transition-all hover:-translate-y-0.5 hover:ring-white/20">
+    <div
+      className="group relative overflow-hidden rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] transition-all hover:-translate-y-0.5 hover:ring-white/20"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
         type="button"
         onClick={onOpenDetail}
         className="relative block w-full"
         style={{ aspectRatio: "3 / 4" }}
       >
-        <img
-          src={txi(artist.imagePrompt, "portrait_4_3")}
-          alt={artist.name}
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {hovered ? (
+          <video
+            src={artist.video}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <img
+            src={txi(artist.imagePrompt, "portrait_4_3")}
+            alt={artist.name}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
         {/* hover 操作 */}
