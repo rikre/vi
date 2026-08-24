@@ -14,9 +14,13 @@ import {
   PublishIcon,
   HelpIcon,
   MessageIcon,
+  UserIcon,
+  GiftIcon,
 } from "@/components/icons";
 import { PublishDialog } from "@/components/publish-dialog";
 import { AccountDropdown } from "@/components/account-dropdown";
+import { AccountDialog, AiWatermarkDialog, type AccountTab } from "@/components/account-dialog";
+import { RedeemDialog } from "@/components/redeem-dialog";
 
 type NavItem = {
   label: string;
@@ -46,6 +50,9 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
   const [publishOpen, setPublishOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountTab, setAccountTab] = useState<AccountTab | null>(null);
+  const [watermarkOpen, setWatermarkOpen] = useState(false);
+  const [redeemOpen, setRedeemOpen] = useState(false);
 
   return (
     <>
@@ -135,6 +142,36 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
             <HelpIcon className="size-[18px]" />
           </button>
 
+          {/* 账户管理 */}
+          <button
+            type="button"
+            onClick={() => {
+              setAccountTab("profile");
+              setQrOpen(false);
+              setMenuOpen(false);
+            }}
+            aria-label="账户管理"
+            title="账户管理"
+            className={ICON_BTN}
+          >
+            <UserIcon className="size-[18px]" />
+          </button>
+
+          {/* 兑换码 */}
+          <button
+            type="button"
+            onClick={() => {
+              setRedeemOpen(true);
+              setQrOpen(false);
+              setMenuOpen(false);
+            }}
+            aria-label="兑换码"
+            title="兑换码"
+            className={ICON_BTN}
+          >
+            <GiftIcon className="size-[18px]" />
+          </button>
+
           {/* Avatar / account */}
           <div className="relative">
             <button
@@ -161,6 +198,8 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
                 open={menuOpen}
                 onClose={() => setMenuOpen(false)}
                 placement="top-center"
+                onOpenAccount={(tab) => setAccountTab(tab)}
+                onOpenWatermark={() => setWatermarkOpen(true)}
               />
             </div>
           </div>
@@ -190,6 +229,17 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
       </nav>
 
       <PublishDialog open={publishOpen} onClose={() => setPublishOpen(false)} />
+
+      {accountTab !== null && (
+        <AccountDialog
+          open
+          initialTab={accountTab}
+          onClose={() => setAccountTab(null)}
+          onOpenWatermark={() => setWatermarkOpen(true)}
+        />
+      )}
+      {watermarkOpen && <AiWatermarkDialog onClose={() => setWatermarkOpen(false)} />}
+      {redeemOpen && <RedeemDialog onClose={() => setRedeemOpen(false)} />}
     </>
   );
 }

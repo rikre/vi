@@ -522,7 +522,7 @@ function PlanCard({
         订阅
       </button>
 
-      {/* 权益矩阵（参考竞品 OiiOii 强化） */}
+      {/* 权益矩阵（参考竞品强化） */}
       <ul className="mt-5 space-y-2.5 border-t border-white/[0.08] pt-4 text-[13px]">
         <li className="flex items-center gap-2 text-white/90">
           <CheckIcon className="size-3.5 text-brand" />

@@ -77,7 +77,7 @@ const INITIAL_MESSAGES: MsgItem[] = [
   {
     id: "m6",
     kind: "reward",
-    title: "盒饭到账 +200",
+    title: "积分到账 +200",
     desc: "完成「每日创作」任务，奖励已发放至你的账户。",
     date: "2026/7/17",
     ts: 30,

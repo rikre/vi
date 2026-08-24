@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
+import { StyleLibraryDialog } from "@/components/style-library-dialog";
 import { cn } from "@/lib/utils";
 import {
   SearchIcon,
@@ -303,6 +304,7 @@ export default function CreatePage() {
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("9:16");
   const [inputValue, setInputValue] = useState("");
   const [hoveredCardId, setHoveredCardId] = useState<number | null>(null);
+  const [styleOpen, setStyleOpen] = useState(false);
 
   return (
     <AppShell>
@@ -349,7 +351,9 @@ export default function CreatePage() {
                   key={btn.id}
                   Icon={btn.Icon}
                   label={btn.label}
-                  onClick={() => console.log(btn.label)}
+                  onClick={() =>
+                    btn.id === "style" ? setStyleOpen(true) : console.log(btn.label)
+                  }
                 />
               ))}
 
@@ -415,6 +419,8 @@ export default function CreatePage() {
           </div>
         </section>
       </div>
+
+      <StyleLibraryDialog open={styleOpen} onClose={() => setStyleOpen(false)} />
     </AppShell>
   );
 }
