@@ -1,7 +1,6 @@
 "use client";
 
-import { Suspense, useSyncExternalStore, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useSyncExternalStore, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { CheckoutDialog, type CheckoutOrder } from "@/components/checkout-dialog";
 import {
@@ -15,7 +14,6 @@ import {
   CheckIcon,
   ChevronDownIcon,
   CoinsIcon,
-  CrownIcon,
   GiftIcon,
   SparkleIcon,
 } from "@/components/icons";
@@ -50,24 +48,12 @@ const getFirstChargeServer = () => false;
 // Mock 登录用户（与账户下拉同源展示）
 const USER = { name: "bollo 用户", points: 2580 };
 
-type PricingTab = "credits" | "membership";
-
-// useSearchParams 要求包裹 Suspense（Next.js 生产构建 CSR bailout 约定）
-export default function PricingPage() {
-  return (
-    <Suspense fallback={null}>
-      <PricingContent />
-    </Suspense>
-  );
+// 页面内区块滚动定位（充值区 / 会员区同页连续排布）
+function scrollToSection(id: "recharge" | "membership") {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function PricingContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  // tab 以 URL 查询参数为单一事实来源，支持深链与外部跳转联动
-  const tab: PricingTab =
-    searchParams.get("tab") === "membership" ? "membership" : "credits";
-
+export default function PricingPage() {
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [accountTab, setAccountTab] = useState<AccountTab | null>(null);
   const [watermarkOpen, setWatermarkOpen] = useState(false);
@@ -77,10 +63,17 @@ function PricingContent() {
     getFirstChargeServer,
   );
 
-  const switchTab = (next: PricingTab) => {
-    if (next === tab) return;
-    router.replace(`/pricing?tab=${next}`, { scroll: false });
-  };
+  // 深链定位：支持 #recharge / #membership 锚点与旧版 ?tab= 参数
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const target =
+      window.location.hash === "#membership" || params.get("tab") === "membership"
+        ? "membership"
+        : window.location.hash === "#recharge" || params.get("tab") === "credits"
+          ? "recharge"
+          : null;
+    if (target) scrollToSection(target);
+  }, []);
 
   const recharge = (tierId: string) => {
     const tier = RECHARGE_TIERS.find((t) => t.id === tierId);
@@ -100,14 +93,14 @@ function PricingContent() {
         tier.id === "first"
           ? `首充成功！150 积分已到账，推荐升级年费会员享 ${yearlyDiscountLabel()}`
           : "充值成功，积分已到账",
-      // 首充→年费会员二次转化路径
+      // 首充→年费会员二次转化路径：关闭弹框并滚动到会员区
       successCta:
         tier.id === "first"
           ? {
               label: "升级年费会员",
               onClick: () => {
                 setOrder(null);
-                router.replace("/pricing?tab=membership", { scroll: false });
+                scrollToSection("membership");
               },
             }
           : undefined,
@@ -138,7 +131,7 @@ function PricingContent() {
         identity === "team"
           ? `${cycleLabel} · ${seats} 席位 · ${plan.tagline}`
           : `${cycleLabel} · ${plan.tagline}`,
-      amount: price * (cycle === "month" ? 1 : cycle === "quarter" ? 3 : 12),
+      amount: price * (cycle === "month" ? 1 : 12),
       benefits: [
         `每月 ${credits.toLocaleString()} 积分（含限时赠送）`,
         identity === "team"
@@ -158,55 +151,12 @@ function PricingContent() {
         <div className="mx-auto max-w-[1400px] px-6 pb-16">
           <ModelBanner />
 
-          {/* 入口切换：积分充值 / 会员订阅 分离，双心智模型互不干扰 */}
-          <div
-            role="tablist"
-            aria-label="商业化入口"
-            className="mt-6 flex w-fit rounded-xl bg-white/[0.04] p-1 ring-1 ring-white/[0.08]"
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === "credits"}
-              onClick={() => switchTab("credits")}
-              className={cn(
-                "flex items-center gap-1.5 whitespace-nowrap rounded-lg px-6 py-2.5 text-[14px] font-semibold transition-colors",
-                tab === "credits"
-                  ? "bg-white/[0.1] text-white shadow-sm"
-                  : "text-white/55 hover:text-white",
-              )}
-            >
-              <CoinsIcon className="size-4" />
-              积分充值
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === "membership"}
-              onClick={() => switchTab("membership")}
-              className={cn(
-                "flex items-center gap-1.5 whitespace-nowrap rounded-lg px-6 py-2.5 text-[14px] font-semibold transition-colors",
-                tab === "membership"
-                  ? "bg-white/[0.1] text-white shadow-sm"
-                  : "text-white/55 hover:text-white",
-              )}
-            >
-              <CrownIcon className="size-4" />
-              会员订阅
-              <span className="rounded-full bg-brand/20 px-1.5 py-px text-[10px] font-bold text-brand">
-                {yearlyDiscountLabel()}
-              </span>
-            </button>
-          </div>
+          <RechargeSection
+            firstChargeUsed={firstChargeUsed}
+            onRecharge={recharge}
+          />
 
-          {tab === "credits" ? (
-            <RechargeSection
-              firstChargeUsed={firstChargeUsed}
-              onRecharge={recharge}
-            />
-          ) : (
-            <MemberSection onSubscribe={subscribe} onOpenAccount={setAccountTab} />
-          )}
+          <MemberSection onSubscribe={subscribe} onOpenAccount={setAccountTab} />
 
           <FaqSection />
         </div>
@@ -280,7 +230,7 @@ function RechargeSection({
   onRecharge: (tierId: string) => void;
 }) {
   return (
-    <section className="mt-10">
+    <section id="recharge" className="mt-10 scroll-mt-6">
       <div className="flex items-center gap-2">
         <CoinsIcon className="size-5 text-brand" />
         <h2 className="text-[20px] font-bold text-white">积分充值</h2>
@@ -347,14 +297,13 @@ function MemberSection({
   ) => void;
   onOpenAccount: (tab: AccountTab) => void;
 }) {
-  const router = useRouter();
   const [identity, setIdentity] = useState<MemberIdentity>("personal");
   const [cycle, setCycle] = useState<MemberCycle>("month");
   const [seats, setSeats] = useState(TEAM_BASE_SEATS);
 
   return (
-    <section className="mt-8">
-      {/* 用户积分条：头像 + 积分详情 + 充值/订单/发票入口 */}
+    <section id="membership" className="mt-12 scroll-mt-6">
+      {/* 用户积分条：头像 + 积分详情 + 充值/订单入口 */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/[0.03] px-5 py-3.5 ring-1 ring-white/[0.08]">
         <div className="flex min-w-0 items-center gap-3">
           <div className="size-9 shrink-0 overflow-hidden rounded-full ring-1 ring-white/10">
@@ -381,7 +330,7 @@ function MemberSection({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => router.replace("/pricing?tab=credits", { scroll: false })}
+            onClick={() => scrollToSection("recharge")}
             className="flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-[13px] font-bold text-black transition-all hover:brightness-105 active:scale-[0.97]"
           >
             充值积分
@@ -604,9 +553,7 @@ function PlanCard({
       ? "单次购买 · 有效期以套餐为准"
       : cycle === "month"
         ? "每30天续费"
-        : cycle === "quarter"
-          ? "每90天续费"
-          : "每365天续费";
+        : "每365天续费";
 
   return (
     <div

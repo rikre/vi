@@ -20,7 +20,7 @@ export const RECHARGE_TIERS: RechargeTier[] = [
 ];
 
 export type MemberIdentity = "personal" | "team";
-export type MemberCycle = "month" | "quarter" | "year";
+export type MemberCycle = "month" | "year";
 
 export type MemberPlan = {
   id: string;
@@ -129,10 +129,9 @@ export const MEMBER_PLANS: MemberPlan[] = [
 export const TEAM_BASE_SEATS = 3;
 export const TEAM_MAX_SEATS = 10;
 
-/** 个人当前周期月价：包季 85 折 round，包年按年付折合月价 */
+/** 个人当前周期月价：包年按年付折合月价 */
 export function cycleMonthlyPrice(plan: MemberPlan, cycle: MemberCycle): number {
   if (cycle === "month") return plan.monthlyPrice;
-  if (cycle === "quarter") return Math.round(plan.monthlyPrice * 0.85);
   return yearlyMonthlyPrice(plan);
 }
 
@@ -157,7 +156,6 @@ export const CYCLES: {
   discount: string;
 }[] = [
   { id: "month", label: "连续包月", discount: "" },
-  { id: "quarter", label: "连续包季", discount: "85折" },
   { id: "year", label: "连续包年", discount: "67折" },
 ];
 
