@@ -476,12 +476,12 @@ export default function TeamPage() {
                   </span>
                 </p>
                 <p className="mt-0.5 text-[12px] text-white/55">
-                  积分池成员共享、按席位线性扩容，单席位成本比个人版低约 33%，年付低至 49 折
+                  积分池成员共享、按席位线性扩容，单席位成本比个人版低约 33%，年付低至 67 折
                 </p>
               </div>
             </div>
             <Link
-              href="/pricing?tab=membership"
+              href="/pricing#membership"
               className="shrink-0 rounded-lg bg-gradient-to-r from-[#00e5c8] to-[#7dff8c] px-4 py-2 text-[13px] font-semibold text-black transition-opacity hover:opacity-90"
             >
               升级团队版 / 加购席位
