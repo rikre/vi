@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckIcon, ChevronRightIcon, CrownIcon, XIcon } from "@/components/icons";
+import { CheckIcon, ChevronRightIcon, CrownIcon, CloseIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 export type CheckoutOrder = {
@@ -66,7 +66,7 @@ export function CheckoutDialog({
           onClick={onClose}
           className="absolute right-4 top-4 text-white/50 transition-colors hover:text-white"
         >
-          <XIcon className="size-4" />
+          <CloseIcon className="size-4" />
         </button>
 
         {step === "confirm" && (

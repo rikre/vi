@@ -1,26 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  HeartIcon,
-  MessageSquareIcon,
-  SparkleIcon,
-  GiftIcon,
-  InfoIcon,
-  XIcon,
-  CheckCheckIcon,
-} from "@/components/icons";
+import { cn } from "@/lib/utils";
+import { CheckCheckIcon, CloseIcon, TrayIcon } from "@/components/icons";
 
 interface MessageCenterProps {
   open: boolean;
   onClose: () => void;
 }
 
-type MsgKind = "like" | "comment" | "system" | "reward" | "notice" | "platform" | "welcome";
+type Channel = "announce" | "message";
 
 interface MsgItem {
   id: string;
-  kind: MsgKind;
+  channel: Channel;
   title: string;
   desc: string;
   date: string;
@@ -30,62 +23,62 @@ interface MsgItem {
 
 const INITIAL_MESSAGES: MsgItem[] = [
   {
-    id: "m1",
-    kind: "platform",
-    title: "bollo关于人工智能生成内容的平台规范公告",
-    desc: "人工智能技术的快速发展，为互联网行业带来了更多可能性。尤其在内容创作领域，生成式人工智能技术降低了创作门槛，提升了创作效率。为规范平台内容生态，保障创作者权益，现发布以下规范公告……",
-    date: "2026/5/21",
+    id: "a1",
+    channel: "announce",
+    title: "全量接入 Seedance 2.5 模型，创作体验全面升级！",
+    desc: "更稳定、更精细、更懂叙事！打造短剧与商业广告高质感新体验",
+    date: "2周前",
     ts: 70,
     read: false,
   },
   {
-    id: "m2",
-    kind: "welcome",
-    title: "用户注册成功",
-    desc: "您好！ 欢迎成为创作者！ 您好，欢迎注册使用bollo漫剧制作推广平台。打破创作局限，AI 赋能每帧精彩，速来体验全新创作之旅……",
-    date: "2026/5/21",
-    ts: 65,
+    id: "a2",
+    channel: "announce",
+    title: "【Wan 3.0 模型积分消耗下调通知】",
+    desc: "更省积分，更敢创作 —— Wan 3.0 价格焕新",
+    date: "昨天",
+    ts: 69,
     read: false,
   },
   {
-    id: "m3",
-    kind: "system",
-    title: "Seedance 2.0 已上线",
-    desc: "会员现已解锁 Seedance 2.0 视频模型，去创作页试试吧。",
-    date: "2026/7/20",
-    ts: 60,
+    id: "a3",
+    channel: "announce",
+    title: "重磅官宣｜「bollo」公测正式开启！",
+    desc: "故事，不再止于想象。创作，从此拥有全新视界。",
+    date: "2天前",
+    ts: 68,
     read: false,
   },
   {
-    id: "m4",
-    kind: "like",
+    id: "m1",
+    channel: "message",
     title: "你的作品《逆光》获得 128 个赞",
     desc: "「镜头语言太成熟了，期待下一部！」",
     date: "2026/7/19",
     ts: 50,
-    read: true,
+    read: false,
   },
   {
-    id: "m5",
-    kind: "comment",
+    id: "m2",
+    channel: "message",
     title: "导演小助手 评论了你的剧本",
     desc: "第三幕的转折可以再提前半拍，张力会更强。",
     date: "2026/7/18",
     ts: 40,
-    read: true,
+    read: false,
   },
   {
-    id: "m6",
-    kind: "reward",
+    id: "m3",
+    channel: "message",
     title: "积分到账 +200",
     desc: "完成「每日创作」任务，奖励已发放至你的账户。",
     date: "2026/7/17",
     ts: 30,
-    read: true,
+    read: false,
   },
   {
-    id: "m7",
-    kind: "notice",
+    id: "m4",
+    channel: "message",
     title: "项目《盛唐》渲染完成",
     desc: "共 12 个分镜已生成完毕，可前往项目页查看与导出。",
     date: "2026/7/16",
@@ -94,69 +87,9 @@ const INITIAL_MESSAGES: MsgItem[] = [
   },
 ];
 
-/* Icon per kind — platform uses a gradient "A" badge, welcome uses a megaphone */
-function KindIcon({ kind }: { kind: MsgKind }) {
-  if (kind === "platform") {
-    return (
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#2a2a2a]">
-        <svg viewBox="0 0 24 24" className="size-5">
-          <defs>
-            <linearGradient id="msg-a-grad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#ff5c3a" />
-              <stop offset="100%" stopColor="#ff2d6b" />
-            </linearGradient>
-          </defs>
-          <text x="12" y="17" textAnchor="middle" fill="url(#msg-a-grad)" fontSize="16" fontWeight="800" fontFamily="system-ui">A</text>
-        </svg>
-      </span>
-    );
-  }
-  if (kind === "welcome") {
-    return (
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#2a2a2a]">
-        <svg viewBox="0 0 24 24" fill="none" className="size-5 text-brand">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </span>
-    );
-  }
-  const map: Record<string, { Icon: React.ComponentType<{ className?: string }>; color: string }> = {
-    like: { Icon: HeartIcon, color: "text-[#ff5cb0]" },
-    comment: { Icon: MessageSquareIcon, color: "text-[#00e5c8]" },
-    system: { Icon: SparkleIcon, color: "text-brand" },
-    reward: { Icon: GiftIcon, color: "text-warning" },
-    notice: { Icon: InfoIcon, color: "text-white/70" },
-  };
-  const s = map[kind] ?? map.notice;
-  const { Icon } = s;
-  return (
-    <span className={`flex size-10 shrink-0 items-center justify-center rounded-full bg-[#2a2a2a] ${s.color}`}>
-      <Icon className="size-[18px]" />
-    </span>
-  );
-}
-
-function TrayIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M3 13h4l1.5 2.5h7L17 13h4" />
-      <path d="M5 13l1.8-6.2A2 2 0 0 1 8.7 5.3h6.6a2 2 0 0 1 1.9 1.5L19 13" />
-      <path d="M3 13v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" />
-    </svg>
-  );
-}
-
 export function MessageCenter({ open, onClose }: MessageCenterProps) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [tab, setTab] = useState<Channel>("announce");
 
   useEffect(() => {
     if (!open) return;
@@ -167,10 +100,19 @@ export function MessageCenter({ open, onClose }: MessageCenterProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  const sorted = [...messages].sort((a, b) => b.ts - a.ts);
+  const unreadOf = (ch: Channel) =>
+    messages.filter((m) => m.channel === ch && !m.read).length;
+
+  const list = messages
+    .filter((m) => m.channel === tab)
+    .sort((a, b) => b.ts - a.ts);
 
   const markAllRead = () => {
     setMessages((prev) => prev.map((m) => ({ ...m, read: true })));
+  };
+
+  const markRead = (id: string) => {
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read: true } : m)));
   };
 
   if (!open) return null;
@@ -181,28 +123,46 @@ export function MessageCenter({ open, onClose }: MessageCenterProps) {
       <div
         aria-hidden
         onClick={onClose}
-        className="fixed bottom-0 right-0 top-0 left-[108px] z-40 bg-black/40 backdrop-blur-[2px]"
+        className="fixed bottom-0 right-0 top-0 left-[64px] z-40 bg-black/40 backdrop-blur-[2px] md:left-[108px]"
       />
 
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label="消息中心"
-        className="fixed bottom-0 top-0 left-[64px] z-50 flex w-[420px] max-w-[calc(100vw-64px)] flex-col bg-[#1a1a1a] shadow-2xl md:left-[108px] md:max-w-[calc(100vw-108px)]"
+        aria-label="通知"
+        className="fixed bottom-4 right-4 top-4 z-50 flex w-[420px] max-w-[calc(100vw-72px)] flex-col overflow-hidden rounded-2xl bg-[#161616] shadow-2xl ring-1 ring-white/[0.08]"
       >
-        {/* Header */}
-        <div className="flex h-[52px] shrink-0 items-center justify-between px-5">
-          <div className="flex items-center gap-3">
-            <h2 className="text-[16px] font-bold text-white">消息中心</h2>
-            <button
-              type="button"
-              onClick={markAllRead}
-              title="全部标为已读"
-              aria-label="全部标为已读"
-              className="flex size-7 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/[0.08] hover:text-white/70"
-            >
-              <CheckCheckIcon className="size-[15px]" />
-            </button>
+        {/* Header：标题 + 公告/消息 分段切换 */}
+        <div className="flex shrink-0 items-center justify-between px-5 pb-3 pt-5">
+          <h2 className="text-[16px] font-bold text-white">通知</h2>
+          <div
+            role="tablist"
+            aria-label="通知分类"
+            className="flex rounded-full bg-white/[0.06] p-1"
+          >
+            {(
+              [
+                { id: "announce", label: "公告" },
+                { id: "message", label: "消息" },
+              ] as const
+            ).map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={tab === t.id}
+                onClick={() => setTab(t.id)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-colors",
+                  tab === t.id ? "bg-white/[0.12] text-white" : "text-white/50 hover:text-white",
+                )}
+              >
+                {t.label}
+                <span className="flex size-4 items-center justify-center rounded-full bg-[#7c5cff] text-[10px] font-bold text-white">
+                  {unreadOf(t.id)}
+                </span>
+              </button>
+            ))}
           </div>
           <button
             type="button"
@@ -210,55 +170,61 @@ export function MessageCenter({ open, onClose }: MessageCenterProps) {
             aria-label="关闭"
             className="flex size-7 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/[0.08] hover:text-white/70"
           >
-            <XIcon className="size-[16px]" />
+            <CloseIcon className="size-[16px]" />
           </button>
         </div>
 
-        {/* Divider */}
-        <div className="h-px bg-white/[0.06]" />
-
         {/* Body */}
         <div className="flex-1 overflow-y-auto">
-          {sorted.length === 0 ? (
+          {list.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-white/35">
               <TrayIcon className="size-12" />
-              <span className="text-[13px]">暂无消息</span>
+              <span className="text-[13px]">暂无通知</span>
             </div>
           ) : (
             <ul className="flex flex-col">
-              {sorted.map((m) => (
-                <li key={m.id}>
+              {list.map((m) => (
+                <li key={m.id} className="border-b border-white/[0.06] last:border-0">
                   <button
                     type="button"
-                    onClick={() => {
-                      setMessages((prev) =>
-                        prev.map((x) => (x.id === m.id ? { ...x, read: true } : x))
-                      );
-                      console.log("navigate to message", m.id);
-                    }}
-                    className="flex w-full items-start gap-3.5 px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
+                    onClick={() => markRead(m.id)}
+                    className="w-full px-5 py-4 text-left transition-colors hover:bg-white/[0.03]"
                   >
-                    <KindIcon kind={m.kind} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[14px] font-semibold text-white/90">
-                        {m.title}
-                      </span>
-                      <span className="mt-1.5 line-clamp-2 block text-[13px] leading-relaxed text-white/45">
-                        {m.desc}
-                      </span>
-                      <span className="mt-2 block text-[12px] text-white/30">
-                        {m.date}
+                    <p className="text-right text-[11px] text-white/35">{m.date}</p>
+                    <span className="mt-1.5 flex items-start gap-2.5">
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "mt-[7px] size-1.5 shrink-0 rounded-full",
+                          m.read ? "bg-white/15" : "bg-[#7c5cff]",
+                        )}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[14px] font-bold leading-snug text-white">
+                          {m.title}
+                        </span>
+                        <span className="mt-1.5 block text-[12px] leading-relaxed text-white/45">
+                          {m.desc}
+                        </span>
                       </span>
                     </span>
-                    {/* Unread dot */}
-                    {!m.read && (
-                      <span className="mt-1.5 size-2 shrink-0 rounded-full bg-[#ff3b3b]" />
-                    )}
                   </button>
                 </li>
               ))}
             </ul>
           )}
+        </div>
+
+        {/* Footer：一键已读 */}
+        <div className="shrink-0 border-t border-white/[0.06] p-4">
+          <button
+            type="button"
+            onClick={markAllRead}
+            className="flex items-center gap-2 rounded-full bg-white/[0.06] px-4 py-2 text-[12px] font-semibold text-white/80 transition-colors hover:bg-white/[0.1] hover:text-white"
+          >
+            <CheckCheckIcon className="size-4" />
+            一键已读
+          </button>
         </div>
       </aside>
     </>

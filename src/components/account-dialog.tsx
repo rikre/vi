@@ -4,15 +4,13 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   CoinsIcon,
-  DocumentIcon,
   EditIcon,
   GiftIcon,
   LayersIcon,
   LogoutIcon,
-  MessageSquareIcon,
   RefreshCwIcon,
   UserIcon,
-  XIcon,
+  CloseIcon,
 } from "@/components/icons";
 
 /* ---------- Mock 数据 ---------- */
@@ -47,12 +45,6 @@ const POINTS_ROWS = [
   { time: "2026-05-10 17:35:50", type: "剧本积分", order: 145433, points: -10, balance: 145423, detail: "片场[第43集]：文本转剧本-蓝天1.0" },
   { time: "2026-05-10 17:35:50", type: "剧本积分", order: 145443, points: -10, balance: 145433, detail: "片场[第44集]：文本转剧本-蓝天1.0" },
   { time: "2026-05-10 17:35:41", type: "剧本积分", order: 145453, points: -10, balance: 145443, detail: "片场[第45集]：文本转剧本-蓝天1.0" },
-];
-
-const INVOICE_ROWS = [
-  { order: "ORD17746137907387407", time: "2026-03-27 20:16", type: "积分充值", amount: "¥1.00", status: "已完成", downloadable: true },
-  { order: "ORD17740829766024313", time: "2026-03-21 16:49", type: "积分充值", amount: "¥1.00", status: "已退款", downloadable: false },
-  { order: "ORD17740824448286622", time: "2026-03-21 16:40", type: "积分充值", amount: "¥0.50", status: "已退款", downloadable: false },
 ];
 
 const TASK_ROWS = [
@@ -121,26 +113,7 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
         </button>
       </div>
 
-      {[
-        { label: "手机", value: "166****8669", action: "更换手机" },
-        { label: "邮箱", value: "未绑定", action: "绑定邮箱" },
-      ].map((row) => (
-        <div key={row.label} className="flex items-center justify-between border-b border-white/[0.08] py-5">
-          <div>
-            <p className="text-[14px] font-medium text-white">{row.label}</p>
-            <p className="mt-1 text-[13px] text-white/45">{row.value}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => console.log(row.action)}
-            className="rounded-lg border border-white/15 px-4 py-2 text-[13px] text-white/75 transition-colors hover:bg-white/[0.06] hover:text-white"
-          >
-            {row.action}
-          </button>
-        </div>
-      ))}
-
-      {/* 退出登录（原「密码设置 / 账号注销」已移除） */}
+      {/* 退出登录 */}
       <div className="flex items-center justify-between py-5">
         <div>
           <p className="text-[14px] font-medium text-white">退出登录</p>
@@ -196,70 +169,6 @@ function ChargeTab() {
         </table>
       </div>
       <Pager from={1} to={10} total={10} />
-    </div>
-  );
-}
-
-/* ---------- 子页：账单发票 ---------- */
-
-function InvoiceTab() {
-  return (
-    <div>
-      <div className="flex items-center justify-between rounded-xl bg-white/[0.03] px-4 py-3.5 ring-1 ring-white/[0.08]">
-        <p className="text-[13px] text-white/70">
-          <span className="font-semibold text-white">发票信息</span>
-          <span className="ml-2 text-white/45">更新您的付款和发票信息</span>
-        </p>
-        <button
-          type="button"
-          onClick={() => console.log("刷新发票")}
-          className="rounded-lg border border-white/15 px-3.5 py-1.5 text-[12px] text-white/75 transition-colors hover:bg-white/[0.06] hover:text-white"
-        >
-          刷新
-        </button>
-      </div>
-
-      <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-white/[0.08]">
-        <table className="w-full border-collapse bg-white/[0.02]">
-          <thead>
-            <tr className="border-b border-white/[0.08] bg-white/[0.03]">
-              <th className={TH}>订单号</th>
-              <th className={TH}>时间</th>
-              <th className={TH}>类型</th>
-              <th className={TH}>金额</th>
-              <th className={TH}>状态</th>
-              <th className={TH}>发票</th>
-            </tr>
-          </thead>
-          <tbody>
-            {INVOICE_ROWS.map((r) => (
-              <tr key={r.order} className="border-b border-white/[0.05] last:border-0 hover:bg-white/[0.02]">
-                <td className={cn(TD, "font-mono text-[12px] text-white/60")}>{r.order}</td>
-                <td className={cn(TD, "text-white/55")}>{r.time}</td>
-                <td className={TD}>{r.type}</td>
-                <td className={TD}>{r.amount}</td>
-                <td className={TD}>
-                  <StatusPill status={r.status} />
-                </td>
-                <td className={TD}>
-                  {r.downloadable ? (
-                    <button
-                      type="button"
-                      onClick={() => console.log("下载发票", r.order)}
-                      className="text-[13px] font-medium text-info transition-colors hover:underline"
-                    >
-                      下载
-                    </button>
-                  ) : (
-                    <span className="text-white/25">—</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <Pager from={1} to={3} total={3} />
     </div>
   );
 }
@@ -379,39 +288,6 @@ function TaskTab() {
   );
 }
 
-/* ---------- 子页：问题反馈 ---------- */
-
-function FeedbackTab() {
-  const [sent, setSent] = useState(false);
-  return (
-    <div className="max-w-[560px]">
-      <h3 className="text-[15px] font-semibold text-white">问题反馈</h3>
-      <p className="mt-1 text-[12px] text-white/45">告诉我们你遇到的问题或建议，我们会在 1-2 个工作日内回复</p>
-      <select
-        aria-label="反馈类型"
-        className="mt-4 w-full rounded-lg bg-white/[0.05] px-3 py-2.5 text-[13px] text-white/75 ring-1 ring-white/[0.08] focus:outline-none focus:ring-brand/40"
-      >
-        <option>生成质量问题</option>
-        <option>积分/账单问题</option>
-        <option>功能建议</option>
-        <option>其他</option>
-      </select>
-      <textarea
-        rows={5}
-        placeholder="请详细描述你的问题…"
-        className="mt-3 w-full resize-none rounded-lg bg-white/[0.05] px-3 py-2.5 text-[13px] text-white/85 ring-1 ring-white/[0.08] placeholder:text-white/30 focus:outline-none focus:ring-brand/40"
-      />
-      <button
-        type="button"
-        onClick={() => setSent(true)}
-        className="mt-3 rounded-lg bg-brand px-5 py-2 text-[13px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
-      >
-        {sent ? "已提交，感谢反馈" : "提交反馈"}
-      </button>
-    </div>
-  );
-}
-
 /* ---------- 子页：邀请好友 ---------- */
 
 function InviteTab() {
@@ -521,7 +397,7 @@ export function AiWatermarkDialog({ onClose }: { onClose: () => void }) {
           onClick={onClose}
           className="absolute right-4 top-4 text-white/50 transition-colors hover:text-white"
         >
-          <XIcon className="size-4" />
+          <CloseIcon className="size-4" />
         </button>
 
         <h3 className="text-center text-[16px] font-bold text-white">AI 生成水印设置</h3>
@@ -580,16 +456,14 @@ export function AiWatermarkDialog({ onClose }: { onClose: () => void }) {
 
 /* ---------- 账户管理主弹框 ---------- */
 
-export type AccountTab = "profile" | "charge" | "invoice" | "points" | "task" | "invite" | "feedback";
+export type AccountTab = "profile" | "charge" | "points" | "task" | "invite";
 
 const ACCOUNT_TABS: { id: AccountTab; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
   { id: "profile", label: "个人资料", Icon: UserIcon },
   { id: "charge", label: "积分充值", Icon: CoinsIcon },
-  { id: "invoice", label: "账单发票", Icon: DocumentIcon },
   { id: "points", label: "积分明细", Icon: RefreshCwIcon },
   { id: "task", label: "任务明细", Icon: LayersIcon },
   { id: "invite", label: "邀请好友", Icon: GiftIcon },
-  { id: "feedback", label: "问题反馈", Icon: MessageSquareIcon },
 ];
 
 export function AccountDialog({
@@ -632,7 +506,7 @@ export function AccountDialog({
           onClick={onClose}
           className="text-white/50 transition-colors hover:text-white"
         >
-          <XIcon className="size-5" />
+          <CloseIcon className="size-5" />
         </button>
       </div>
 
@@ -668,11 +542,9 @@ export function AccountDialog({
         <main className="min-w-0 flex-1 overflow-y-auto px-8 py-6">
           {tab === "profile" && <ProfileTab onLogout={onClose} />}
           {tab === "charge" && <ChargeTab />}
-          {tab === "invoice" && <InvoiceTab />}
           {tab === "points" && <PointsTab />}
           {tab === "task" && <TaskTab />}
           {tab === "invite" && <InviteTab />}
-          {tab === "feedback" && <FeedbackTab />}
         </main>
       </div>
     </div>

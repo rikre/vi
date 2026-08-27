@@ -314,37 +314,73 @@ export const LEGACY_CARDS: Record<
     {
       id: 1,
       name: "虾兵",
-      imagePrompt:
-        "anime character design full body, shrimp soldier, ocean theme, blue tones, detailed",
+      imagePrompt: "simple anime shrimp soldier, blue ocean theme, clean background",
     },
     {
       id: 2,
       name: "纪川",
-      imagePrompt:
-        "anime character design portrait, Ji Chuan, modern young man, soft lighting",
+      imagePrompt: "simple anime young man portrait, soft lighting, minimal background",
     },
     {
       id: 3,
       name: "霍云峥",
-      imagePrompt:
-        "anime character design portrait, Huo Yunzheng, ancient warrior, dramatic lighting",
+      imagePrompt: "simple anime ancient warrior portrait, dramatic lighting, clean design",
     },
     {
       id: 4,
-      name: "萧世昌 幕后主使",
-      imagePrompt:
-        "anime character design portrait, Xiao Shichang, antagonist mastermind, dark atmosphere",
+      name: "萧世昌",
+      imagePrompt: "simple anime antagonist portrait, dark atmosphere, minimal details",
     },
   ],
   scene: [
     {
       id: 101,
       name: "古风宫殿",
-      imagePrompt:
-        "anime scene background, ancient Chinese palace interior, golden hour, cinematic",
+      imagePrompt: "simple anime palace interior, warm lighting, clean background",
+    },
+    {
+      id: 102,
+      name: "现代都市",
+      imagePrompt: "simple anime city street at night, neon lights, minimal details",
+    },
+    {
+      id: 103,
+      name: "校园教室",
+      imagePrompt: "simple anime classroom, sunlight, clean design",
+    },
+    {
+      id: 104,
+      name: "悬疑密室",
+      imagePrompt: "simple anime mysterious room, shadows, minimal atmosphere",
     },
   ],
-  prop: [],
+  prop: [
+    {
+      id: 201,
+      name: "古剑",
+      imagePrompt: "simple anime sword design, ornate hilt, clean background",
+    },
+    {
+      id: 202,
+      name: "魔法书",
+      imagePrompt: "simple anime spellbook, glowing runes, minimal design",
+    },
+    {
+      id: 203,
+      name: "玉佩",
+      imagePrompt: "simple anime jade pendant, green translucent, clean design",
+    },
+    {
+      id: 204,
+      name: "手枪",
+      imagePrompt: "simple anime handgun, black metal, minimal details",
+    },
+    {
+      id: 205,
+      name: "手机",
+      imagePrompt: "simple anime smartphone, slim profile, clean design",
+    },
+  ],
 };
 
 export function txi(

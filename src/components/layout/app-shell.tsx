@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sidebar } from "./sidebar";
 import { TopBar } from "./top-bar";
 import { MessageCenter } from "@/components/message-center";
+import { CourseFab } from "@/components/course-fab";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [msgOpen, setMsgOpen] = useState(false);
@@ -21,6 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <MessageCenter open={msgOpen} onClose={() => setMsgOpen(false)} />
+      <CourseFab />
     </>
   );
 }

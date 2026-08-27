@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漫剧行业会员积分体系调研与定价分析报告</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --color-bg: #F8FAFC;
+    --color-surface: #FFFFFF;
+    --color-border: #E2E8F0;
+    --color-text: #0F172A;
+    --color-text-secondary: #475569;
+    --color-text-muted: #94A3B8;
+    --color-primary: #4F46E5;
+    --color-primary-soft: #EEF2FF;
+    --color-teal: #0D9488;
+    --color-teal-soft: #F0FDFA;
+    --color-amber: #D97706;
+    --color-amber-soft: #FFFBEB;
+    --color-red: #DC2626;
+    --color-red-soft: #FEF2F2;
+    --color-green: #16A34A;
+    --color-green-soft: #F0FDF4;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  .report-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 48px 0 40px;
+  }
+  .report-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .report-header h1 { font-size: 30px; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
+  .report-header .subtitle { color: var(--color-text-secondary); font-size: 15px; max-width: 760px; }
+  .report-meta { margin-top: 20px; display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; color: var(--color-text-muted); }
+
+  /* Nav */
+  .toc {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .toc .container { display: flex; gap: 4px; overflow-x: auto; padding-top: 0; padding-bottom: 0; }
+  .toc a {
+    display: block; padding: 14px 14px; font-size: 13px; font-weight: 500;
+    color: var(--color-text-secondary); text-decoration: none; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+  }
+  .toc a:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+  /* Sections */
+  section { padding: 48px 0 8px; }
+  .section-label { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: var(--color-primary); margin-bottom: 8px; }
+  h2 { font-size: 23px; font-weight: 700; margin-bottom: 8px; }
+  h3 { font-size: 17px; font-weight: 700; margin: 28px 0 12px; }
+  .section-desc { color: var(--color-text-secondary); margin-bottom: 24px; max-width: 820px; }
+  p { margin-bottom: 12px; }
+  strong { font-weight: 600; }
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  /* Key conclusions */
+  .conclusions { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 8px; }
+  .conclusion-item {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow);
+  }
+  .conclusion-item h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .conclusion-item p { font-size: 13.5px; color: var(--color-text-secondary); margin: 0; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); box-shadow: var(--shadow); margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 720px; }
+  th {
+    background: #F1F5F9; text-align: left; padding: 12px 14px;
+    font-weight: 600; color: var(--color-text-secondary); white-space: nowrap;
+    border-bottom: 1px solid var(--color-border); font-size: 13px;
+  }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #F8FAFC; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .cell-best { color: var(--color-teal); font-weight: 700; }
+  .cell-flag { color: var(--color-amber); }
+
+  /* Badges */
+  .badge { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .badge-primary { background: var(--color-primary-soft); color: var(--color-primary); }
+  .badge-teal { background: var(--color-teal-soft); color: var(--color-teal); }
+  .badge-amber { background: var(--color-amber-soft); color: var(--color-amber); }
+  .badge-red { background: var(--color-red-soft); color: var(--color-red); }
+  .badge-green { background: var(--color-green-soft); color: var(--color-green); }
+  .badge-gray { background: #F1F5F9; color: var(--color-text-secondary); }
+
+  /* Charts */
+  .chart { width: 100%; height: 360px; }
+  .chart-tall { height: 420px; }
+  .chart-note { font-size: 12.5px; color: var(--color-text-muted); margin-top: 8px; }
+
+  /* Psychology cards */
+  .psy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .psy-card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+  }
+  .psy-card .psy-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .psy-card .psy-icon {
+    width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--color-primary-soft); color: var(--color-primary);
+  }
+  .psy-card .psy-icon svg { width: 18px; height: 18px; }
+  .psy-card h4 { font-size: 14.5px; font-weight: 700; }
+  .psy-card p { font-size: 13px; color: var(--color-text-secondary); margin: 0; }
+  .psy-card .case { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--color-border); font-size: 12.5px; color: var(--color-text-muted); }
+  .psy-card.warn { border-color: #FECACA; }
+  .psy-card.warn .psy-icon { background: var(--color-red-soft); color: var(--color-red); }
+
+  /* Pricing proposal */
+  .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .tier {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius); padding: 24px 20px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; position: relative;
+  }
+  .tier.featured { border: 2px solid var(--color-primary); }
+  .tier .tier-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--color-primary); color: #fff; font-size: 11.5px; font-weight: 700;
+    padding: 3px 14px; border-radius: 999px; white-space: nowrap;
+  }
+  .tier h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .tier .price { font-size: 30px; font-weight: 800; margin: 10px 0 2px; font-variant-numeric: tabular-nums; }
+  .tier .price small { font-size: 13px; font-weight: 500; color: var(--color-text-muted); }
+  .tier .anchor { font-size: 12.5px; color: var(--color-text-muted); margin-bottom: 14px; }
+  .tier .anchor s { margin-right: 6px; }
+  .tier ul { list-style: none; margin-top: 6px; flex: 1; }
+  .tier ul li {
+    font-size: 13px; color: var(--color-text-secondary); padding: 5px 0 5px 22px; position: relative;
+  }
+  .tier ul li::before {
+    content: ""; position: absolute; left: 0; top: 11px; width: 14px; height: 14px;
+    background: var(--color-teal);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;
+    border-radius: 50%;
+  }
+  .tier ul li.dim { color: var(--color-text-muted); }
+
+  /* Scenario cards */
+  .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .scenario {
+    border-radius: var(--radius); padding: 22px; border: 1px solid var(--color-border);
+    background: var(--color-surface); box-shadow: var(--shadow);
+  }
+  .scenario h4 { font-size: 15px; margin-bottom: 2px; }
+  .scenario .prob { font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+  .scenario ul { list-style: none; }
+  .scenario ul li { font-size: 13px; color: var(--color-text-secondary); padding: 4px 0 4px 16px; position: relative; }
+  .scenario ul li::before { content: ""; position: absolute; left: 0; top: 12px; width: 6px; height: 6px; border-radius: 50%; background: var(--color-text-muted); }
+  .scenario.s-optimistic { border-top: 4px solid var(--color-green); }
+  .scenario.s-neutral { border-top: 4px solid var(--color-amber); }
+  .scenario.s-pessimistic { border-top: 4px solid var(--color-red); }
+
+  .callout {
+    border-radius: var(--radius); padding: 18px 22px; margin: 20px 0;
+    border: 1px solid var(--color-border); font-size: 14px;
+  }
+  .callout.info { background: var(--color-primary-soft); border-color: #C7D2FE; }
+  .callout.warn { background: var(--color-amber-soft); border-color: #FDE68A; }
+  .callout.danger { background: var(--color-red-soft); border-color: #FECACA; }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  .timeline-item { display: flex; gap: 16px; padding: 10px 0; border-bottom: 1px dashed var(--color-border); }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-date { flex-shrink: 0; width: 110px; font-size: 12.5px; font-weight: 700; color: var(--color-primary); font-variant-numeric: tabular-nums; }
+  .timeline-body { font-size: 13.5px; color: var(--color-text-secondary); }
+
+  .sources { font-size: 12.5px; color: var(--color-text-muted); }
+  .sources li { margin-bottom: 6px; word-break: break-all; }
+  .sources a { color: var(--color-primary); text-decoration: none; }
+  .sources a:hover { text-decoration: underline; }
+
+  footer { padding: 40px 0 56px; text-align: center; color: var(--color-text-muted); font-size: 12.5px; }
+
+  @media (max-width: 640px) {
+    .report-header h1 { font-size: 23px; }
+    h2 { font-size: 19px; }
+    .chart { height: 300px; }
+    .timeline-date { width: 84px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="report-header">
+  <div class="container">
+    <span class="report-tag">行业调研报告</span>
+    <h1>漫剧 / AI 视频生成行业会员积分体系调研与定价分析报告</h1>
+    <p class="subtitle">覆盖即梦、可灵、海螺、Vidu、通义万相、万兴天幕、PixVerse 七家头部工具的会员体系横评、定价心理学手法拆解、我方平台会员积分体系方案草案，以及 Seedance 2 价格战三情景预判。</p>
+    <div class="report-meta">
+      <span>调研日期：2026-08-13</span>
+      <span>出品：MVP 开发专家团（许清楚 / 产品经理 主研，大湾区靓仔 / 项目总监 汇编）</span>
+      <span>数据声明：所有价格均来自公开来源并附 URL，冲突数据已标注，未编造</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="container">
+    <a href="#summary">核心结论</a>
+    <a href="#benchmark">头部产品横评</a>
+    <a href="#dimensions">七大设计维度</a>
+    <a href="#psychology">定价心理学</a>
+    <a href="#proposal">我方方案草案</a>
+    <a href="#pricewar">Seedance 2 价格战预判</a>
+    <a href="#actions">行动建议</a>
+    <a href="#sources">数据来源</a>
+  </div>
+</nav>
+
+<main class="container">
+
+<!-- ============ 0. 核心结论 ============ -->
+<section id="summary">
+  <div class="section-label">EXECUTIVE SUMMARY</div>
+  <h2>核心结论</h2>
+  <p class="section-desc">五条最重要的判断，细节见后文各章节。</p>
+  <div class="conclusions">
+    <div class="conclusion-item">
+      <h4>行业价格带已收敛，中档是主销战场</h4>
+      <p>入门档集中在 36-79 元/月，旗舰档 459-1,149 元/月，150-250 元/月的中档是各家主推档位。年付 5-7 折、首月/首年超低价是标准动作。</p>
+    </div>
+    <div class="conclusion-item">
+      <h4>团队版存在明确空档：2 席起 + 共享积分池</h4>
+      <p>可灵团队版约 3 席起（454-559 元/席/月），Vidu 海外 10 席起（$2,999 起）。「2 人即可开通、席位积分汇入共享池」的小团队方案是行业空白，与我方平台定位高度契合。</p>
+    </div>
+    <div class="conclusion-item">
+      <h4>Seedance 2 降价预判：刊例撑住、成交松动</h4>
+      <p>中性情景（概率最高）：字节维持刊例价，通过 mini/fast 副线 4 折常态化做结构性降价，2026 年 11 月 - 2027 年 2 月完成实际成交价下移；乐观情景 2026 Q4 刊例价实质性下调 30-50%。</p>
+    </div>
+    <div class="conclusion-item">
+      <h4>720p 档 2026 Q4 内收敛到 0.2-0.4 元/秒</h4>
+      <p>万相 3.0（0.3 元/秒起）+ 海螺 H3 开源（0.5 元/秒）已把 720p 心理价位锚到 0.5 元/秒以下，火山引擎 mini 限时 4 折（0.2 元/秒）就是字节的回应。</p>
+    </div>
+    <div class="conclusion-item">
+      <h4>我方定价必须按"算力成本持续下行"设计</h4>
+      <p>积分面额与人民币解耦、保留内部调价空间；多模型路由不绑定单一供应商；避免 Vidu 式"月度清零 + 不可退款 + 失败扣费"（其 Trustpilot 差评 2.0-2.8 分的主因）。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 1. 头部产品横评 ============ -->
+<section id="benchmark">
+  <div class="section-label">BENCHMARK</div>
+  <h2>头部产品会员体系横评</h2>
+  <p class="section-desc">七家国内头部工具，2026 年 8 月现行公开价格。海螺国内 C 端价格多来源冲突（29-49 元/月区间），即梦团队版数据来源可靠性一般，均已标注待官网核实。</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">各产品档位总览</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>产品</th><th>厂商</th><th>积分单位</th><th>档位结构（月费）</th><th>年付折扣</th><th>团队版</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>即梦 AI</strong></td><td>字节跳动</td><td>积分</td>
+            <td>基础 69 / 标准 199 / 高级 499（连续包月价）</td>
+            <td>首年 5 折</td>
+            <td>企业版走火山引擎按量计费；第三方来源称 25 元/人/月、3-20 人 <span class="badge badge-amber">待核实</span></td>
+          </tr>
+          <tr>
+            <td><strong>可灵 AI</strong></td><td>快手</td><td>灵感值</td>
+            <td>黄金 58 / 铂金 234 / 钻石 586 / 黑金 1,149（连续包月价）</td>
+            <td>7 折</td>
+            <td>约 3 席起，刊例 699 元/席/月，年付 454 元/席/月，每席 10,000 灵感值入共享池 <span class="badge badge-teal">最直接对标</span></td>
+          </tr>
+          <tr>
+            <td><strong>海螺 AI</strong></td><td>MiniMax</td><td>积分 / 贝壳</td>
+            <td>国内 29-49 / 69 元档 <span class="badge badge-amber">来源冲突</span>；海外 $14.99-$199.99 五档</td>
+            <td>年档折月约 33 元（一来源）</td>
+            <td>未查到公开团队版</td>
+          </tr>
+          <tr>
+            <td><strong>Vidu</strong></td><td>生数科技</td><td>积分</td>
+            <td>标准 48.25 / 专业 179 / 旗舰 559.17（年付折月）</td>
+            <td>约 7 折</td>
+            <td>海外 10 席起、$2,999 起、共享积分池、错峰每日 500 条</td>
+          </tr>
+          <tr>
+            <td><strong>通义万相</strong></td><td>阿里巴巴</td><td>灵感值</td>
+            <td>标准 36 / 高级 145（连续包年折月）</td>
+            <td><span class="cell-best">5 折（行业最狠）</span></td>
+            <td>未查到公开团队版；免费额度行业最宽松（每日补 50 灵感值、可商用无水印）</td>
+          </tr>
+          <tr>
+            <td><strong>万兴天幕</strong></td><td>万兴科技</td><td>积分</td>
+            <td>基础 48 / 标准 138 / 专业 488（续费价）</td>
+            <td>连续包月约 7 折</td>
+            <td>商业版 2,980 元/年起，仅企业（需营业执照）</td>
+          </tr>
+          <tr>
+            <td><strong>PixVerse</strong></td><td>爱诗科技</td><td>积分</td>
+            <td>标准 79 / 专业 239 / 尊享 459</td>
+            <td>7 折</td>
+            <td>企业版定制（API / 私有化）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">价格带对比：入门档 vs 旗舰档月费</h3>
+    <div id="chart-price-band" class="chart"></div>
+    <p class="chart-note">入门档取各家最低付费档的连续包月/年付折月价（海螺取冲突区间中值 38 元）；旗舰档取最高公开档。行业入门带 36-79 元，旗舰带 459-1,149 元。</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">权益门槛对比：什么价位开始给什么</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>权益</th><th>即梦</th><th>可灵</th><th>Vidu</th><th>万相</th><th>万兴</th><th>行业惯例结论</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>去水印</strong></td><td>基础会员起</td><td>黄金起</td><td>标准版起</td><td>标准会员起</td><td>基础版起</td><td><span class="badge badge-gray">最低付费档即给</span></td></tr>
+          <tr><td><strong>商用授权</strong></td><td>标准会员起</td><td>黄金起</td><td>标准版起</td><td><span class="cell-best">免费即可</span></td><td>会员起</td><td><span class="badge badge-gray">入门-中档给</span></td></tr>
+          <tr><td><strong>新功能优先</strong></td><td>标准起</td><td>铂金起</td><td>专业版起</td><td>高级会员</td><td>标准起</td><td><span class="badge badge-gray">中档给</span></td></tr>
+          <tr><td><strong>限量内测</strong></td><td>高级会员</td><td>黑金独享</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-primary">旗舰独享，制造稀缺</span></td></tr>
+          <tr><td><strong>错峰无限生成</strong></td><td>无</td><td>无</td><td>旗舰独享（每日 200 条）</td><td>慢速无限（全会员）</td><td>专业版独享</td><td><span class="badge badge-primary">2026 旗舰核心卖点</span></td></tr>
+          <tr><td><strong>积分有效期</strong></td><td>加购 2 年</td><td>礼品卡兑换后 2 年</td><td><span class="cell-flag">月度清零</span></td><td>未查到</td><td>来源冲突</td><td><span class="badge badge-amber">长有效期 vs 清零两派</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout danger">
+    <strong>反面教材：Vidu 的差评组合</strong>
+    月度积分清零不结转 + 不可退款 + 失败渲染照样扣积分，三者叠加导致 Trustpilot 评分仅 2.0-2.8，差评高度集中于扣费争议。短期保收入、长期伤口碑，我方方案明确不采用。
+  </div>
+</section>
+
+<!-- ============ 2. 七大设计维度 ============ -->
+<section id="dimensions">
+  <div class="section-label">DESIGN DIMENSIONS</div>
+  <h2>会员体系七大设计维度拆解</h2>
+  <p class="section-desc">每个维度给出行业现状与我方设计输入。</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">维度一：积分充值（加购）</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>产品</th><th>充值档位</th><th>积分单价</th><th>设计手法</th></tr></thead>
+        <tbody>
+          <tr><td>即梦</td><td>约 0.1 元/积分，一来源 50 元/500 分</td><td>0.029-0.064 元/分（按会员档递减）</td><td>档位越高加购越便宜，倒逼升档</td></tr>
+          <tr><td>可灵</td><td>礼品卡 100 元/1,000、200 元/2,200（划线 220）、1,000 元/12,000（划线 1,200）</td><td>0.044-0.088 元/灵感值</td><td>划线价 + 大额加赠 + 兑换后 2 年有效，鼓励囤货</td></tr>
+          <tr><td>万兴天幕</td><td>98 元/4,000（首月特惠）、138/4,000、398/12,000、998/36,000</td><td>0.027-0.035 元/分</td><td>会员加购 9/7/5 折按档分层</td></tr>
+          <tr><td>PixVerse</td><td>35 元/550、140/2,200、350/5,500、678/11,000（统一加赠 10%）</td><td>约 0.06 元/分</td><td>加赠比例统一，简单透明</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>设计输入：</strong>积分单价行业带 0.027-0.088 元/分；「大额加赠 + 会员档折扣分层」双杠杆是主流；加购折扣与会员档位挂钩可同时驱动充值和升档。</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">维度二：月卡 / 年卡档位</h3>
+    <p>行业通行 3-4 档结构（入门 / 主销 / 旗舰 / 超旗舰可选），关键数字规律：</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>规律</th><th>行业数据</th><th>案例</th></tr></thead>
+        <tbody>
+          <tr><td>相邻档位价差倍数</td><td>约 2.5-4 倍</td><td>可灵 58 → 234 → 586 → 1,149（每档约 2.5-4 倍跳跃）</td></tr>
+          <tr><td>年付折扣</td><td>5-7 折</td><td>万相包年 5 折最狠；可灵/Vidu/PixVerse 7 折；即梦首年 5 折、续费恢复全额（先甜后苦锚定）</td></tr>
+          <tr><td>首月/首单钩子</td><td>1-7 折</td><td>即梦 1 元试 7 天；可灵 5.99 元/7 天（首购低至 3 折）；万兴首月特惠 98 元</td></tr>
+          <tr><td>月积分供给倍数</td><td>档位间约 3-4 倍</td><td>可灵 660 → 3,000 → 8,000 → 26,000 灵感值；即梦 1,080 → 4,000 → 15,000 积分</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>设计输入：</strong>3-4 档、相邻价差约 3 倍、年付 7 折 + 首年 5 折、1 元级试用钩子，是经验证的最优结构；主销档必须打「最受欢迎」标签（诱饵效应）。</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">维度三：模型特权（阶梯解锁）</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>产品</th><th>模型阶梯设计</th></tr></thead>
+        <tbody>
+          <tr><td>即梦</td><td>Seedance 2.0 仅会员可用；标准会员享 2.0 积分 6.5 折、高级会员 4 折；图片 4.0 4K 模型限时仅高级会员免费</td></tr>
+          <tr><td>可灵</td><td>「新功能优先体验」铂金起；「限量内测」黑金独享；主体创建数 50/150/150/500 按档分层</td></tr>
+          <tr><td>Vidu</td><td>错峰每日 200 条免费 + Q2 1080p 生图不限量，仅旗舰版</td></tr>
+          <tr><td>万兴</td><td>错峰时段 0 积分无限生成，仅专业版</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>设计输入：</strong>「旗舰模型仅会员可用 + 模型积分折扣按档分层 + 内测资格顶档独享」是三层标准阶梯。对多模型路由平台，模型特权天然适合做成「可用模型清单 + 各模型积分折扣率」矩阵。</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">维度四：功能特权</h3>
+    <p>行业通行功能权益清单（按门槛从低到高）：去水印 → 高分辨率导出（1080p/4K）→ 商用授权 → 优先生成队列/并发数 → 新功能优先 → 错峰无限生成 → 限量内测。我方平台特有的链路功能（剧本编辑、资产管理、分镜批量生成、成片组装、AI 重绘、发布中心）可按同样逻辑分层：基础功能全档可用，批量与自动化能力放中档，团队协作与多平台分发放高档/团队版。</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">维度五：促销与折扣节奏</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>促销类型</th><th>行业案例</th><th>心理机制</th></tr></thead>
+        <tbody>
+          <tr><td>超低门槛试用</td><td>即梦 1 元/7 天（送 200-260 积分）；可灵 5.99 元/7 天</td><td>登门槛效应，先建付费习惯</td></tr>
+          <tr><td>首年/首月锚定</td><td>即梦首年 5 折 329 元（划线 659）；可灵首购低至 3 折</td><td>锚定 + 划线价</td></tr>
+          <tr><td>限时特惠</td><td>火山引擎 Seedance 2.0 mini 限时 4 折（8-07 至 9-07）；即梦模型限免截止日</td><td>损失厌恶 + 截止日期驱动</td></tr>
+          <tr><td>默认选项陷阱</td><td>万兴「首月特惠 98 元需勾选，未勾选按 138 扣费」</td><td>默认效应（有争议，慎用）</td></tr>
+          <tr><td>邀请裂变</td><td>可灵邀请 1 人 +200 灵感值无上限、好友首月 +30%</td><td>社交货币化</td></tr>
+          <tr><td>每日签到</td><td>万相每日补至 50 灵感值；海螺每日 100 贝壳；拍我每日 60 积分</td><td>免费额度做成 DAU 引擎</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">维度六：团队版席位</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>产品</th><th>起售席位</th><th>席位价</th><th>团队权益</th></tr></thead>
+        <tbody>
+          <tr><td>可灵（最直接对标）</td><td class="num">约 3 席（官网示例 3 席）</td><td>刊例 699 元/席/月；1 个月付 559、6 个月付 524、12 个月付 454</td><td>每席 10,000 灵感值/月入共享池；协同创作、资产共享分级管理、数据隔离、商用授权；仅 PC 端</td></tr>
+          <tr><td>Vidu（海外）</td><td class="num">10 席</td><td>$2,999 起</td><td>共享积分池、企业生成通道、错峰每日 500 条</td></tr>
+          <tr><td>即梦</td><td class="num">未公开</td><td>第三方来源 25 元/人/月、3-20 人 <span class="badge badge-amber">待核实</span></td><td>企业版走火山引擎 API 分权</td></tr>
+          <tr><td>万兴</td><td class="num">—</td><td>商业版 2,980 元/年起</td><td>仅企业（需营业执照），准入门槛高</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout info">
+      <strong>市场空档确认</strong>
+      行业团队版门槛要么 3 席/10 席起，要么要营业执照。「2 席起售 + 共享积分池 + 无需企业资质」直接命中 2-5 人漫剧工作室这一最大长尾客群，是我方团队版的核心差异化。
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">维度七：积分有效期策略</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>策略流派</th><th>代表</th><th>效果</th><th>风险</th></tr></thead>
+        <tbody>
+          <tr><td>长有效期派</td><td>可灵（兑换后 2 年）、即梦（加购 2 年）</td><td>增强沉没成本，鼓励大额囤货</td><td>负债端积压，未来算力让利</td></tr>
+          <tr><td>当月清零派</td><td>Vidu（月度不结转）、万兴（一来源称当月清零）</td><td>逼消耗、逼续费</td><td><span class="cell-flag">差评主因，口碑代价大</span></td></tr>
+          <tr><td>折中派（建议）</td><td>—</td><td>订阅积分结转 1 个月 + 充值积分 12 个月有效</td><td>平衡现金流与口碑</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<!-- ============ 3. 定价心理学 ============ -->
+<section id="psychology">
+  <div class="section-label">PRICING PSYCHOLOGY</div>
+  <h2>定价心理学十大手法（配真实案例）</h2>
+  <p class="section-desc">全部来自本次调研到的真实产品设计，按推荐采用度排序。最后一条为负面手法警示。</p>
+  <div class="psy-grid">
+    <div class="psy-card">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+        <h4>1. 锚定效应：年卡折月价 + 划线价</h4>
+      </div>
+      <p>用高刊例价做锚，把年付折算成"每月仅 XX 元"降低痛感。</p>
+      <div class="case">案例：即梦"首年 5 折 329 元（划线 659）"；万相"等价 36 元/月（划线 72）"；Vidu"48.25 元/月，省 249 元/年"。</div>
+    </div>
+    <div class="psy-card">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>
+        <h4>2. 损失厌恶：限时 / 限量</h4>
+      </div>
+      <p>截止日期与"首购仅一次"制造错过即损失的紧迫感。</p>
+      <div class="case">案例：火山引擎 mini "8.7-9.7 限时 4 折"；可灵"首购低至 3 折，仅一次"；即梦"4K 模型 10-20 前限免"。</div>
+    </div>
+    <div class="psy-card">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4v-6H4zM10 20h4V10h-4zM16 20h4V4h-4z"/></svg></span>
+        <h4>3. 阶梯解锁：高档位独享模型</h4>
+      </div>
+      <p>把最强模型/内测资格做成升档理由，而非单纯加量。</p>
+      <div class="case">案例：即梦 Seedance 2.0 仅会员、积分折扣标准 6.5 折 vs 高级 4 折；可灵"限量内测"黑金独享。</div>
+    </div>
+    <div class="psy-card">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>
+        <h4>4. 积分沉没成本</h4>
+      </div>
+      <p>长有效期鼓励囤货，按日发放赠送积分强制每日回访。</p>
+      <div class="case">案例：可灵礼品卡兑换后 2 年有效；海螺单购积分 1 年过期且不享会员权益（逼买会员）；即梦赠送积分按日发放。</div>
+    </div>
+    <div class="psy-card">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></span>
+        <h4>5. 诱饵效应：主推档标签</h4>
+      </div>
+      <p>三档结构中给高档或中档打"最划算/推荐"标签，引导跳过其他档。</p>
+      <div class="case">案例：即梦高级会员、万兴专业版"推荐"标签。</div>
+    </div>
+    <div class="psy-card">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18M3 12l6-6M3 12l6 6"/></svg></span>
+        <h4>6. 登门槛：1 元级试用</h4>
+      </div>
+      <p>把首次付费决策摩擦降到接近零，先建立付费身份认同。</p>
+      <div class="case">案例：即梦 1 元试 7 天送 200-260 积分；可灵 5.99 元/7 天（黄金档）。</div>
+    </div>
+    <div class="psy-card">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 11h-6M21 7h-6"/></svg></span>
+        <h4>7. 邀请裂变：社交货币化</h4>
+      </div>
+      <p>把获客成本直接兑换成积分返给老用户，无上限刺激传播。</p>
+      <div class="case">案例：可灵邀请 1 位新会员 +200 灵感值无上限、好友首月 +30%（封顶 3,000）。</div>
+    </div>
+    <div class="psy-card">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></span>
+        <h4>8. 每日签到留存钩</h4>
+      </div>
+      <p>免费额度按日发放而非一次性给完，把福利做成 DAU 引擎。</p>
+      <div class="case">案例：万相每日补至 50 灵感值、海螺每日 100 贝壳、拍我每日 60 积分。</div>
+    </div>
+    <div class="psy-card">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg></span>
+        <h4>9. 错峰免费：产能填谷</h4>
+      </div>
+      <p>闲置算力零成本包装成"无限生成"的感知价值，同时引导用户错峰。</p>
+      <div class="case">案例：Vidu 旗舰 off-peak 每日 200 条；万兴 0-6 点/13-16 点 0 积分；PixVerse 凌晨 2-6 点免费。</div>
+    </div>
+    <div class="psy-card warn">
+      <div class="psy-head">
+        <span class="psy-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></span>
+        <h4>10. 不可退款 + 失败扣费（警示）</h4>
+      </div>
+      <p>短期保收入、长期摧毁口碑的负面手法，明确不建议采用。</p>
+      <div class="case">案例：Vidu 不退款且失败渲染扣积分，Trustpilot 仅 2.0-2.8 分，差评集中于此。</div>
+    </div>
+  </div>
+</section>
+<!-- ============ 4. 我方方案草案 ============ -->
+<section id="proposal">
+  <div class="section-label">OUR PROPOSAL</div>
+  <h2>我方会员积分体系方案草案</h2>
+  <p class="section-desc">适配当前产品定位：AI 漫剧全链路创作平台（剧本 → 资产 → 分镜 → 成片 → AI 重绘 → 发布）。价格锚定行业中档主销带，团队版打「2 席起」空档。以下为草案，数字可按算力采购成本二次校准。</p>
+
+  <h3>4.1 个人会员四档结构</h3>
+  <div class="tier-grid">
+    <div class="tier">
+      <h4>免费版</h4>
+      <div class="price">0<small> 元</small></div>
+      <div class="anchor">每日签到送 60 积分（按日发放）</div>
+      <ul>
+        <li>基础模型可用（开源系路由）</li>
+        <li>720p 导出，带水印</li>
+        <li>标准排队队列，1 并发</li>
+        <li class="dim">不可商用</li>
+        <li class="dim">不含批量生成</li>
+      </ul>
+    </div>
+    <div class="tier">
+      <h4>基础会员</h4>
+      <div class="price">49<small> 元/月（连续包月）</small></div>
+      <div class="anchor"><s>刊例 59 元/月</s>年付 468 元 · 首年 5 折 234 元</div>
+      <ul>
+        <li>1,200 积分/月</li>
+        <li>去水印 + 1080p 导出</li>
+        <li>优先生成队列，3 并发</li>
+        <li>剧本/分镜基础批量能力</li>
+        <li class="dim">Pro 级模型不可用</li>
+      </ul>
+    </div>
+    <div class="tier featured">
+      <span class="tier-badge">最受欢迎 · 主销档</span>
+      <h4>标准会员</h4>
+      <div class="price">149<small> 元/月（连续包月）</small></div>
+      <div class="anchor"><s>刊例 169 元/月</s>年付 1,428 元（折月 119，约 7 折）</div>
+      <ul>
+        <li>4,500 积分/月（约 3.7 倍于基础档）</li>
+        <li>Pro 级模型解锁（积分 8 折）</li>
+        <li>4K 导出 + 商用授权</li>
+        <li>批量分镜/批量生视频 + AI 重绘全量</li>
+        <li>积分加购 7 折</li>
+      </ul>
+    </div>
+    <div class="tier">
+      <h4>高级会员</h4>
+      <div class="price">349<small> 元/月（连续包月）</small></div>
+      <div class="anchor"><s>刊例 399 元/月</s>年付 3,348 元（折月 279）</div>
+      <ul>
+        <li>15,000 积分/月</li>
+        <li>Pro 级模型积分 5 折 + 新模型内测优先</li>
+        <li>错峰时段无限生成（0 积分）</li>
+        <li>8 并发 + 最高优先级队列</li>
+        <li>积分加购 5 折</li>
+      </ul>
+    </div>
+  </div>
+  <p class="chart-note">设计依据：入门档 49 元落在行业 36-79 元带内偏中；主销档 149 元卡位 150-250 元主销带下沿，比可灵铂金（234）、即梦标准（199）便宜，用「全链路工作流」而非价格做价值支撑；相邻档价差约 3 倍符合行业规律。</p>
+
+  <h3>4.2 积分充值（加购）档位</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>充值面额</th><th class="num">获得积分</th><th class="num">加赠</th><th class="num">积分单价</th><th>会员加购折扣</th></tr></thead>
+      <tbody>
+        <tr><td>60 元</td><td class="num">1,000</td><td class="num">—</td><td class="num">0.060 元/分</td><td rowspan="4">基础 9 折 · 标准 7 折 · 高级 5 折<br><span class="chart-note">折扣与档位挂钩，同时驱动充值与升档</span></td></tr>
+        <tr><td>150 元</td><td class="num">2,600</td><td class="num">+4%</td><td class="num">0.058 元/分</td></tr>
+        <tr><td>300 元</td><td class="num">5,600</td><td class="num">+12%</td><td class="num">0.054 元/分</td></tr>
+        <tr><td>600 元</td><td class="num">12,000</td><td class="num">+20%（划线价 720 元）</td><td class="num">0.050 元/分</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>有效期策略（折中派）：</strong>订阅赠送积分当月有效、可结转 1 个月；充值积分 12 个月有效。<strong>明确承诺：生成失败自动退回积分、支持 7 天无理由退款</strong>——直接对标 Vidu 差评痛点做口碑差异化。</p>
+
+  <h3>4.3 团队版（2 席起，核心差异化）</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>项目</th><th>方案</th></tr></thead>
+      <tbody>
+        <tr><td><strong>起售门槛</strong></td><td><span class="badge badge-teal">2 席起</span>（可灵约 3 席、Vidu 海外 10 席、万兴要营业执照——2-5 人工作室是行业空白）</td></tr>
+        <tr><td><strong>席位定价</strong></td><td>刊例 399 元/席/月；季付 359 元/席/月；年付 <strong>299 元/席/月</strong>（约 75 折）</td></tr>
+        <tr><td><strong>积分池</strong></td><td>每席 8,000 积分/月汇入团队共享池（2 席共 16,000），池内积分全员可用、管理员可设成员额度上限</td></tr>
+        <tr><td><strong>席位阶梯</strong></td><td>2-5 席标准价；6-20 席 95 折；20 席以上转企业定制（对公支付、私有化、SLA）</td></tr>
+        <tr><td><strong>团队权益</strong></td><td>协同创作（剧本/分镜多人编辑）、资产库共享与分级权限、项目数据隔离、全员商用授权、团队版全端可用（不限 PC）</td></tr>
+        <tr><td><strong>管理权益</strong></td><td>管理员控制台：成员增删、席位调换、消耗报表、积分分配审计</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="chart-note">定价逻辑：席位价 299-399 元介于标准会员（149）与高级会员（349）之间上浮，对标可灵 454-559 元/席/月有明显价格优势；每席积分量 8,000 高于标准档 4,500，体现团队生产力溢价。</p>
+
+  <h3>4.4 促销节奏设计</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>节奏</th><th>动作</th><th>心理机制</th></tr></thead>
+      <tbody>
+        <tr><td>获客钩子</td><td>1 元试用 7 天标准会员（送 200 积分）</td><td>登门槛</td></tr>
+        <tr><td>首单转化</td><td>首年 5 折（划线刊例价）；首月 7 折</td><td>锚定 + 损失厌恶</td></tr>
+        <tr><td>大促节点</td><td>限时 4-6 折（对齐算力采购降价窗口，如模型 API 降价后 2 周内跟进）</td><td>限时稀缺；成本下行红利让渡</td></tr>
+        <tr><td>日常留存</td><td>每日签到 60 积分（免费版同享）</td><td>DAU 引擎</td></tr>
+        <tr><td>裂变增长</td><td>邀请 1 位付费用户 +200 积分无上限，好友首月 +20%</td><td>社交货币化</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>4.5 五条设计原则（结合价格战结论）</h3>
+  <div class="card">
+    <ul style="list-style:none; padding-left:0;">
+      <li style="padding:6px 0;"><strong>1. 积分面额与人民币解耦：</strong>积分是内部计价单位，官方保留调整积分消耗率的权利。算力成本下行时通过「同积分生成更多内容」让利，而不是降会员价——保住刊例价体系。</li>
+      <li style="padding:6px 0;"><strong>2. 多模型路由对冲：</strong>不绑定单一供应商，Seedance / 万相 / 海螺 / 可灵多家接入，谁降价用谁，把价格战红利转化为毛利。</li>
+      <li style="padding:6px 0;"><strong>3. 不用清零 + 不退款 + 失败扣费：</strong>Vidu 用 2.0 分口碑验证过这条路走不通。</li>
+      <li style="padding:6px 0;"><strong>4. 错峰免费填谷：</strong>把闲置时段算力包装成高级会员「无限生成」权益，零成本制造感知价值。</li>
+      <li style="padding:6px 0;"><strong>5. 团队版 2 席起 + 全端可用：</strong>直击可灵 3 席起、仅 PC 端的两个限制，抢小团队长尾市场。</li>
+    </ul>
+  </div>
+</section>
+<!-- ============ 5. Seedance 2 价格战 ============ -->
+<section id="pricewar">
+  <div class="section-label">PRICE WAR ANALYSIS</div>
+  <h2>Seedance 2 降价预判：字节还能撑多久</h2>
+  <p class="section-desc">结论先行：<strong>字节 C 端（即梦）短期不会降价——需求过热到在涨价；真正的战场在 API/B 端。</strong>万相 3.0 与海螺 H3 开源已把 720p 档心理价位锚到 0.5 元/秒以下，火山引擎 mini 限时 4 折就是回应。字节"撑不住"的触发器不是成本，而是 B 端 API 份额流失。</p>
+
+  <h3>5.1 关键时间线</h3>
+  <div class="card">
+    <div class="timeline-item"><span class="timeline-date">2025-06</span><span class="timeline-body"><strong>Seedance 1.0 发布</strong>，登顶 Artificial Analysis 双榜；Pro 约 0.73 元/秒（1080p）</span></div>
+    <div class="timeline-item"><span class="timeline-date">2026-02-12</span><span class="timeline-body"><strong>Seedance 2.0 发布</strong>（多模态联合生成，现象级）；即梦侧约 1 元/秒等值积分</span></div>
+    <div class="timeline-item"><span class="timeline-date">2026 年 2-4 月</span><span class="timeline-body">即梦一个月内<strong>三次调价</strong>：会员费涨、积分额度降、单条消耗成倍增加；高级会员 1080p 5 秒单条约 13.49 元；闲鱼"四折积分年卡"被炒至 5,000-20,000 元</span></div>
+    <div class="timeline-item"><span class="timeline-date">2026-04-14</span><span class="timeline-body">火山引擎 <strong>Seedance 2.0 API 全量开放</strong>：含视频输入 28 元/百万 tokens、不含 46 元/百万 tokens，实测约 1 元/秒</span></div>
+    <div class="timeline-item"><span class="timeline-date">2026-04</span><span class="timeline-body">阿里"HappyHorse"盲测双榜超 Seedance 2.0 约 110 分，4-27 开 API 测试、5 月商用</span></div>
+    <div class="timeline-item"><span class="timeline-date">2026-06</span><span class="timeline-body">Seedance 2.5 发布（30 秒直出、50 个全模态素材参考）</span></div>
+    <div class="timeline-item"><span class="timeline-date">2026-07-31</span><span class="timeline-body"><strong>MiniMax H3（Hailuo 3.0）发布</strong>：2K 0.80 元/秒、768p 0.50 元/秒；8 月 3 日开源权重（许可证排除英/欧/美/韩，年收入超 2,000 万美元需单独授权）</span></div>
+    <div class="timeline-item"><span class="timeline-date">2026-08-06</span><span class="timeline-body"><strong>阿里 Wan3.0 公测</strong>（30 秒单段 + 文档输入，闭源 API-only）：480p 0.3 / 720p 0.6 / 1080p 1.2 元每秒</span></div>
+    <div class="timeline-item"><span class="timeline-date">2026-08-07</span><span class="timeline-body">火山引擎上线 Seedance 2.5 API；<strong>2.0 mini 限时 4 折（最低约 0.2 元/秒）、2.0 fast 限时 75 折</strong>（8-07 至 9-07）——对 Wan3.0/H3 的直接回应</span></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">每秒生成成本对比（2026-08 当前）</h3>
+    <div id="chart-cost" class="chart"></div>
+    <p class="chart-note">旗舰档与副线档分开看：字节用 mini/fast 副线把实际成交价打到 0.2 元/秒，但旗舰刊例价（约 1 元/秒）未动——"旗舰保利润 + 副线抢份额"双轨策略。可灵为会员侧 720p 折算价，与其余 API 口径不完全可比，仅供参考。</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">历史规律：可灵历代模型标准模式定价轨迹</h3>
+    <div id="chart-kling-history" class="chart"></div>
+    <p class="chart-note">数据来源：太平洋证券研报。行业整体规律——新旗舰发布时涨价（能力溢价），6-12 个月内通过 mini/fast/lite 副线把实际成交价打回 0.2-0.5 元/秒区间。</p>
+  </div>
+
+  <h3>5.2 三情景预判</h3>
+  <div class="scenario-grid">
+    <div class="scenario s-optimistic">
+      <h4>乐观情景</h4>
+      <div class="prob" style="color:var(--color-green)">2026 Q4（10-12 月）刊例价实质下调 30-50%</div>
+      <ul>
+        <li>触发：Wan3.0 全量开放后实测口碑追平 Seedance 2.0</li>
+        <li>触发：H3 开源生态起量，ComfyUI/本地部署分流</li>
+        <li>触发：即梦排队缓解，稀缺溢价消失</li>
+        <li>依据：2.0 mini 发布仅 4 个月即打 4 折，限时转常态是字节标准路径（参照 1.0 时代 Lite 快速下沉）</li>
+      </ul>
+    </div>
+    <div class="scenario s-neutral">
+      <h4>中性情景（概率最高）</h4>
+      <div class="prob" style="color:var(--color-amber)">刊例不降，结构性降价常态化，2026.11 - 2027.02 成交价整体下移</div>
+      <ul>
+        <li>字节维持"旗舰保利润 + mini/fast 抢份额"双轨</li>
+        <li>限时 4 折反复续期但不改刊例</li>
+        <li>API 侧 1 元/秒 → 实际成交 0.4-0.6 元/秒</li>
+        <li>即梦 C 端会员价不降，但积分加赠/折扣加大（隐性降价）</li>
+        <li>2027 Q1 随 Seedance 3.0 发布完成新旧交替（参照 1.0→2.0 约 8 个月迭代节奏）</li>
+      </ul>
+    </div>
+    <div class="scenario s-pessimistic">
+      <h4>悲观情景</h4>
+      <div class="prob" style="color:var(--color-red)">刊例价维持到 2027 年中以后</div>
+      <ul>
+        <li>触发：Seedance 2.5/3.0 持续霸榜，与竞品拉开质量代差</li>
+        <li>触发：AI 短剧/漫剧工业化需求继续爆发（当前供不应求）</li>
+        <li>触发：竞品 API 的 SLA、并发、合格率不达标，B 端迁移成本高</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <strong>监测信号（建议每月跟踪）</strong>
+    ① 即梦排队时长变化；② 闲鱼即梦账号/年卡炒作价格；③ 火山引擎 mini 4 折在 9 月 7 日后是否续期（不续期 = 字节判断需求仍旺）；④ Wan3.0 API 第三方实测口碑；⑤ H3 开源社区活跃度。
+  </div>
+
+  <div class="callout warn">
+    <strong>核心判断</strong>
+    预计 <strong>2026 Q4 内 720p 档实际成交价全行业收敛到 0.2-0.4 元/秒，1080p 档 2027 H1 收敛到 0.5-0.7 元/秒</strong>。对下游工具方（我们），这意味着会员定价绝不能按当前算力成本锚死——成本端还有 50% 以上的下行空间。
+  </div>
+</section>
+
+<!-- ============ 6. 行动建议 ============ -->
+<section id="actions">
+  <div class="section-label">ACTION ITEMS</div>
+  <h2>对我方产品的行动建议</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>建议</th><th>理由</th><th>优先级</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>会员体系按本报告 4.1-4.4 草案落地，主销档 149 元/月</td><td>卡位行业主销带下沿，用全链路工作流做价值支撑</td><td><span class="badge badge-red">P0</span></td></tr>
+        <tr><td>2</td><td>团队版 2 席起 + 共享积分池 + 全端可用</td><td>行业明确空档，2-5 人工作室是漫剧生产主力长尾</td><td><span class="badge badge-red">P0</span></td></tr>
+        <tr><td>3</td><td>积分面额与人民币解耦，保留内部调价空间</td><td>算力成本 2026Q4-2027H1 还有 50%+ 下行空间，避免刊例价被动</td><td><span class="badge badge-red">P0</span></td></tr>
+        <tr><td>4</td><td>架构上多模型路由（Seedance/万相/海螺/可灵多接入）</td><td>对冲单一供应商价格战波动，把降价红利转化为毛利</td><td><span class="badge badge-amber">P1</span></td></tr>
+        <tr><td>5</td><td>承诺失败退积分 + 7 天无理由退款</td><td>对标 Vidu 差评痛点的口碑差异化，成本极低</td><td><span class="badge badge-amber">P1</span></td></tr>
+        <tr><td>6</td><td>上线错峰无限生成（高级会员独享）</td><td>闲置算力零成本包装成旗舰权益，2026 年行业验证过的卖点</td><td><span class="badge badge-amber">P1</span></td></tr>
+        <tr><td>7</td><td>每月跟踪 5.2 节五个降价监测信号</td><td>在字节实际降价后 2 周内跟进促销节奏，让渡成本红利抢用户</td><td><span class="badge badge-gray">P2</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 7. 数据来源 ============ -->
+<section id="sources">
+  <div class="section-label">SOURCES</div>
+  <h2>数据来源与可信度说明</h2>
+  <p class="section-desc">所有关键数字均来自以下来源（2026-08-13 检索）。海螺国内 C 端价格、即梦团队版、万兴积分有效期存在多来源冲突，正文已逐处标注"待核实"，建议商务决策前以官网为准复核。</p>
+  <div class="card sources">
+    <ul>
+      <li>即梦会员档位与涨价：<a href="https://new.qq.com/rain/a/20260429A08H2C00">腾讯新闻 2026-04-29</a> · <a href="https://www.ai-indeed.com/encyclopedia/20215.html">ai-indeed</a> · <a href="https://www.toutiao.com/a7643414775443063306">今日头条</a></li>
+      <li>可灵会员/团队会员全量价格：<a href="https://klingai.com/app/membership/membership-plan">可灵官网会员页</a> · <a href="https://app.klingai.com/cn/membership/team-membership-plan">可灵团队会员页</a> · 国证国际研报</li>
+      <li>海螺国内/海外价格与 API：<a href="https://www.php.cn/faq/2512326.html">php.cn</a> · <a href="https://aiwiki.ai/wiki/hailuo">aiwiki</a> · <a href="https://aireiter.com/blog/minimax-h3">H3 发布分析</a> · <a href="https://yfarmx.com/ai/video/minimax-h3">yfarmx</a></li>
+      <li>Vidu 定价：<a href="https://www.vidu.cn/pricing">Vidu 官网定价页</a> · <a href="https://aiquiks.com/ai-tools/vidu">aiquiks</a> · <a href="https://aitestguide.com/vidu-ai-review">aitestguide（差评分析）</a></li>
+      <li>通义万相与 Wan3.0：<a href="https://www.chooseai.net/ai-news/detail/5582">chooseai</a> · <a href="https://hokai.io/hub/models/wan-3.0">hokai Wan3.0</a></li>
+      <li>万兴天幕：<a href="https://app.tomoviee.cn/pricing">天幕官网定价页</a> · <a href="https://www.php.cn/faq/2829015.html">php.cn</a></li>
+      <li>PixVerse：<a href="https://c.m.163.com/news/a/KPTLVO6R05566SXE.html">网易新闻</a> · <a href="https://new.qq.com/rain/a/20260425A04E8B00">腾讯新闻</a></li>
+      <li>Seedance 2.0 API 定价与降价：<a href="https://www.yicai.com/news/103070321.html">第一财经</a> · 国元证券研报</li>
+      <li>可灵历代价格轨迹：<a href="https://pdf.dfcfw.com/pdf/H3_AP202603161820568067_1.pdf">太平洋证券研报</a></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>漫剧行业会员积分体系调研与定价分析报告 · 2026-08-13 · MVP 开发专家团出品</p>
+  <p>本报告价格数据为调研时点公开信息，实际商务决策前请以各官网最新价格复核</p>
+</footer>
+
+<script>
+(function () {
+  var C = { primary: '#4F46E5', teal: '#0D9488', amber: '#D97706', red: '#DC2626', slate: '#94A3B8', text: '#475569', border: '#E2E8F0' };
+  var baseText = { color: C.text, fontSize: 12 };
+
+  // Chart 1: 入门档 vs 旗舰档月费
+  var el1 = document.getElementById('chart-price-band');
+  if (el1 && window.echarts) {
+    var c1 = echarts.init(el1);
+    c1.setOption({
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: function (v) { return v + ' 元/月'; } },
+      legend: { data: ['入门档', '旗舰档'], top: 0, textStyle: baseText },
+      grid: { left: 60, right: 30, top: 40, bottom: 30 },
+      xAxis: { type: 'category', data: ['万相', '海螺*', '万兴', 'Vidu', '可灵', '即梦', 'PixVerse'], axisLabel: baseText },
+      yAxis: { type: 'value', name: '元/月', axisLabel: baseText, splitLine: { lineStyle: { color: C.border } } },
+      series: [
+        { name: '入门档', type: 'bar', data: [36, 38, 48, 48.25, 58, 69, 79], itemStyle: { color: C.teal, borderRadius: [4, 4, 0, 0] }, barGap: '10%' },
+        { name: '旗舰档', type: 'bar', data: [145, 469, 488, 559, 1149, 499, 459], itemStyle: { color: C.primary, borderRadius: [4, 4, 0, 0] } }
+      ]
+    });
+    window.addEventListener('resize', function () { c1.resize(); });
+  }
+
+  // Chart 2: 每秒生成成本
+  var el2 = document.getElementById('chart-cost');
+  if (el2 && window.echarts) {
+    var c2 = echarts.init(el2);
+    c2.setOption({
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: function (v) { return v + ' 元/秒'; } },
+      grid: { left: 60, right: 30, top: 50, bottom: 60 },
+      xAxis: { type: 'category', data: ['Seedance 2.0 mini\n(限时4折)', 'Wan3.0 480p', '海螺H3 768p', '可灵3.0会员*\n(720p)', 'Wan3.0 720p', '海螺H3 2K', 'Seedance 2.0\n(1080p)', 'Wan3.0 1080p'], axisLabel: { color: C.text, fontSize: 11, interval: 0 } },
+      yAxis: { type: 'value', name: '元/秒', axisLabel: baseText, splitLine: { lineStyle: { color: C.border } } },
+      series: [{
+        type: 'bar',
+        data: [
+          { value: 0.2, itemStyle: { color: C.teal } },
+          { value: 0.3, itemStyle: { color: C.teal } },
+          { value: 0.5, itemStyle: { color: C.teal } },
+          { value: 0.48, itemStyle: { color: C.teal } },
+          { value: 0.6, itemStyle: { color: C.amber } },
+          { value: 0.8, itemStyle: { color: C.amber } },
+          { value: 1.0, itemStyle: { color: C.red } },
+          { value: 1.2, itemStyle: { color: C.red } }
+        ],
+        itemStyle: { borderRadius: [4, 4, 0, 0] },
+        label: { show: true, position: 'top', formatter: '{c}', color: C.text, fontSize: 11 },
+        markLine: {
+          data: [{ yAxis: 0.5, label: { formatter: '720p 心理价位锚 0.5 元/秒', color: C.primary, fontSize: 11 }, lineStyle: { color: C.primary, type: 'dashed' } }]
+        }
+      }]
+    });
+    window.addEventListener('resize', function () { c2.resize(); });
+  }
+
+  // Chart 3: 可灵历代价格轨迹
+  var el3 = document.getElementById('chart-kling-history');
+  if (el3 && window.echarts) {
+    var c3 = echarts.init(el3);
+    c3.setOption({
+      tooltip: { trigger: 'axis', valueFormatter: function (v) { return v + ' 元/秒'; } },
+      grid: { left: 60, right: 40, top: 40, bottom: 40 },
+      xAxis: { type: 'category', data: ['可灵1.0\n2024-06', '可灵1.5/1.6', '可灵2.5 Turbo\n2025-09', '可灵o1\n2025-12', '可灵3.0\n2026-02'], axisLabel: { color: C.text, fontSize: 11, interval: 0 } },
+      yAxis: { type: 'value', name: '元/秒', min: 0, max: 1, axisLabel: baseText, splitLine: { lineStyle: { color: C.border } } },
+      series: [{
+        type: 'line',
+        data: [0.2, 0.4, 0.3, 0.75, 0.75],
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 9,
+        lineStyle: { color: C.primary, width: 3 },
+        itemStyle: { color: C.primary },
+        label: { show: true, position: 'top', formatter: '{c}', color: C.text, fontSize: 11 },
+        areaStyle: { color: 'rgba(79, 70, 229, 0.08)' },
+        markArea: {
+          itemStyle: { color: 'rgba(13, 148, 136, 0.08)' },
+          data: [[{ yAxis: 0.2, label: { show: false } }, { yAxis: 0.5 }]]
+        }
+      }]
+    });
+    window.addEventListener('resize', function () { c3.resize(); });
+  }
+})();
+</script>
+
+</main>
+</body>
+</html>

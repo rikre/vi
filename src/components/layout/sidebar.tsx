@@ -13,14 +13,11 @@ import {
   AssetIcon,
   PublishIcon,
   HelpIcon,
-  MessageIcon,
-  UserIcon,
-  GiftIcon,
 } from "@/components/icons";
 import { PublishDialog } from "@/components/publish-dialog";
 import { AccountDropdown } from "@/components/account-dropdown";
 import { AccountDialog, AiWatermarkDialog, type AccountTab } from "@/components/account-dialog";
-import { RedeemDialog } from "@/components/redeem-dialog";
+import { UserAvatar } from "@/components/user-avatar";
 
 type NavItem = {
   label: string;
@@ -32,7 +29,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { label: "广场", href: "/plaza", Icon: PlazaIcon },
   { label: "创作", href: "/home", Icon: SparkleIcon },
-  { label: "项目", href: "/comic", Icon: FolderOpenIcon },
+  { label: "项目", href: "/project", Icon: FolderOpenIcon },
   { label: "资产", href: "/library", Icon: AssetIcon },
   { label: "技能", href: "/skill", Icon: BookOpenIcon },
   { label: "发布", href: "#", Icon: PublishIcon },
@@ -52,16 +49,15 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountTab, setAccountTab] = useState<AccountTab | null>(null);
   const [watermarkOpen, setWatermarkOpen] = useState(false);
-  const [redeemOpen, setRedeemOpen] = useState(false);
 
   return (
     <>
       <nav
         aria-label="Home v2 side navigation"
-        className="relative flex h-full w-[64px] shrink-0 flex-col items-stretch overflow-y-auto bg-black md:w-[108px]"
+        className="relative flex h-full w-[64px] shrink-0 flex-col items-stretch bg-black md:w-[108px]"
       >
-        {/* Logo */}
-        <div className="flex justify-center px-2 pt-[20px] md:px-3">
+        {/* Logo（顶部固定） */}
+        <div className="flex shrink-0 justify-center px-2 pt-[20px] md:px-3">
           <Link
             href="/home"
             aria-label="bollo 首页"
@@ -72,21 +68,32 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
           </Link>
         </div>
 
-        {/* Top nav group */}
-        <div className="flex flex-col items-center gap-1 px-2 pt-[24px] md:px-[12px]">
+        {/* 主导航（弹性伸展，条目多时可独立滚动） */}
+        <div className="flex min-h-0 flex-1 flex-col items-center gap-1 overflow-y-auto px-2 pt-[24px] md:px-[12px]">
           {NAV_ITEMS.map((item) => {
-            const active = !item.action && pathname === item.href;
+            const active =
+              !item.action &&
+              (pathname === item.href ||
+                (item.href === "/project" && pathname.startsWith("/comic")));
             const { Icon } = item;
             const content = (
               <>
-                <span className="flex shrink-0 items-center justify-center text-current">
+                {/* active 左侧指示条 */}
+                <span
+                  aria-hidden
+                  className={cn(
+                    "absolute left-[-4px] top-1/2 h-[22px] w-[3px] -translate-y-1/2 rounded-full bg-brand transition-all duration-200",
+                    active ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0"
+                  )}
+                />
+                <span className="flex shrink-0 items-center justify-center text-current transition-transform duration-200 group-hover:scale-110">
                   <Icon className="size-4" />
                 </span>
                 <span className="hidden text-[14px] leading-none md:inline">{item.label}</span>
               </>
             );
             const cls = cn(
-              "flex h-[54px] w-[48px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-[12px] px-2 py-[8px] transition-colors md:w-[84px]",
+              "group relative flex h-[54px] w-[48px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-[12px] px-2 py-[8px] transition-all duration-150 active:scale-[0.96] md:w-[84px]",
               active
                 ? "bg-brand/10 text-brand"
                 : "text-white/60 hover:bg-white/[0.05] hover:text-white"
@@ -120,12 +127,9 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
           })}
         </div>
 
-        {/* Divider line */}
-        <div className="mx-2 my-2 h-px bg-white/10 md:mx-[12px]" />
-
-        {/* Bottom group — help, avatar, messages (vertical stack) */}
-        <div className="flex flex-col items-center gap-1 px-2 pb-[20px] md:px-[12px]">
-          {/* Help / QR */}
+        {/* 底部用户区（mt-auto 固定贴底：帮助 + 头像） */}
+        <div className="flex shrink-0 flex-col items-center gap-1 px-2 pb-[20px] pt-3 md:px-[12px]">
+          {/* 帮助 / QR */}
           <button
             type="button"
             onClick={() => {
@@ -136,43 +140,14 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
             title="帮助与反馈"
             className={cn(
               ICON_BTN,
+              "transition-transform duration-150 active:scale-90",
               qrOpen && "bg-white/[0.08] text-white"
             )}
           >
             <HelpIcon className="size-[18px]" />
           </button>
 
-          {/* 账户管理 */}
-          <button
-            type="button"
-            onClick={() => {
-              setAccountTab("profile");
-              setQrOpen(false);
-              setMenuOpen(false);
-            }}
-            aria-label="账户管理"
-            title="账户管理"
-            className={ICON_BTN}
-          >
-            <UserIcon className="size-[18px]" />
-          </button>
-
-          {/* 兑换码 */}
-          <button
-            type="button"
-            onClick={() => {
-              setRedeemOpen(true);
-              setQrOpen(false);
-              setMenuOpen(false);
-            }}
-            aria-label="兑换码"
-            title="兑换码"
-            className={ICON_BTN}
-          >
-            <GiftIcon className="size-[18px]" />
-          </button>
-
-          {/* Avatar / account */}
+          {/* Avatar / 个人中心（消息、兑换码等入口收纳在下拉菜单内） */}
           <div className="relative">
             <button
               type="button"
@@ -183,46 +158,35 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
               aria-label="个人中心"
               aria-expanded={menuOpen}
               aria-haspopup="menu"
-              className="flex size-9 items-center justify-center rounded-[10px] overflow-hidden ring-1 ring-white/10 transition-all hover:ring-white/25"
+              className="flex size-9 items-center justify-center rounded-[10px] overflow-hidden ring-1 ring-white/10 transition-all duration-150 hover:ring-white/25 active:scale-90"
             >
-              <img
-                src="https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=cute%20anime%20avatar%20mascot%20character%20bollo%20lime%20green%20theme%20simple%20design&image_size=square"
-                alt="用户头像"
-                loading="lazy"
-                className="size-full object-cover"
-              />
+              <UserAvatar />
             </button>
-            {/* dropdown rendered outside, positioned upward and right */}
-            <div className="absolute bottom-[calc(100%+8px)] left-[calc(100%+8px)]">
+            {/* 在线状态点 */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute bottom-[1px] right-[1px] size-[9px] rounded-full bg-[#2ecc71] ring-2 ring-black"
+            />
+            {/* dropdown rendered outside, positioned upward and right（移动端锚点对齐屏幕左缘 8px：头像容器距左缘 14px，-6px 补偿） */}
+            <div className="absolute bottom-[calc(100%+8px)] left-[calc(100%+8px)] max-md:-left-1.5">
               <AccountDropdown
                 open={menuOpen}
                 onClose={() => setMenuOpen(false)}
                 placement="top-center"
                 onOpenAccount={(tab) => setAccountTab(tab)}
                 onOpenWatermark={() => setWatermarkOpen(true)}
+                onOpenMessages={() => {
+                  setMenuOpen(false);
+                  onOpenMessages();
+                }}
               />
             </div>
           </div>
-
-          {/* Messages */}
-          <button
-            type="button"
-            onClick={() => {
-              onOpenMessages();
-              setQrOpen(false);
-              setMenuOpen(false);
-            }}
-            aria-label="消息"
-            title="消息"
-            className={ICON_BTN}
-          >
-            <MessageIcon className="size-[18px]" />
-          </button>
         </div>
 
         {/* QR popup */}
         {qrOpen && (
-          <div className="absolute bottom-[72px] left-[100px] z-50">
+          <div className="absolute bottom-[92px] left-[calc(100%+8px)] z-50 max-md:left-2">
             <QrPopupContent onClose={() => setQrOpen(false)} />
           </div>
         )}
@@ -239,7 +203,6 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
         />
       )}
       {watermarkOpen && <AiWatermarkDialog onClose={() => setWatermarkOpen(false)} />}
-      {redeemOpen && <RedeemDialog onClose={() => setRedeemOpen(false)} />}
     </>
   );
 }
@@ -266,7 +229,7 @@ function QrPopupContent({ onClose }: { onClose: () => void }) {
     <div ref={ref} className="relative" role="dialog" aria-label="二维码">
       {/* Arrow pointing down-left toward sidebar */}
       <div className="absolute -bottom-1.5 left-[-14px] size-3 rotate-45 bg-[#1a1a1a] border-r border-b border-white/[0.08]" />
-      <div className="w-[380px] rounded-2xl border border-white/[0.08] bg-[#1a1a1a] p-5 shadow-2xl">
+      <div className="w-[min(380px,calc(100vw-24px))] rounded-2xl border border-white/[0.08] bg-[#1a1a1a] p-5 shadow-2xl">
         {/* Top link */}
         <div className="mb-4 text-right">
           <a

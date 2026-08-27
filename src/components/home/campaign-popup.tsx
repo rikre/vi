@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { XIcon } from "@/components/icons";
+import { CloseIcon } from "@/components/icons";
 import { txi } from "@/app/library/data";
 
 const STORAGE_KEY = "campaign_popup_shown_date";
@@ -43,7 +43,7 @@ export function CampaignPopup() {
           onClick={() => setOpen(false)}
           className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full bg-black/40 text-white/70 transition-colors hover:bg-black/60 hover:text-white"
         >
-          <XIcon className="size-4" />
+          <CloseIcon className="size-4" />
         </button>
 
         {/* P1：模型特价卡 */}
@@ -92,7 +92,7 @@ export function CampaignPopup() {
                 href="/pricing?tab=credits"
                 className="mt-5 block rounded-lg bg-gradient-to-r from-[#00e5c8] to-[#7dff8c] py-2.5 text-center text-[14px] font-semibold text-black transition-opacity hover:opacity-90"
               >
-                Seedance 2.5 1080p 限时72折
+                Seedance 2.5 1080p 首发限时特惠
               </Link>
             </div>
           </div>

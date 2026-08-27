@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { XIcon } from "@/components/icons";
+import { CloseIcon } from "@/components/icons";
 
 const COOKIE_NAME = "campaign_banner_closed";
 const COOKIE_MAX_AGE = 365 * 24 * 3600; // 1 年
@@ -51,7 +51,7 @@ export function CampaignBanner() {
         onClick={close}
         className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 transition-colors hover:text-white"
       >
-        <XIcon className="size-3.5" />
+        <CloseIcon className="size-3.5" />
       </button>
     </div>
   );

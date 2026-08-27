@@ -4,7 +4,21 @@ import { Suspense, useSyncExternalStore, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { CheckoutDialog, type CheckoutOrder } from "@/components/checkout-dialog";
-import { CheckIcon, ChevronDownIcon, CoinsIcon, CrownIcon } from "@/components/icons";
+import {
+  AccountDialog,
+  AiWatermarkDialog,
+  type AccountTab,
+} from "@/components/account-dialog";
+import { UserAvatar } from "@/components/user-avatar";
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  CoinsIcon,
+  CrownIcon,
+  GiftIcon,
+  SparkleIcon,
+} from "@/components/icons";
 import { cn } from "@/lib/utils";
 import {
   CYCLES,
@@ -13,6 +27,8 @@ import {
   RECHARGE_TIERS,
   TEAM_BASE_SEATS,
   TEAM_MAX_SEATS,
+  cycleMonthlyPrice,
+  extraSeatPrice,
   teamCredits,
   yearlyDiscountLabel,
   type MemberCycle,
@@ -30,6 +46,9 @@ function subscribeFirstCharge(cb: () => void) {
 }
 const getFirstCharge = () => localStorage.getItem(FIRST_CHARGE_KEY) === "1";
 const getFirstChargeServer = () => false;
+
+// Mock 登录用户（与账户下拉同源展示）
+const USER = { name: "bollo 用户", points: 2580 };
 
 type PricingTab = "credits" | "membership";
 
@@ -50,6 +69,8 @@ function PricingContent() {
     searchParams.get("tab") === "membership" ? "membership" : "credits";
 
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
+  const [accountTab, setAccountTab] = useState<AccountTab | null>(null);
+  const [watermarkOpen, setWatermarkOpen] = useState(false);
   const firstChargeUsed = useSyncExternalStore(
     subscribeFirstCharge,
     getFirstCharge,
@@ -79,7 +100,7 @@ function PricingContent() {
         tier.id === "first"
           ? `首充成功！150 积分已到账，推荐升级年费会员享 ${yearlyDiscountLabel()}`
           : "充值成功，积分已到账",
-      // 首充→年费会员二次转化路径（spec 优化循环 1 闭环）
+      // 首充→年费会员二次转化路径
       successCta:
         tier.id === "first"
           ? {
@@ -108,24 +129,24 @@ function PricingContent() {
     seats = TEAM_BASE_SEATS,
   ) => {
     const cycleLabel = CYCLES.find((c) => c.id === cycle)?.label;
-    const price = cyclePrice(plan, cycle, identity, seats);
+    const price = teamPrice(plan, cycle, identity, seats);
     const credits =
       identity === "team" ? teamCredits(plan, seats) : plan.monthlyCredits;
     setOrder({
-      title: `${identity === "team" ? "团队版" : "个人版"} · ${plan.name}`,
+      title: `${identity === "team" ? "团队版" : "个人创作"} · ${plan.name}`,
       subtitle:
         identity === "team"
           ? `${cycleLabel} · ${seats} 席位 · ${plan.tagline}`
           : `${cycleLabel} · ${plan.tagline}`,
       amount: price * (cycle === "month" ? 1 : cycle === "quarter" ? 3 : 12),
       benefits: [
-        `每月 ${credits.toLocaleString()} 积分`,
+        `每月 ${credits.toLocaleString()} 积分（含限时赠送）`,
         identity === "team"
           ? `含 ${seats} 席位 · 积分池共享${seats > TEAM_BASE_SEATS ? `（含加席 ×${seats - TEAM_BASE_SEATS}）` : ""}`
           : "单账号使用",
-        `视频模型 ${plan.videoDiscount} · 图片模型 ${plan.imageDiscount}`,
-        cycle === "year" ? "年付专属：加赠 2 个月等值积分 + 折扣锁定" : "",
-      ].filter(Boolean),
+        `${plan.storageGb}GB 云存储 · ${plan.concurrency} 任务并发`,
+        "去水印 · " + plan.commercialLicense,
+      ],
       cta: "确认订阅",
       onSuccessNote: "订阅成功，会员权益已即时生效",
     });
@@ -138,11 +159,16 @@ function PricingContent() {
           <ModelBanner />
 
           {/* 入口切换：积分充值 / 会员订阅 分离，双心智模型互不干扰 */}
-          <div className="mt-6 flex w-fit rounded-xl bg-white/[0.04] p-1 ring-1 ring-white/[0.08]">
+          <div
+            role="tablist"
+            aria-label="商业化入口"
+            className="mt-6 flex w-fit rounded-xl bg-white/[0.04] p-1 ring-1 ring-white/[0.08]"
+          >
             <button
               type="button"
+              role="tab"
+              aria-selected={tab === "credits"}
               onClick={() => switchTab("credits")}
-              aria-pressed={tab === "credits"}
               className={cn(
                 "flex items-center gap-1.5 whitespace-nowrap rounded-lg px-6 py-2.5 text-[14px] font-semibold transition-colors",
                 tab === "credits"
@@ -155,8 +181,9 @@ function PricingContent() {
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={tab === "membership"}
               onClick={() => switchTab("membership")}
-              aria-pressed={tab === "membership"}
               className={cn(
                 "flex items-center gap-1.5 whitespace-nowrap rounded-lg px-6 py-2.5 text-[14px] font-semibold transition-colors",
                 tab === "membership"
@@ -178,7 +205,7 @@ function PricingContent() {
               onRecharge={recharge}
             />
           ) : (
-            <MemberSection onSubscribe={subscribe} />
+            <MemberSection onSubscribe={subscribe} onOpenAccount={setAccountTab} />
           )}
 
           <FaqSection />
@@ -197,6 +224,16 @@ function PricingContent() {
           }}
         />
       )}
+
+      {accountTab !== null && (
+        <AccountDialog
+          open
+          initialTab={accountTab}
+          onClose={() => setAccountTab(null)}
+          onOpenWatermark={() => setWatermarkOpen(true)}
+        />
+      )}
+      {watermarkOpen && <AiWatermarkDialog onClose={() => setWatermarkOpen(false)} />}
     </AppShell>
   );
 }
@@ -297,9 +334,10 @@ function RechargeSection({
   );
 }
 
-/* ---------- 会员订阅 ---------- */
+/* ---------- 会员订阅（参考「跳跃视界」会员体系） ---------- */
 function MemberSection({
   onSubscribe,
+  onOpenAccount,
 }: {
   onSubscribe: (
     plan: MemberPlan,
@@ -307,72 +345,150 @@ function MemberSection({
     identity: MemberIdentity,
     seats?: number,
   ) => void;
+  onOpenAccount: (tab: AccountTab) => void;
 }) {
+  const router = useRouter();
   const [identity, setIdentity] = useState<MemberIdentity>("personal");
-  const [cycle, setCycle] = useState<MemberCycle>("year");
+  const [cycle, setCycle] = useState<MemberCycle>("month");
   const [seats, setSeats] = useState(TEAM_BASE_SEATS);
 
   return (
-    <section className="mt-12">
-      <div className="flex items-center gap-2">
-        <CrownIcon className="size-5 text-brand" />
-        <h2 className="text-[20px] font-bold text-white">会员订阅</h2>
+    <section className="mt-8">
+      {/* 用户积分条：头像 + 积分详情 + 充值/订单/发票入口 */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/[0.03] px-5 py-3.5 ring-1 ring-white/[0.08]">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="size-9 shrink-0 overflow-hidden rounded-full ring-1 ring-white/10">
+            <UserAvatar />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-[13px] font-semibold text-white">
+              {USER.name}
+            </p>
+            <button
+              type="button"
+              onClick={() => onOpenAccount("points")}
+              className="group mt-0.5 flex items-center gap-1 text-[12px] text-white/50 transition-colors hover:text-brand"
+            >
+              积分详情
+              <span className="flex items-center gap-0.5 font-semibold text-brand">
+                <CoinsIcon className="size-3.5" />
+                {USER.points.toLocaleString()}
+              </span>
+              <ArrowRightIcon className="size-3 text-white/30 transition-transform group-hover:translate-x-0.5 group-hover:text-brand" />
+            </button>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => router.replace("/pricing?tab=credits", { scroll: false })}
+            className="flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-[13px] font-bold text-black transition-all hover:brightness-105 active:scale-[0.97]"
+          >
+            充值积分
+            <CoinsIcon className="size-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onOpenAccount("charge")}
+            className="rounded-full px-4 py-2 text-[13px] font-medium text-white/70 ring-1 ring-white/[0.12] transition-colors hover:bg-white/[0.06] hover:text-white"
+          >
+            订单管理
+          </button>
+        </div>
       </div>
 
-      {/* 身份切换 */}
-      <div className="mt-4 flex w-fit rounded-lg bg-white/[0.04] p-1 ring-1 ring-white/[0.08]">
-        <button
-          onClick={() => setIdentity("personal")}
-          className={cn(
-            "rounded-md px-6 py-2 text-[14px] font-medium transition-colors",
-            identity === "personal"
-              ? "bg-white/[0.1] text-white"
-              : "text-white/60 hover:text-white",
-          )}
+      {/* 身份切换 + 课程赠品 */}
+      <div className="relative mt-8 flex items-center justify-center">
+        <div
+          role="tablist"
+          aria-label="会员身份"
+          className="flex items-center gap-10"
         >
-          个人
-        </button>
-        <button
-          onClick={() => setIdentity("team")}
-          className={cn(
-            "rounded-md px-6 py-2 text-[14px] font-medium transition-colors",
-            identity === "team"
-              ? "bg-white/[0.1] text-white"
-              : "text-white/60 hover:text-white",
-          )}
-        >
-          团队
-        </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={identity === "personal"}
+            onClick={() => setIdentity("personal")}
+            className={cn(
+              "relative pb-2 text-[17px] font-bold transition-colors",
+              identity === "personal" ? "text-white" : "text-white/45 hover:text-white/75",
+            )}
+          >
+            个人创作会员
+            {identity === "personal" && (
+              <span className="absolute inset-x-0 -bottom-0.5 h-0.5 rounded-full bg-brand" />
+            )}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={identity === "team"}
+            onClick={() => setIdentity("team")}
+            className={cn(
+              "relative pb-2 text-[17px] font-bold transition-colors",
+              identity === "team" ? "text-white" : "text-white/45 hover:text-white/75",
+            )}
+          >
+            团队版会员
+            {identity === "team" && (
+              <span className="absolute inset-x-0 -bottom-0.5 h-0.5 rounded-full bg-brand" />
+            )}
+          </button>
+        </div>
+        <div className="absolute right-0 hidden items-center lg:flex">
+          <span className="flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1.5 text-[12px] font-semibold text-brand ring-1 ring-brand/25">
+            <GiftIcon className="size-3.5" />
+            会员充值即送价值 2980 的 AI 创作课
+          </span>
+        </div>
       </div>
 
       {/* 周期切换 */}
-      <div className="mt-3 flex w-fit items-center gap-2 rounded-lg bg-white/[0.04] p-1 ring-1 ring-white/[0.08]">
-        {CYCLES.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => setCycle(c.id)}
-            className={cn(
-              "flex items-center gap-1.5 whitespace-nowrap rounded-md px-4 py-2 text-[13px] font-medium transition-colors",
-              cycle === c.id
-                ? "bg-white/[0.1] text-white"
-                : "text-white/60 hover:text-white",
-            )}
-          >
-            {c.label}
-            <span
+      <div className="mt-4 flex justify-center">
+        <div
+          role="tablist"
+          aria-label="订阅周期"
+          className="flex items-center gap-1 rounded-full bg-white/[0.04] p-1 ring-1 ring-white/[0.08]"
+        >
+          {CYCLES.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              role="tab"
+              aria-selected={cycle === c.id}
+              onClick={() => setCycle(c.id)}
               className={cn(
-                "text-[11px]",
-                cycle === c.id ? "text-brand" : "text-white/40",
+                "flex items-center gap-1.5 whitespace-nowrap rounded-full px-5 py-2 text-[13px] font-medium transition-colors",
+                cycle === c.id
+                  ? "bg-brand font-bold text-black"
+                  : "text-white/60 hover:text-white",
               )}
             >
-              {c.id === "year" ? yearlyDiscountLabel() : c.discount}
-            </span>
-          </button>
-        ))}
+              {c.label}
+              {c.discount && (
+                <span
+                  className={cn(
+                    "text-[11px]",
+                    cycle === c.id ? "text-black/70" : "text-brand",
+                  )}
+                >
+                  {c.discount}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
+      <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[12px] text-white/45">
+        <SparkleIcon className="size-3.5 text-brand" />
+        {identity === "team"
+          ? "团队积分购买后一次性到账，有效期以所购套餐为准，到期清零"
+          : "会员积分购买后按月下发，有效期30天，到期重置"}
+      </p>
+
       {identity === "team" && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-white/60">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13px] text-white/60">
           <p>
             团队版含 <span className="font-semibold text-brand">{seats} 席位</span>
             ，积分池席位共享，单席位成本比个人版低约 33%
@@ -410,40 +526,49 @@ function MemberSection({
         </div>
       )}
 
-      {/* 3 档卡片（席位/周期联动计价） */}
-      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-        {MEMBER_PLANS.map((plan, i) => (
-          <PlanCard
-            key={plan.id}
-            plan={plan}
-            cycle={cycle}
-            seats={seats}
-            highlighted={i === 2}
-            identity={identity}
-            onSubscribe={onSubscribe}
-          />
-        ))}
+      {/* 5 档卡片：横向滚动（对齐参考站 plan-row） */}
+      <div className="mt-6 overflow-x-auto pb-2">
+        <div className="flex w-max gap-4 px-px pb-1">
+          {MEMBER_PLANS.map((plan, i) => (
+            <PlanCard
+              key={plan.id}
+              plan={plan}
+              cycle={cycle}
+              seats={seats}
+              highlighted={i === 2}
+              identity={identity}
+              onSubscribe={onSubscribe}
+            />
+          ))}
+        </div>
       </div>
+
+      <p className="mt-4 text-center text-[12px] text-white/40">
+        如有疑问可前往{" "}
+        <a
+          href="https://ecncw7du1qtr.feishu.cn/wiki/R6m5w5RILiS35lkM7PycEUhHnfc"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-brand transition-opacity hover:opacity-80"
+        >
+          使用手册
+        </a>{" "}
+        查询或联系客服。
+      </p>
     </section>
   );
 }
 
-function cyclePrice(
+/** 当前周期单席位月价（个人）/ 团队整包月价（含加席） */
+function teamPrice(
   plan: MemberPlan,
   cycle: MemberCycle,
   identity: MemberIdentity,
   seats = TEAM_BASE_SEATS,
 ) {
-  // 个人价：季付 85 折先 round；团队价 = 个人价 round 后 ×2（消除舍入误差）；
-  // 超出基础 3 席后，每席加收个人版当前周期月价 × 1/2
-  let personal: number;
-  if (cycle === "month") personal = plan.monthlyOriginal;
-  else if (cycle === "quarter") personal = Math.round(plan.monthlyOriginal * 0.85);
-  else personal = plan.yearlyMonthly;
+  const personal = cycleMonthlyPrice(plan, cycle);
   if (identity !== "team") return personal;
-  return (
-    personal * 2 + (seats - TEAM_BASE_SEATS) * Math.round(personal * 0.5)
-  );
+  return personal * 2 + (seats - TEAM_BASE_SEATS) * extraSeatPrice(plan, cycle);
 }
 
 function PlanCard({
@@ -466,41 +591,62 @@ function PlanCard({
     seats?: number,
   ) => void;
 }) {
-  const price = cyclePrice(plan, cycle, identity, seats);
-  const displayOriginal = identity === "team" ? plan.monthlyOriginal * 2 : plan.monthlyOriginal;
+  const price = teamPrice(plan, cycle, identity, seats);
+  const displayOriginal =
+    identity === "team" ? plan.monthlyPrice * 2 : plan.monthlyPrice;
   const yearlySave = (displayOriginal - price) * 12;
   // 团队积分池/额度随席位线性扩容：基础 ×2，每加一席 +0.5 基础
   const quotaFactor =
     identity === "team" ? 2 + 0.5 * (seats - TEAM_BASE_SEATS) : 1;
   const creditsPool = Math.round(plan.monthlyCredits * quotaFactor);
+  const validity =
+    identity === "team"
+      ? "单次购买 · 有效期以套餐为准"
+      : cycle === "month"
+        ? "每30天续费"
+        : cycle === "quarter"
+          ? "每90天续费"
+          : "每365天续费";
 
   return (
     <div
       className={cn(
-        "flex flex-col rounded-2xl p-5 ring-1",
+        "flex w-[300px] shrink-0 flex-col rounded-2xl p-5 ring-1 transition-colors",
         highlighted
           ? "bg-gradient-to-b from-brand/10 to-transparent ring-brand/50"
-          : "bg-white/[0.03] ring-white/[0.08]",
+          : "bg-white/[0.03] ring-white/[0.08] hover:ring-white/20",
       )}
     >
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-[18px] font-bold text-white">{plan.name}</h3>
-        <span className="text-[12px] text-white/50">{plan.tagline}</span>
+      {/* 名称 + 限时赠送徽标 */}
+      <div className="flex items-start justify-between gap-2">
+        <span className="min-w-0 truncate text-[16px] font-bold text-white">
+          {plan.name}
+        </span>
+        <span className="shrink-0 rounded-full bg-brand/15 px-2 py-0.5 text-[11px] font-semibold text-brand">
+          限时赠送{plan.bonusCredits.toLocaleString()}积分
+        </span>
       </div>
-      {identity === "team" && (
-        <p className="mt-1 text-[12px] text-brand">
-          含 {seats} 席位 · 积分池共享
-          {seats > TEAM_BASE_SEATS ? `（含加席 ×${seats - TEAM_BASE_SEATS}）` : ""}
-        </p>
-      )}
+      <p className="mt-1 text-[12px] leading-relaxed text-white/45">{plan.tagline}</p>
 
-      <div className="mt-4">
-        <p className="text-[13px] text-white/40 line-through">
-          ¥{displayOriginal} /月
-        </p>
-        <p className="mt-0.5 text-[32px] font-bold text-white">
-          ¥{price}
-          <span className="text-[14px] font-normal text-white/60"> /月</span>
+      {/* 有效期 */}
+      <div className="mt-2 flex items-center gap-2 text-[12px]">
+        <span className="text-white/40">有效期</span>
+        <span className="h-3 w-px bg-white/[0.12]" />
+        <span className="text-white/60">{validity}</span>
+      </div>
+
+      {/* 价格 */}
+      <div className="mt-3">
+        {cycle !== "month" && (
+          <p className="text-[12px] text-white/35 line-through">
+            ¥{displayOriginal.toLocaleString()} /月
+          </p>
+        )}
+        <p className="flex items-baseline gap-x-2 whitespace-nowrap">
+          <span className="text-[28px] font-bold leading-none text-white">
+            ¥{price.toLocaleString()}
+          </span>
+          <span className="text-[13px] text-white/50">/ 月</span>
         </p>
         {cycle === "year" && (
           <p className="mt-1 text-[12px] font-medium text-brand">
@@ -509,75 +655,119 @@ function PlanCard({
         )}
       </div>
 
+      {/* 积分盒：每月 / 换算 */}
+      <div className="mt-3 flex gap-2">
+        <div className="flex flex-1 items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2 ring-1 ring-white/[0.06]">
+          <span className="text-[11px] text-white/45">每月</span>
+          <span className="text-[13px] font-bold text-white">
+            {creditsPool.toLocaleString()} 积分
+          </span>
+        </div>
+        <div className="flex items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2 ring-1 ring-white/[0.06]">
+          <span className="text-[11px] text-white/45">换算</span>
+          <span className="ml-2 text-[13px] font-semibold text-brand">
+            {plan.conversion}
+          </span>
+        </div>
+      </div>
+      <p className="mt-2 text-[12px] leading-relaxed text-white/45">
+        最多生成约 {Math.round(plan.maxImages * quotaFactor).toLocaleString()} 张图片 |{" "}
+        {Math.round(plan.maxSeconds * quotaFactor).toLocaleString()}秒视频
+      </p>
+
       <button
         type="button"
         onClick={() => onSubscribe(plan, cycle, identity, seats)}
         className={cn(
-          "mt-4 rounded-lg py-2.5 text-[14px] font-semibold transition-opacity hover:opacity-90",
+          "mt-3 inline-flex h-11 w-full items-center justify-center rounded-xl text-[14px] font-semibold transition-all active:scale-[0.98]",
           highlighted
-            ? "bg-gradient-to-r from-[#00e5c8] to-[#7dff8c] text-black"
-            : "bg-white text-black",
+            ? "bg-brand text-black hover:brightness-105"
+            : "bg-white/[0.08] text-white ring-1 ring-white/[0.1] hover:bg-white/[0.14]",
         )}
       >
-        订阅
+        订阅{plan.name}
       </button>
 
-      {/* 权益矩阵（参考竞品强化） */}
-      <ul className="mt-5 space-y-2.5 border-t border-white/[0.08] pt-4 text-[13px]">
-        <li className="flex items-center gap-2 text-white/90">
-          <CheckIcon className="size-3.5 text-brand" />
-          {creditsPool.toLocaleString()} 积分 / 月
-        </li>
-        <li className="flex items-center gap-2 text-white/80">
-          <CheckIcon className="size-3.5 text-brand" />
-          最多约 {Math.round(plan.maxImages * quotaFactor).toLocaleString()} 张图片
-        </li>
-        <li className="flex items-center gap-2 text-white/80">
-          <CheckIcon className="size-3.5 text-brand" />
-          最多约 {Math.round(plan.maxSeconds * quotaFactor).toLocaleString()} 秒视频
-        </li>
-        <li className="flex items-center justify-between text-white/80">
-          <span>视频模型</span>
-          <span className="text-brand">{plan.videoDiscount}</span>
-        </li>
-        <li className="flex items-center justify-between text-white/80">
-          <span>图片模型</span>
-          <span>{plan.imageDiscount}</span>
-        </li>
-        <li className="flex items-center justify-between text-white/80">
-          <span>分镜并发</span>
-          <span>{plan.concurrency} 个</span>
-        </li>
-        <BenefitRow ok={plan.watermarkFree} label="去水印导出" />
-        <BenefitRow ok={plan.hd1080p} label="1080p 高清导出" />
-        <BenefitRow ok={plan.hd4k} label="4K 超清导出" />
-        <BenefitRow ok={plan.stableService} label="更稳定的模型服务" />
-        <li className="flex items-center justify-between text-white/80">
-          <span>生成队列</span>
-          <span className={plan.queue === "标准" ? "text-white/50" : "text-brand"}>
-            {plan.queue}队列
-          </span>
-        </li>
-      </ul>
+      {/* 分组权益矩阵 */}
+      <div className="mt-4 space-y-4 border-t border-white/[0.08] pt-4 text-[13px]">
+        <BenefitGroup title="限时权益">
+          <li className="flex items-center gap-2 text-white/80">
+            <SparkleIcon className="size-3.5 text-brand" />
+            官方资产限时不限
+          </li>
+          <li className="flex items-center gap-2 text-white/80">
+            <SparkleIcon className="size-3.5 text-brand" />
+            模型使用限时不限
+          </li>
+        </BenefitGroup>
+        <BenefitGroup title="积分权益">
+          <li className="flex items-center gap-2 text-white/80">
+            <CheckIcon className="size-3.5 text-brand" />
+            每月赠送
+            <span className="font-semibold text-brand">
+              {creditsPool.toLocaleString()}
+            </span>
+            积分（含{Math.round(plan.bonusCredits * quotaFactor).toLocaleString()}额外赠送）
+          </li>
+          <li className="flex items-center gap-2 text-white/80">
+            <CheckIcon className="size-3.5 text-brand" />
+            每日登录赠送 <span className="font-semibold text-brand">50</span> 积分
+          </li>
+        </BenefitGroup>
+        <BenefitGroup title="资源与存储">
+          <li className="flex items-center gap-2 text-white/80">
+            <CheckIcon className="size-3.5 text-brand" />
+            <span className="font-semibold text-brand">
+              {Math.round(plan.storageGb * quotaFactor)}
+            </span>
+            GB 云存储空间
+          </li>
+        </BenefitGroup>
+        <BenefitGroup title="创作效能">
+          <li className="flex items-center gap-2 text-white/80">
+            <CheckIcon className="size-3.5 text-brand" />
+            支持 <span className="font-semibold text-brand">
+              {Math.round(plan.concurrency * quotaFactor)}
+            </span> 个任务同时生成
+          </li>
+          <li className="flex items-center gap-2 text-white/80">
+            <CheckIcon className="size-3.5 text-brand" />
+            可创建 <span className="font-semibold text-brand">
+              {Math.round(plan.projects * quotaFactor)}
+            </span> 个独立创作项目
+          </li>
+          <li className="flex items-center gap-2 text-white/80">
+            <CheckIcon className="size-3.5 text-brand" />
+            {plan.channel}
+          </li>
+        </BenefitGroup>
+        <BenefitGroup title="使用权限">
+          <li className="flex items-center gap-2 text-white/80">
+            <CheckIcon className="size-3.5 text-brand" />
+            去水印
+          </li>
+          <li className="flex items-center gap-2 text-white/80">
+            <CheckIcon className="size-3.5 text-brand" />
+            {plan.commercialLicense}
+          </li>
+        </BenefitGroup>
+      </div>
     </div>
   );
 }
 
-function BenefitRow({ ok, label }: { ok: boolean; label: string }) {
+function BenefitGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <li
-      className={cn(
-        "flex items-center gap-2",
-        ok ? "text-white/80" : "text-white/30",
-      )}
-    >
-      {ok ? (
-        <CheckIcon className="size-3.5 text-brand" />
-      ) : (
-        <span className="flex size-3.5 items-center justify-center text-white/30">—</span>
-      )}
-      {label}
-    </li>
+    <div>
+      <h3 className="text-[12px] font-bold text-white/60">{title}</h3>
+      <ul className="mt-2 space-y-2">{children}</ul>
+    </div>
   );
 }
 
@@ -587,10 +777,15 @@ function FaqSection() {
 
   return (
     <section className="mt-12">
-      <h2 className="text-center text-[20px] font-bold text-white">
-        订阅与积分常见问题
-      </h2>
-      <div className="mt-5 flex flex-col gap-2">
+      <div className="text-center">
+        <span className="inline-flex items-center rounded-full bg-brand/10 px-2.5 py-1 text-[11px] font-semibold tracking-[0.04em] text-brand">
+          FAQ
+        </span>
+        <h2 className="mt-2 text-[20px] font-bold text-white">
+          会员与积分常见问题
+        </h2>
+      </div>
+      <div className="mx-auto mt-5 flex max-w-[760px] flex-col gap-2">
         {FAQ_ITEMS.map((item, i) => {
           const open = openIndex === i;
           return (
@@ -600,6 +795,7 @@ function FaqSection() {
             >
               <button
                 type="button"
+                aria-expanded={open}
                 onClick={() => setOpenIndex(open ? null : i)}
                 className="flex w-full items-center justify-between px-5 py-4 text-left text-[14px] font-medium text-white/90"
               >

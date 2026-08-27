@@ -1,6 +1,12 @@
 // 项目 mock 数据（列表页与详情页工作台共享）
 
-import type { ProjectSubTab } from "@/types/project";
+import type {
+  ProjectAgent,
+  ProjectBreakdown,
+  ProjectEvaluation,
+  ProjectRewrite,
+  ProjectSubTab,
+} from "@/types/project";
 
 // ─── 共享类型 ─────────────────────────────────────────────────────────────
 
@@ -36,6 +42,18 @@ export type ShortDramaProject = {
   scriptChapters?: ScriptChapter[];
   episodeList?: Episode[];
   shots?: ShotItem[];
+  // ── /project/[id] 详情页扩展字段（可选）──
+  status?: string;
+  stats?: {
+    episodes: number;
+    wordCount: number;
+    characterCount: number;
+    sceneCount: number;
+  };
+  evaluation?: ProjectEvaluation;
+  rewrite?: ProjectRewrite;
+  agent?: ProjectAgent;
+  breakdown?: ProjectBreakdown;
 };
 
 export type ScriptProject = {
@@ -56,6 +74,17 @@ export type ScriptProject = {
   updatedAt: string;
   dateStr: string;
   description: string;
+  // ── /project/[id] 详情页扩展字段（可选）──
+  stats?: {
+    episodes: number;
+    wordCount: number;
+    characterCount: number;
+    sceneCount: number;
+  };
+  evaluation?: ProjectEvaluation;
+  rewrite?: ProjectRewrite;
+  agent?: ProjectAgent;
+  breakdown?: ProjectBreakdown;
 };
 
 export type Project = ShortDramaProject | ScriptProject;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CoinsIcon, MicrophoneIcon, UploadIcon, XIcon } from "@/components/icons";
+import { CoinsIcon, MicrophoneIcon, UploadIcon, CloseIcon } from "@/components/icons";
 
 export function CloneVoiceDialog({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
@@ -37,7 +37,7 @@ export function CloneVoiceDialog({ onClose }: { onClose: () => void }) {
           onClick={onClose}
           className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full bg-white/[0.08] text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white"
         >
-          <XIcon className="size-4" />
+          <CloseIcon className="size-4" />
         </button>
 
         <h2 className="text-center text-[20px] font-bold text-white">

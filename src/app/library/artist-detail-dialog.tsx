@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PlayIcon, PlusIcon, XIcon } from "@/components/icons";
+import { PlayIcon, PlusIcon, CloseIcon } from "@/components/icons";
 import { EMOTION_PERFORMANCES, ERA_OUTFITS, txi, type Artist } from "./data";
 
 type ActiveMode = "outfit" | "audition";
@@ -81,7 +81,7 @@ export function ArtistDetailDialog({
           onClick={onClose}
           className="absolute left-4 top-4 z-20 flex size-8 items-center justify-center rounded-full bg-white/[0.08] text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white"
         >
-          <XIcon className="size-4" />
+          <CloseIcon className="size-4" />
         </button>
 
         {/* 左侧展示区域 */}

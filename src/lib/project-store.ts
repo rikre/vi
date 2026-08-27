@@ -4,11 +4,21 @@ import {
   type ShortDramaMode,
   type ShortDramaProject,
 } from "@/lib/mock-projects";
+import type { CreateAction, ProjectConfig } from "@/types/project";
 
 const STORAGE_KEY = "bollo-custom-projects";
 const CHANGE_EVENT = "bollo-projects-change";
 let cachedStorageValue: string | null | undefined;
 let cachedProjects: Project[] = ALL_PROJECTS;
+
+const ACTION_LABELS: Record<CreateAction, string> = {
+  original: "创剧本",
+  evaluate: "评剧本",
+  rewrite: "改剧本",
+  import: "传剧本",
+  breakdown: "AI 拉片",
+  short: "做短剧",
+};
 
 type CreateProjectInput = {
   title: string;
@@ -66,33 +76,81 @@ export function getProjects(): Project[] {
   return cachedProjects;
 }
 
-export function getProject(id: number): Project | undefined {
-  return getProjects().find((project) => project.id === id);
+export function getProject(id: number | string): Project | undefined {
+  return getProjects().find((project) => String(project.id) === String(id));
 }
 
-export function createProject(input: CreateProjectInput): ShortDramaProject {
+// ─── /project/[id]、/project/new 页面兼容层 ─────────────────────────────────
+
+const STATUS_LABELS: Record<string, string> = {
+  draft: "草稿",
+  evaluating: "评估中",
+  rewriting: "改写中",
+  completed: "已完成",
+  failed: "失败",
+};
+
+export function statusLabel(status?: string): string {
+  if (!status) return "进行中";
+  return STATUS_LABELS[status] ?? status;
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  short: "短剧",
+  script: "剧本",
+};
+
+export function typeLabel(type?: string): string {
+  if (!type) return "项目";
+  return TYPE_LABELS[type] ?? type;
+}
+
+// 幂等保存：移除同 id 后置顶写入（createProject 已写入时等价于刷新）
+export function saveProject(project: ShortDramaProject): void {
+  const rest = readCustomProjects().filter((p) => p.id !== project.id);
+  writeCustomProjects([project, ...rest]);
+}
+
+export function createProject(input: CreateProjectInput): ShortDramaProject;
+export function createProject(config: ProjectConfig, title: string): ShortDramaProject;
+export function createProject(
+  input: CreateProjectInput | ProjectConfig,
+  title?: string,
+): ShortDramaProject {
+  if (title !== undefined) {
+    const config = input as ProjectConfig;
+    const inputFromConfig: CreateProjectInput = {
+      title,
+      description: `通过「${ACTION_LABELS[config.action]}」创建的项目`,
+      mode: "剧本模式",
+      plannedEpisodes: config.action === "original" ? config.episodes : 3,
+    };
+    return createProject(inputFromConfig);
+  }
+
+  const createProjectInput = input as CreateProjectInput;
   const now = Date.now();
-  const episodes = Math.max(1, Math.min(200, input.plannedEpisodes ?? 3));
+  const episodes = Math.max(1, Math.min(200, createProjectInput.plannedEpisodes ?? 3));
   const project: ShortDramaProject = {
     id: now,
     type: "short",
-    title: input.title.trim(),
-    mode: input.mode,
+    title: createProjectInput.title.trim(),
+    mode: createProjectInput.mode,
     episodes,
     createdAt: new Date().toISOString().slice(0, 10),
     updatedAt: "刚刚",
-    coverPrompt: `cinematic short drama key visual, ${input.title}, dark atmosphere, lime green accent`,
-    description: input.description.trim() || "新创建的短剧项目概括描述。",
+    coverPrompt: `cinematic short drama key visual, ${createProjectInput.title}, dark atmosphere, lime green accent`,
+    description: createProjectInput.description.trim() || "新创建的短剧项目概括描述。",
     characters: [],
-    sourceFileName: input.sourceFileName,
-    plannedEpisodes: input.mode === "自由模式" ? episodes : undefined,
+    sourceFileName: createProjectInput.sourceFileName,
+    plannedEpisodes: createProjectInput.mode === "自由模式" ? episodes : undefined,
     tag: "创作中",
     coverType: "gradient",
     members: ["常谦", "张三"],
     computeSpent: 0,
     todaySpent: 0,
     assets: { total: 0, characters: 0, scenes: 0, props: 0 },
-    scriptContent: input.scriptContent,
+    scriptContent: createProjectInput.scriptContent,
     episodeList: Array.from({ length: episodes }, (_, index) => ({
       id: `ep-${now}-${index + 1}`,
       number: index + 1,

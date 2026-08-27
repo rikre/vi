@@ -156,4 +156,33 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  /* 全局焦点环 — 深色主题下保证可见性 */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  [role="tab"]:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-[#0a0a0a];
+  }
+}
+
+@layer components {
+  /* 统一卡片基底 — 所有列表卡片复用 */
+  .card-base {
+    @apply rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] transition-all duration-300
+           hover:-translate-y-0.5 hover:ring-white/20 hover:shadow-lg hover:shadow-black/20;
+  }
+}
+
+/* 尊重用户减少动效偏好 — WCAG 2.3.3 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

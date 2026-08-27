@@ -20,7 +20,7 @@ const txi = (prompt: string, size: string) =>
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type MainMode = "script" | "short";
-type ScriptSubTab = "原创剧本" | "IP 改编";
+type ScriptSubTab = "创剧本" | "评剧本" | "改剧本" | "传剧本";
 type ShortSubMode = "Agent" | "人工模式";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -30,13 +30,13 @@ const MAIN_MODES: { id: MainMode; label: string }[] = [
   { id: "script", label: "写剧本" },
 ];
 
-const SCRIPT_SUB_TABS: ScriptSubTab[] = ["原创剧本", "IP 改编"];
+const SCRIPT_SUB_TABS: ScriptSubTab[] = ["创剧本", "评剧本", "改剧本", "传剧本"];
 const SHORT_SUB_MODES: ShortSubMode[] = ["Agent", "人工模式"];
 
 const QUICK_ENTRIES = [
-  { label: "剧本广场", icon: "clapper", href: "#" },
-  { label: "剧本评分", icon: "star", href: "#" },
-  { label: "拉片/拆书", icon: "sparkle", href: "#" },
+  { label: "剧本广场", icon: "clapper", href: "/plaza" },
+  { label: "AI 拉片", icon: "film", href: "/project/new?action=breakdown" },
+  { label: "剧本评分", icon: "star", href: "/project/new?action=evaluate" },
   { label: "定制剧本", icon: "triangle", href: "#" },
 ];
 
@@ -87,6 +87,13 @@ function QuickIcon({ name }: { name: string }) {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
         <path d="M12 3 3 20h18Z" />
+      </svg>
+    );
+  if (name === "film")
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
+        <rect x="2" y="3" width="20" height="18" rx="2" />
+        <path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5M7 12h10" />
       </svg>
     );
   if (name === "briefcase")
@@ -192,7 +199,7 @@ export function HeroSection() {
   const [mainMode, setMainMode] = useState<MainMode>("short");
 
   // Script state
-  const [scriptSubTab, setScriptSubTab] = useState<ScriptSubTab>("原创剧本");
+  const [scriptSubTab, setScriptSubTab] = useState<ScriptSubTab>("创剧本");
   const [scriptStyleOpen, setScriptStyleOpen] = useState(false);
   const [episodes, setEpisodes] = useState("40集");
   const [scriptText, setScriptText] = useState("");
@@ -329,7 +336,7 @@ export function HeroSection() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => console.log("upload script")}
+                      onClick={() => router.push("/project/new?action=short")}
                       className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
                     >
                       <UploadIcon className="size-4" />
@@ -337,7 +344,7 @@ export function HeroSection() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => console.log("paste text")}
+                      onClick={() => router.push("/project/new?action=short")}
                       className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
@@ -363,10 +370,10 @@ export function HeroSection() {
               </div>
             )}
 
-            {/* ── Script: original ── */}
-            {!isShort && scriptSubTab === "原创剧本" && (
+            {/* ── Script: 创剧本 ── */}
+            {!isShort && scriptSubTab === "创剧本" && (
               <div className="relative">
-                <span className="absolute left-3 top-3 text-[13px] font-medium text-[#7dffe6]">#男频</span>
+                <span className="absolute left-3 top-3 text-[13px] font-medium text-brand">#男频</span>
                 <textarea
                   rows={4}
                   value={scriptText}
@@ -388,32 +395,96 @@ export function HeroSection() {
               </div>
             )}
 
-            {/* ── Script: IP adapt ── */}
-            {!isShort && scriptSubTab === "IP 改编" && (
+            {/* ── Script: 评剧本 ── */}
+            {!isShort && scriptSubTab === "评剧本" && (
               <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-white/[0.15] px-6 py-8">
                 <div className="flex flex-col items-center gap-2">
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => console.log("import IP")}
+                      onClick={() => router.push("/project/new?action=evaluate")}
+                      className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
+                    >
+                      <UploadIcon className="size-4" />
+                      上传剧本
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => router.push("/project/new?action=evaluate")}
+                      className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                      </svg>
+                      粘贴文本
+                    </button>
+                  </div>
+                  <p className="text-[12px] text-white/40">
+                    支持 .docx/.txt/.pdf，最多 15 万字，可拖拽至此上传
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ── Script: 改剧本 ── */}
+            {!isShort && scriptSubTab === "改剧本" && (
+              <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-white/[0.15] px-6 py-8">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => router.push("/project/new?action=rewrite")}
+                      className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
+                    >
+                      <UploadIcon className="size-4" />
+                      上传原剧本
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => router.push("/project/new?action=rewrite")}
                       className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                         <path d="M4 7V4h16v3M9 20h6M12 4v16" />
                       </svg>
-                      引用IP
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => console.log("local file")}
-                      className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
-                    >
-                      <UploadIcon className="size-4" />
-                      本地文件
+                      引用 IP
                     </button>
                   </div>
                   <p className="text-[12px] text-white/40">
-                    支持.docx/.txt，最多 15 万字，可拖拽至此上传
+                    支持 .docx/.txt/.pdf/.fountain/.fdx，最多 20 万字
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ── Script: 传剧本 ── */}
+            {!isShort && scriptSubTab === "传剧本" && (
+              <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-white/[0.15] px-6 py-8">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => router.push("/project/new?action=import")}
+                      className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
+                    >
+                      <UploadIcon className="size-4" />
+                      上传剧本/网文
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => router.push("/project/new?action=import")}
+                      className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                      </svg>
+                      粘贴文本
+                    </button>
+                  </div>
+                  <p className="text-[12px] text-white/40">
+                    支持 .docx/.txt/.pdf/.fountain/.fdx，最多 20 万字
                   </p>
                 </div>
               </div>
@@ -489,17 +560,29 @@ export function HeroSection() {
               {/* CTA */}
               <button
                 type="button"
-                onClick={() => router.push("/create")}
+                onClick={() => {
+                  if (isShort) {
+                    router.push("/project/new?action=short");
+                  } else if (scriptSubTab === "创剧本") {
+                    router.push("/project/new?action=original");
+                  } else if (scriptSubTab === "评剧本") {
+                    router.push("/project/new?action=evaluate");
+                  } else if (scriptSubTab === "改剧本") {
+                    router.push("/project/new?action=rewrite");
+                  } else {
+                    router.push("/project/new?action=import");
+                  }
+                }}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-full px-5 py-2 text-[13.5px] font-bold text-black shadow-lg transition-all active:scale-[0.98]",
+                  "flex items-center gap-1.5 rounded-full px-5 py-2 text-[13px] font-bold text-black shadow-lg transition-all active:scale-[0.98]",
                   isShort
-                    ? "bg-white/20 text-white/40 hover:bg-white/25"
+                    ? "bg-brand hover:brightness-110"
                     : "bg-brand hover:brightness-110"
                 )}
               >
                 开始创作
                 <CoinsIcon className="size-4" />
-                <span className="tabular-nums">190</span>
+                <span className="tabular-nums">{isShort ? 290 : 190}</span>
               </button>
             </div>
           </div>

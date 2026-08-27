@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { XIcon } from "@/components/icons";
+import { CloseIcon } from "@/components/icons";
 
 type State = "idle" | "error" | "success";
 
@@ -57,7 +57,7 @@ export function RedeemDialog({ onClose }: { onClose: () => void }) {
             onClick={onClose}
             className="text-white/50 transition-colors hover:text-white"
           >
-            <XIcon className="size-5" />
+            <CloseIcon className="size-5" />
           </button>
         </div>
 
