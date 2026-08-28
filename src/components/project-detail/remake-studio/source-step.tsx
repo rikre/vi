@@ -25,9 +25,9 @@ export function SourceStep({ episodes, onRetry, onNext }: SourceStepProps) {
         </span>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-[16px] font-semibold text-white">原片剧集</h2>
-        <div className="flex items-center gap-4 text-[12px] text-white/50">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-white/50">
           <span>全部剧集 {episodes.length}</span>
           <span>
             已上传 {episodes.filter((e) => e.status === "已完成").length}
@@ -45,7 +45,7 @@ export function SourceStep({ episodes, onRetry, onNext }: SourceStepProps) {
         {episodes.map((ep, i) => (
           <div
             key={ep.id}
-            className="flex items-center gap-4 rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] backdrop-blur-sm p-4"
+            className="flex items-center gap-3 rounded-2xl bg-[#141414] p-3 ring-1 ring-white/[0.08] backdrop-blur-sm sm:gap-4 sm:p-4"
           >
             <div className="relative size-20 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/[0.06]">
               <img
@@ -73,7 +73,7 @@ export function SourceStep({ episodes, onRetry, onNext }: SourceStepProps) {
                 <span>大小 {ep.size}</span>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-end gap-2">
               <StatusBadge status={ep.status} />
               {ep.status === "失败" && (
                 <button

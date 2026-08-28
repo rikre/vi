@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { SkillGrid } from "@/components/skill/skill-grid";
 import { PlusIcon, SearchIcon, HeartIcon } from "@/components/icons";
@@ -66,8 +67,10 @@ const SKILLS = [
 ];
 
 export default function SkillPage() {
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
 
   const filteredSkills = SKILLS.filter((skill) => {
     const matchesCategory =
@@ -149,7 +152,18 @@ export default function SkillPage() {
             <p className="mt-1 text-[13px] text-white/40">尝试更换关键词或切换分类</p>
           </div>
         ) : (
-          <SkillGrid skills={filteredSkills} />
+          <SkillGrid
+            skills={filteredSkills}
+            favoriteIds={favoriteIds}
+            onFavorite={(skill) =>
+              setFavoriteIds((current) =>
+                current.includes(skill.id)
+                  ? current.filter((id) => id !== skill.id)
+                  : [...current, skill.id],
+              )
+            }
+            onUse={() => router.push("/project/new?action=short")}
+          />
         )}
       </div>
     </AppShell>

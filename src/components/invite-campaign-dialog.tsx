@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 import { cn } from "@/lib/utils";
 import {
   ChevronDownIcon,
@@ -11,6 +13,7 @@ import {
   ShareIcon,
   UserGroupIcon,
 } from "@/components/icons";
+import { Modal } from "@/components/ui/modal";
 
 const INVITE_LINK = "https://bollo.ai/i/MIV7AL56CFXRMVT";
 
@@ -21,23 +24,15 @@ const STEPS = [
 ];
 
 const REWARD_TIERS = [
-  { range: "第1-10人（当前）", reward: "100积分/人", current: true },
-  { range: "第11-20人", reward: "150积分/人", current: false },
-  { range: "第21-100人", reward: "200积分/人", current: false },
+  { range: "第1-10人（当前）", reward: "60积分/人", current: true },
+  { range: "第11-20人", reward: "120积分/人", current: false },
+  { range: "第21-50人", reward: "150积分/人", current: false },
 ];
 
 export function InviteCampaignDialog({ onClose }: { onClose: () => void }) {
   const [view, setView] = useState<"main" | "qr">("main");
   const [copied, setCopied] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
 
   const copyLink = () => {
     navigator.clipboard?.writeText(INVITE_LINK).catch(() => undefined);
@@ -46,17 +41,14 @@ export function InviteCampaignDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="邀请好友赚积分活动"
-      onClick={onClose}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+    <Modal
+      open
+      onClose={onClose}
+      title="邀请好友赚积分活动"
+      showCloseButton={false}
+      className="no-scrollbar max-h-[calc(100vh-32px)] w-full max-w-[440px] overflow-y-auto rounded-2xl bg-[#141414] p-0 ring-1 ring-white/[0.1]"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="no-scrollbar relative max-h-[calc(100vh-32px)] w-full max-w-[440px] overflow-y-auto rounded-2xl bg-[#141414] shadow-2xl ring-1 ring-white/[0.1]"
-      >
+      <div className="relative">
         {/* 顶部品牌色氛围光 */}
         <div
           aria-hidden
@@ -83,7 +75,7 @@ export function InviteCampaignDialog({ onClose }: { onClose: () => void }) {
           <QrView onBack={() => setView("main")} />
         )}
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -111,11 +103,11 @@ function MainView({
       </h2>
       <p className="mt-2 text-center text-[13px] text-white/70">
         好友注册得 <span className="font-semibold text-brand">100积分</span>
-        ，你最高得 <span className="font-semibold text-brand">200积分/人</span>
+        ，你最高得 <span className="font-semibold text-brand">150积分/人</span>
       </p>
       <div className="mt-3 flex justify-center">
         <span className="rounded-full px-4 py-1.5 text-[12px] font-medium text-white/80 ring-1 ring-white/[0.15]">
-          活动累计最高可得 <span className="font-bold text-white">5,000</span> 积分
+          活动累计最高可得 <span className="font-bold text-white">3,000</span> 积分
         </span>
       </div>
 
@@ -175,9 +167,9 @@ function MainView({
         <div className="rounded-xl bg-brand/[0.06] p-3.5 ring-1 ring-brand/40">
           <p className="text-[11px] text-brand/80">当前奖励</p>
           <p className="mt-2 text-[20px] font-bold text-white">
-            100 <span className="text-[11px] font-normal text-white/60">积分/人</span>
+            60 <span className="text-[11px] font-normal text-white/60">积分/人</span>
           </p>
-          <p className="mt-1 text-[10px] text-white/40">再邀11人升至150积分/人</p>
+          <p className="mt-1 text-[10px] text-white/40">再邀11人升至120积分/人</p>
         </div>
       </div>
 
@@ -185,8 +177,8 @@ function MainView({
       <h3 className="mt-7 text-[14px] font-bold text-white">活动规则</h3>
       <p className="mt-2 text-[12px] leading-relaxed text-white/60">
         好友注册得 <span className="font-semibold text-brand">100积分/人</span>
-        ，你当前得 <span className="font-semibold text-brand">100积分/人</span>
-        ，活动累计最高可得 <span className="font-semibold text-brand">5,000积分</span>。
+        ，你当前得 <span className="font-semibold text-brand">60积分/人</span>
+        ，活动累计最高可得 <span className="font-semibold text-brand">3,000积分</span>。
       </p>
       <div className="mt-3 overflow-hidden rounded-xl ring-1 ring-white/[0.08]">
         <button
@@ -229,20 +221,35 @@ function MainView({
 /* ---------- 二维码视图 ---------- */
 
 function QrView({ onBack }: { onBack: () => void }) {
-  const qrRef = useRef<SVGSVGElement>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    let active = true;
+    QRCode.toDataURL(INVITE_LINK, {
+      width: 200,
+      margin: 1,
+      errorCorrectionLevel: "M",
+      color: { dark: "#111111", light: "#ffffff" },
+    })
+      .then((dataUrl) => {
+        if (active) setQrDataUrl(dataUrl);
+      })
+      .catch(() => {
+        if (active) setQrDataUrl(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const saveQr = () => {
-    const node = qrRef.current;
-    if (!node) return;
-    const xml = new XMLSerializer().serializeToString(node);
-    const blob = new Blob([xml], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
+    if (!qrDataUrl) return;
     const a = document.createElement("a");
-    a.href = url;
-    a.download = "bollo-invite-qrcode.svg";
+    a.href = qrDataUrl;
+    a.download = "bollo-invite-qrcode.png";
     a.click();
-    URL.revokeObjectURL(url);
     setSaved(true);
     window.setTimeout(() => setSaved(false), 2000);
   };
@@ -264,7 +271,23 @@ function QrView({ onBack }: { onBack: () => void }) {
       <div className="mt-6 flex flex-col items-center">
         <p className="text-[16px] font-bold tracking-wide text-brand">bollo</p>
         <div className="mt-4 rounded-xl bg-white p-3">
-          <MockQr svgRef={qrRef} className="size-[200px]" />
+          {qrDataUrl ? (
+            <Image
+              src={qrDataUrl}
+              alt="bollo 邀请链接二维码"
+              width={200}
+              height={200}
+              unoptimized
+              className="size-[200px]"
+            />
+          ) : (
+            <div
+              role="status"
+              className="flex size-[200px] items-center justify-center text-center text-[12px] text-black/55"
+            >
+              二维码生成中…
+            </div>
+          )}
         </div>
         <p className="mt-4 text-[12px] text-white/50">扫码注册，双方得积分</p>
       </div>
@@ -275,53 +298,8 @@ function QrView({ onBack }: { onBack: () => void }) {
         className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-[#ffb03d] py-3 text-[13px] font-bold text-black transition-all hover:brightness-105 active:scale-[0.98]"
       >
         <DownloadIcon className="size-4" />
-        {saved ? "已保存" : "保存二维码"}
+        {saved ? "已保存" : qrDataUrl ? "保存二维码" : "生成中"}
       </button>
     </div>
-  );
-}
-
-/* ---------- 装饰二维码（SVG，可导出） ---------- */
-
-function MockQr({
-  svgRef,
-  className,
-}: {
-  svgRef?: React.Ref<SVGSVGElement>;
-  className?: string;
-}) {
-  const S = 25;
-  const cells: boolean[] = [];
-  let seed = 97;
-  const rng = () => {
-    seed = (seed * 16807 + 13) % 2147483647;
-    return seed / 2147483647;
-  };
-  for (let i = 0; i < S * S; i++) cells.push(rng() > 0.5);
-  const setFinder = (ox: number, oy: number) => {
-    for (let y = 0; y < 7; y++)
-      for (let x = 0; x < 7; x++) {
-        const edge = x === 0 || x === 6 || y === 0 || y === 6;
-        const inner = x >= 2 && x <= 4 && y >= 2 && y <= 4;
-        cells[(oy + y) * S + (ox + x)] = edge || inner;
-      }
-  };
-  setFinder(0, 0);
-  setFinder(S - 7, 0);
-  setFinder(0, S - 7);
-
-  return (
-    <svg
-      ref={svgRef}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox={`0 0 ${S} ${S}`}
-      className={className}
-      shapeRendering="crispEdges"
-    >
-      <rect width={S} height={S} fill="#fff" />
-      {cells.map((on, i) =>
-        on ? <rect key={i} x={i % S} y={Math.floor(i / S)} width={1} height={1} fill="#000" /> : null,
-      )}
-    </svg>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
 import { CheckIcon, PublishIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
@@ -48,8 +49,10 @@ type BindStatus = "未绑定" | "绑定中" | "已绑定";
 
 export default function PublishPage() {
   const [statuses, setStatuses] = useState<Record<string, BindStatus>>({});
+  const [notice, setNotice] = useState<string | null>(null);
 
   const bindPlatform = useCallback((id: string) => {
+    setNotice("当前为本地演示，未连接真实平台账号授权");
     setStatuses((prev) => ({ ...prev, [id]: "绑定中" }));
     setTimeout(() => {
       setStatuses((prev) => ({ ...prev, [id]: "已绑定" }));
@@ -58,7 +61,7 @@ export default function PublishPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-6 pb-10">
+      <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-4 pb-10 sm:px-6">
         <header className="mt-8 mb-8 pt-2">
           <h1 className="text-[32px] font-bold leading-tight tracking-tight text-white">
             发布中心
@@ -67,6 +70,12 @@ export default function PublishPage() {
             一键将作品分发到多个平台
           </p>
         </header>
+
+        {notice && (
+          <div className="mb-6 rounded-lg bg-warning/10 px-3 py-2 text-[13px] text-warning ring-1 ring-warning/20" role="status" aria-live="polite">
+            {notice}
+          </div>
+        )}
 
         <div className="mb-8 rounded-2xl bg-card p-6 ring-1 ring-white/[0.06]">
           <div className="flex items-center gap-3">
@@ -138,9 +147,9 @@ export default function PublishPage() {
         <div className="mt-10 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
           <p className="text-[14px] text-white/50">
             暂无可发布作品，请先在
-            <a href="/project" className="mx-1 text-brand hover:underline">
+            <Link href="/project" className="mx-1 text-brand hover:underline">
               项目页
-            </a>
+            </Link>
             完成创作
           </p>
         </div>

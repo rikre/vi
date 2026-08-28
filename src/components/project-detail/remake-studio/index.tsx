@@ -78,7 +78,7 @@ export default function RemakeStudio({
   return (
     <div className="flex h-full flex-col bg-[#0d0d0d] text-white">
       {/* ===== 顶部栏 ===== */}
-      <header className="flex items-center justify-between border-b border-white/[0.06] px-6 py-4 backdrop-blur-md bg-[#0d0d0d]/80">
+      <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-4 py-3 backdrop-blur-md bg-[#0d0d0d]/80 sm:px-6 sm:py-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -101,7 +101,7 @@ export default function RemakeStudio({
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-[13px] font-medium text-white/80 ring-1 ring-white/[0.06] backdrop-blur-sm">
+        <div className="hidden items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-[13px] font-medium text-white/80 ring-1 ring-white/[0.06] backdrop-blur-sm sm:flex">
           <CoinsIcon className="size-4 text-brand" />
           <span>{POINTS_BALANCE}</span>
           <span className="ml-1 text-white/30">算力余额</span>
@@ -110,14 +110,14 @@ export default function RemakeStudio({
 
       {/* ===== 4 步 Stepper ===== */}
       <nav
-        className="flex items-center justify-center gap-3 border-b border-white/[0.06] px-6 py-5"
+        className="no-scrollbar flex items-center justify-start gap-2 overflow-x-auto border-b border-white/[0.06] px-3 py-3 sm:justify-center sm:gap-3 sm:px-6 sm:py-5"
         aria-label="重绘步骤"
       >
         {REMAKE_STEPS.map((s, i) => {
           const state: "done" | "active" | "todo" =
             i < stepIndex ? "done" : i === stepIndex ? "active" : "todo";
           return (
-            <div key={s} className="flex items-center gap-3">
+            <div key={s} className="flex shrink-0 items-center gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => goStep(s)}
@@ -156,7 +156,7 @@ export default function RemakeStudio({
               </button>
               {i < REMAKE_STEPS.length - 1 && (
                 <span
-                  className={`h-px w-12 transition-colors ${
+                  className={`h-px w-6 shrink-0 transition-colors sm:w-12 ${
                     i < stepIndex
                       ? "bg-gradient-to-r from-brand/40 to-[#00e5c8]/40"
                       : "bg-white/[0.08]"
@@ -169,7 +169,7 @@ export default function RemakeStudio({
       </nav>
 
       {/* ===== 步骤内容区 ===== */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6">
         {step === "原片" && (
           <SourceStep
             episodes={episodes}
@@ -217,8 +217,8 @@ export default function RemakeStudio({
       </div>
 
       {/* 步骤指示器（右下角辅助） */}
-      <div className="border-t border-white/[0.06] px-6 py-3 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between text-[12px] text-white/40">
+      <div className="border-t border-white/[0.06] px-4 py-3 backdrop-blur-md sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 text-[12px] text-white/40">
           <div className="flex items-center gap-2">
             <LayoutGridIcon className="size-3.5" />
             <span>

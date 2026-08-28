@@ -12,6 +12,7 @@ import {
   BellIcon,
   GiftIcon,
   CrownIcon,
+  UsersIcon,
   LogoutIcon,
 } from "@/components/icons";
 import { useAuth } from "@/components/auth-provider";
@@ -179,7 +180,8 @@ export function AccountDropdown({
       />
 
       <div
-        role="menu"
+        role="dialog"
+        aria-label="账户菜单"
         className={cn(
           // 宽度上限 320px，窄屏（<336px）按视口收缩，防止右侧溢出
           "absolute z-50 w-[min(320px,calc(100vw-16px))] transition duration-200",
@@ -322,6 +324,19 @@ export function AccountDropdown({
                   onClick={() => {
                     onClose();
                     onOpenTeam?.();
+                  }}
+                />
+                <Row
+                  Icon={UsersIcon}
+                  title="超创合伙人"
+                  right={
+                    <span className="rounded bg-[#d8a8ff]/15 px-1.5 py-px text-[10px] font-bold text-[#e0b7ff]">
+                      合作计划
+                    </span>
+                  }
+                  onClick={() => {
+                    onClose();
+                    router.push("/partner");
                   }}
                 />
                 <Row

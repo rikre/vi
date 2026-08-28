@@ -13,9 +13,12 @@ type Skill = {
 
 type SkillCardProps = {
   skill: Skill;
+  isFavorite: boolean;
+  onFavorite: (skill: Skill) => void;
+  onUse: (skill: Skill) => void;
 };
 
-function SkillCard({ skill }: SkillCardProps) {
+function SkillCard({ skill, isFavorite, onFavorite, onUse }: SkillCardProps) {
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.1] hover:shadow-lg hover:shadow-black/20">
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-white/[0.06] to-white/[0.02]">
@@ -30,11 +33,12 @@ function SkillCard({ skill }: SkillCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         <button
           type="button"
-          onClick={() => console.log("收藏技能", skill.title)}
+          onClick={() => onFavorite(skill)}
           className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-black/50 text-white/70 backdrop-blur-md transition-all hover:bg-black/70 hover:text-brand hover:scale-110"
-          aria-label="添加收藏"
+          aria-label={isFavorite ? "取消收藏" : "添加收藏"}
+          aria-pressed={isFavorite}
         >
-          <HeartIcon className="size-4" />
+          <HeartIcon className={isFavorite ? "size-4 fill-brand text-brand" : "size-4"} />
         </button>
         {skill.isNew && (
           <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-[10px] font-bold text-brand-foreground shadow-lg">
@@ -72,7 +76,7 @@ function SkillCard({ skill }: SkillCardProps) {
           </div>
           <button
             type="button"
-            onClick={() => console.log("使用技能", skill.title)}
+            onClick={() => onUse(skill)}
             className="rounded-lg bg-white/[0.08] px-3 py-1.5 text-[12px] font-medium text-white transition-all hover:bg-brand hover:text-brand-foreground hover:shadow-md hover:shadow-brand/20"
           >
             使用
@@ -85,13 +89,22 @@ function SkillCard({ skill }: SkillCardProps) {
 
 type SkillGridProps = {
   skills: Skill[];
+  favoriteIds?: number[];
+  onFavorite?: (skill: Skill) => void;
+  onUse?: (skill: Skill) => void;
 };
 
-export function SkillGrid({ skills }: SkillGridProps) {
+export function SkillGrid({ skills, favoriteIds = [], onFavorite, onUse }: SkillGridProps) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {skills.map((skill) => (
-        <SkillCard key={skill.id} skill={skill} />
+        <SkillCard
+          key={skill.id}
+          skill={skill}
+          isFavorite={favoriteIds.includes(skill.id)}
+          onFavorite={onFavorite ?? (() => undefined)}
+          onUse={onUse ?? (() => undefined)}
+        />
       ))}
     </div>
   );

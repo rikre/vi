@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import {
@@ -267,8 +267,13 @@ function ImportPanel() {
   );
 }
 
-function OriginalPanel() {
-  const [idea, setIdea] = useState("");
+function OriginalPanel({
+  idea,
+  onIdeaChange,
+}: {
+  idea: string;
+  onIdeaChange: (value: string) => void;
+}) {
   const [audience, setAudience] = useState("男频");
   const [genre, setGenre] = useState("✦");
   const [setting, setSetting] = useState("✦");
@@ -281,7 +286,7 @@ function OriginalPanel() {
         <textarea
           rows={4}
           value={idea}
-          onChange={(e) => setIdea(e.target.value)}
+          onChange={(e) => onIdeaChange(e.target.value)}
           placeholder="在此处输入想法，我们将为您定制创意，至少输入 15 字"
           aria-label="创作输入框"
           className="w-full resize-none rounded-xl bg-white/[0.03] px-3 pt-9 text-[14px] leading-relaxed text-white placeholder:text-white/35 outline-none focus:bg-white/[0.05]"
@@ -459,15 +464,42 @@ function CreateProjectContent() {
     tone: "无",
     ratio: "9:16",
   });
+  const [originalIdea, setOriginalIdea] = useState("");
+
+  const originalIdeaValid = originalIdea.trim().length >= 15;
 
   const handleCreate = () => {
-    // 保留现有 mock 项目的快速演示路径
+    if (action === "original" && !originalIdeaValid) return;
+
+    // 评估/改写使用真实的数字项目 id，避免进入不存在的 p-001/p-002 路由。
     if (action === "evaluate") {
-      router.push("/project/p-001?tab=evaluation");
+      const project = createProject(
+        {
+          action: "import",
+          source: "original",
+          contentType: "short",
+          tags: [],
+          nextAction: "evaluate",
+        },
+        meta.title,
+      );
+      saveProject(project);
+      router.push(`/project/${project.id}?tab=evaluation`);
       return;
     }
     if (action === "rewrite") {
-      router.push("/project/p-002?tab=rewrite");
+      const project = createProject(
+        {
+          action: "import",
+          source: "original",
+          contentType: "short",
+          tags: [],
+          nextAction: "rewrite",
+        },
+        meta.title,
+      );
+      saveProject(project);
+      router.push(`/project/${project.id}?tab=rewrite`);
       return;
     }
 
@@ -481,7 +513,7 @@ function CreateProjectContent() {
         };
         break;
       case "original":
-        config = { action: "original", idea: "", audience: "男频", genre: "✦", setting: "✦", episodes: 40 };
+        config = { action: "original", idea: originalIdea.trim(), audience: "男频", genre: "✦", setting: "✦", episodes: 40 };
         break;
       case "import":
         config = { action: "import", source: "original", contentType: "short", tags: [], nextAction: "parse" };
@@ -513,7 +545,9 @@ function CreateProjectContent() {
 
       {/* Panel */}
       <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-white/[0.06]">
-        {action === "original" && <OriginalPanel />}
+        {action === "original" && (
+          <OriginalPanel idea={originalIdea} onIdeaChange={setOriginalIdea} />
+        )}
         {action === "evaluate" && <EvaluatePanel />}
         {action === "rewrite" && <RewritePanel />}
         {action === "import" && <ImportPanel />}
@@ -566,12 +600,19 @@ function CreateProjectContent() {
         </div>
       )}
 
+      {action === "original" && !originalIdeaValid && (
+        <p className="mt-3 text-right text-[12px] text-warning" role="status">
+          请先输入至少 15 个字，再开始创作
+        </p>
+      )}
+
       {/* CTA */}
       <div className="mt-4 flex items-center justify-end">
         <button
           type="button"
           onClick={handleCreate}
-          className="flex items-center gap-1.5 rounded-full bg-brand px-6 py-2.5 text-[14px] font-bold text-black shadow-lg transition-all hover:brightness-110 active:scale-[0.98]"
+          disabled={action === "original" && !originalIdeaValid}
+          className="flex items-center gap-1.5 rounded-full bg-brand px-6 py-2.5 text-[14px] font-bold text-black shadow-lg transition-all hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:brightness-100"
         >
           {action === "import" ? "创建项目" : `开始${meta.title}`}
           {meta.cost > 0 && (

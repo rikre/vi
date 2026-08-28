@@ -35,7 +35,7 @@ function TypeBadge({ type }: { type: ScriptType }) {
 function NotFound() {
   return (
     <AppShell>
-      <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-8 pb-12">
+      <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-4 pb-12 sm:px-8">
         <div className="mt-6 flex items-center gap-1 text-[12px] text-white/40">
           <Link href="/plaza" className="hover:text-white/70">
             广场
@@ -74,7 +74,7 @@ export default function ScriptDetailPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-8 pb-12">
+      <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-4 pb-12 sm:px-8">
         {/* Breadcrumb */}
         <div className="mt-6 flex items-center gap-1 text-[12px] text-white/40">
           <Link href="/plaza" className="hover:text-white/70">
@@ -110,7 +110,7 @@ export default function ScriptDetailPage() {
         </div>
 
         {/* Main content */}
-        <div className="mt-10 flex gap-12">
+        <div className="mt-8 flex flex-col gap-8 lg:mt-10 lg:flex-row lg:gap-12">
           <LeftMenu active={active} onChange={setActive} />
           <div className="flex-1 min-w-0">
             <ContentPanel

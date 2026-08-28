@@ -121,7 +121,7 @@ export function CompareStep({
   return (
     <div className="mx-auto max-w-6xl space-y-5">
       {/* 顶部：集数导航 */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="inline-flex items-center gap-1 rounded-lg bg-white/[0.04] p-1 ring-1 ring-white/[0.06] backdrop-blur-md">
           {[1, 2, 3].map((ep) => (
             <button
@@ -161,7 +161,7 @@ export function CompareStep({
 
       {/* 双播放器对比 */}
       <div
-        className={`grid gap-4 ${compareSource ? "grid-cols-2" : "grid-cols-1"}`}
+        className={`grid gap-4 ${compareSource ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}
       >
         {compareSource && (
           <PlayerCard

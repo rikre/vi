@@ -73,27 +73,27 @@ export function CourseFab() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="AIGC 公开课，听课赢积分"
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#6f5bf9] to-[#9b7bf7] py-2 pl-2 pr-2.5 shadow-[0_12px_32px_-12px_rgba(111,91,249,0.7)] transition-transform hover:scale-[1.03] active:scale-[0.97]"
+        className="fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full bg-brand py-2 pl-2 pr-2.5 shadow-[0_12px_32px_-12px_rgba(212,255,63,0.45)] transition-transform hover:scale-[1.03] active:scale-[0.97] max-md:bottom-4 max-md:right-4 max-md:size-12 max-md:justify-center max-md:gap-0 max-md:p-1.5"
       >
         <span
           aria-hidden
-          className="absolute -right-1 -top-2 rounded-full bg-[#ff3b30] px-1.5 py-px text-[9px] font-bold text-white"
+          className="absolute -right-1 -top-2 rounded-full bg-black px-1.5 py-px text-[9px] font-bold text-brand ring-1 ring-brand/30"
         >
           NEW
         </span>
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black/15 text-black">
           <BookOpenIcon className="size-5" />
         </span>
-        <span aria-hidden className="h-7 w-px bg-white/25" />
-        <span className="text-left">
-          <span className="block text-[14px] font-bold leading-tight text-white">
+        <span aria-hidden className="h-7 w-px bg-black/15 max-md:hidden" />
+        <span aria-hidden className="text-left max-md:hidden">
+          <span className="block text-[14px] font-bold leading-tight text-black">
             AIGC公开课
           </span>
-          <span className="mt-0.5 block text-[11px] leading-tight text-white/80">
+          <span className="mt-0.5 block text-[11px] leading-tight text-black/65">
             听课赢积分
           </span>
         </span>
-        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
+        <span aria-hidden className="flex size-6 shrink-0 items-center justify-center rounded-full bg-black/15 text-black max-md:hidden">
           <ChevronRightIcon className="size-3.5" />
         </span>
       </button>

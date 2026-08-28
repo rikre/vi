@@ -31,8 +31,11 @@ import {
 } from "@/lib/mock-projects";
 import {
   createProject,
+  deleteProject,
   getProjects,
+  renameProject,
   subscribeToProjects,
+  updateProject,
 } from "@/lib/project-store";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -98,6 +101,7 @@ export default function ComicPage() {
   // 邀请弹窗
   const [inviteTarget, setInviteTarget] = useState<ShortDramaProject | null>(null);
   const [inviteSelected, setInviteSelected] = useState<string[]>([]);
+  const [notice, setNotice] = useState<string | null>(null);
   const projects = useSyncExternalStore(
     subscribeToProjects,
     getProjects,
@@ -224,8 +228,12 @@ export default function ComicPage() {
   const handleRenameSave = useCallback(() => {
     if (!renameTarget) return;
     const trimmed = renameInput.trim();
-    if (!trimmed) return;
-    console.log("重命名项目", { id: renameTarget.id, oldName: renameTarget.title, newName: trimmed });
+    if (!trimmed) {
+      setNotice("项目名称不能为空");
+      return;
+    }
+    renameProject(renameTarget.id, trimmed);
+    setNotice("项目名称已更新");
     closeRename();
   }, [renameTarget, renameInput, closeRename]);
 
@@ -246,7 +254,8 @@ export default function ComicPage() {
   }, [deleteTarget, closeDelete]);
   const handleDeleteConfirm = useCallback(() => {
     if (!deleteTarget) return;
-    console.log("删除项目", { id: deleteTarget.id, name: deleteTarget.title });
+    deleteProject(deleteTarget.id);
+    setNotice("项目已从当前列表移除");
     closeDelete();
   }, [deleteTarget, closeDelete]);
 
@@ -267,12 +276,14 @@ export default function ComicPage() {
   }, []);
   const handleInviteConfirm = useCallback(() => {
     if (!inviteTarget) return;
-    if (inviteSelected.length === 0) return;
-    console.log("邀请成员", {
-      projectId: inviteTarget.id,
-      projectName: inviteTarget.title,
-      members: inviteSelected,
+    if (inviteSelected.length === 0) {
+      setNotice("请至少选择一位成员");
+      return;
+    }
+    updateProject(inviteTarget.id, {
+      members: Array.from(new Set([...inviteTarget.members, ...inviteSelected])),
     });
+    setNotice(`已邀请 ${inviteSelected.length} 位成员加入项目`);
     closeInvite();
   }, [inviteTarget, inviteSelected, closeInvite]);
 
@@ -330,16 +341,16 @@ export default function ComicPage() {
   return (
     <AppShell>
       <div className="h-full overflow-y-auto no-scrollbar">
-        <div className="px-6 pt-[56px]">
+        <div className="px-4 pb-6 pt-8 sm:px-6 sm:pt-[56px]">
           {/* Header row */}
-          <div className="flex items-center justify-between gap-4">
-            <h1 className="text-[30px] font-bold leading-tight text-white">
+          <div className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
+            <h1 className="shrink-0 whitespace-nowrap text-[30px] font-bold leading-tight text-white">
               我的项目
             </h1>
 
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:gap-3">
               {/* Search */}
-              <div className="relative">
+              <div className="relative min-w-0 flex-1 sm:flex-none">
                 <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40">
                   <SearchIcon className="size-4" />
                 </div>
@@ -349,7 +360,7 @@ export default function ComicPage() {
                   placeholder="搜索项目"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-10 w-[288px] rounded-lg border border-white/[0.2] bg-white/[0.1] py-2 pl-9 pr-9 text-[14px] text-white outline-none transition-colors placeholder:text-white/60 focus:border-brand"
+                  className="h-10 w-full rounded-lg border border-white/[0.2] bg-white/[0.1] py-2 pl-9 pr-9 text-[14px] text-white outline-none transition-colors placeholder:text-white/60 focus:border-brand sm:w-[288px]"
                 />
               </div>
 
@@ -379,6 +390,12 @@ export default function ComicPage() {
               </button>
             </div>
           </div>
+
+          {notice && (
+            <div className="mt-4 rounded-lg bg-brand/10 px-3 py-2 text-[13px] text-brand ring-1 ring-brand/20" role="status" aria-live="polite">
+              {notice}
+            </div>
+          )}
 
           {/* Tabs */}
           <div className="mt-6 flex items-center gap-1 border-b border-white/[0.06] pb-px">

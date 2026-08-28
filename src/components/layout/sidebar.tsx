@@ -15,6 +15,8 @@ import {
   HelpIcon,
 } from "@/components/icons";
 import { PublishDialog } from "@/components/publish-dialog";
+import { TeamDialog } from "@/components/team-dialog";
+import { InviteCampaignDialog } from "@/components/invite-campaign-dialog";
 import { AccountDropdown } from "@/components/account-dropdown";
 import { AccountDialog, AiWatermarkDialog, type AccountTab } from "@/components/account-dialog";
 import { UserAvatar } from "@/components/user-avatar";
@@ -49,6 +51,8 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountTab, setAccountTab] = useState<AccountTab | null>(null);
   const [watermarkOpen, setWatermarkOpen] = useState(false);
+  const [teamOpen, setTeamOpen] = useState(false);
+  const [inviteCampaignOpen, setInviteCampaignOpen] = useState(false);
 
   return (
     <>
@@ -179,6 +183,8 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
                   setMenuOpen(false);
                   onOpenMessages();
                 }}
+                onOpenTeam={() => setTeamOpen(true)}
+                onOpenInviteCampaign={() => setInviteCampaignOpen(true)}
               />
             </div>
           </div>
@@ -193,6 +199,10 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
       </nav>
 
       <PublishDialog open={publishOpen} onClose={() => setPublishOpen(false)} />
+      {teamOpen && <TeamDialog onClose={() => setTeamOpen(false)} />}
+      {inviteCampaignOpen && (
+        <InviteCampaignDialog onClose={() => setInviteCampaignOpen(false)} />
+      )}
 
       {accountTab !== null && (
         <AccountDialog

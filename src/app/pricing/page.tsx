@@ -57,6 +57,7 @@ export default function PricingPage() {
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [accountTab, setAccountTab] = useState<AccountTab | null>(null);
   const [watermarkOpen, setWatermarkOpen] = useState(false);
+  const [rechargeOpen, setRechargeOpen] = useState(false);
   const firstChargeUsed = useSyncExternalStore(
     subscribeFirstCharge,
     getFirstCharge,
@@ -72,8 +73,18 @@ export default function PricingPage() {
         : window.location.hash === "#recharge" || params.get("tab") === "credits"
           ? "recharge"
           : null;
-    if (target) scrollToSection(target);
+    if (target === "recharge") {
+      setRechargeOpen(true);
+    } else if (target) {
+      scrollToSection(target);
+    }
   }, []);
+
+  useEffect(() => {
+    if (!rechargeOpen) return;
+    const frame = window.requestAnimationFrame(() => scrollToSection("recharge"));
+    return () => window.cancelAnimationFrame(frame);
+  }, [rechargeOpen]);
 
   const recharge = (tierId: string) => {
     const tier = RECHARGE_TIERS.find((t) => t.id === tierId);
@@ -87,6 +98,10 @@ export default function PricingPage() {
         `到账 ${tier.credits.toLocaleString()} 积分`,
         tier.bonusLabel ? `加赠 ${tier.bonusLabel}` : "无加赠",
         "积分长期有效，生成失败不扣费",
+      ],
+      purchaseNotes: [
+        "积分支付成功后即时到账，生成失败不扣费。",
+        "如需开具发票，请联系客服申请；发票服务仅支持团队版订单。",
       ],
       cta: `支付 ¥${tier.price}`,
       onSuccessNote:
@@ -140,6 +155,10 @@ export default function PricingPage() {
         `${plan.storageGb}GB 云存储 · ${plan.concurrency} 任务并发`,
         "去水印 · " + plan.commercialLicense,
       ],
+      purchaseNotes: [
+        "会员权益购买后即时生效，具体有效期以所购套餐为准。",
+        "如需开具发票，请联系客服申请；发票服务仅支持团队版订单。",
+      ],
       cta: "确认订阅",
       onSuccessNote: "订阅成功，会员权益已即时生效",
     });
@@ -151,12 +170,19 @@ export default function PricingPage() {
         <div className="mx-auto max-w-[1400px] px-6 pb-16">
           <ModelBanner />
 
-          <RechargeSection
-            firstChargeUsed={firstChargeUsed}
-            onRecharge={recharge}
-          />
+          {rechargeOpen && (
+            <RechargeSection
+              firstChargeUsed={firstChargeUsed}
+              onRecharge={recharge}
+              onClose={() => setRechargeOpen(false)}
+            />
+          )}
 
-          <MemberSection onSubscribe={subscribe} onOpenAccount={setAccountTab} />
+          <MemberSection
+            onSubscribe={subscribe}
+            onOpenAccount={setAccountTab}
+            onOpenRecharge={() => setRechargeOpen(true)}
+          />
 
           <FaqSection />
         </div>
@@ -225,16 +251,27 @@ function ModelBanner() {
 function RechargeSection({
   firstChargeUsed,
   onRecharge,
+  onClose,
 }: {
   firstChargeUsed: boolean;
   onRecharge: (tierId: string) => void;
+  onClose: () => void;
 }) {
   return (
     <section id="recharge" className="mt-10 scroll-mt-6">
-      <div className="flex items-center gap-2">
-        <CoinsIcon className="size-5 text-brand" />
-        <h2 className="text-[20px] font-bold text-white">积分充值</h2>
-        <span className="text-[13px] text-white/50">1 元 = 10 积分</span>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <CoinsIcon className="size-5 text-brand" />
+          <h2 className="text-[20px] font-bold text-white">积分充值</h2>
+          <span className="text-[13px] text-white/50">1 元 = 10 积分</span>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="shrink-0 rounded-lg px-2.5 py-1.5 text-[12px] font-medium text-white/50 transition-colors hover:bg-white/[0.06] hover:text-white"
+        >
+          收起
+        </button>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
         {RECHARGE_TIERS.map((tier) => {
@@ -274,7 +311,7 @@ function RechargeSection({
                   加赠 {tier.bonusLabel}
                 </p>
               ) : (
-                <p className="mt-1 text-[12px] text-white/30">无加赠</p>
+                <p className="mt-1 text-[12px] text-white/45">无加赠</p>
               )}
             </button>
           );
@@ -288,6 +325,7 @@ function RechargeSection({
 function MemberSection({
   onSubscribe,
   onOpenAccount,
+  onOpenRecharge,
 }: {
   onSubscribe: (
     plan: MemberPlan,
@@ -296,6 +334,7 @@ function MemberSection({
     seats?: number,
   ) => void;
   onOpenAccount: (tab: AccountTab) => void;
+  onOpenRecharge: () => void;
 }) {
   const [identity, setIdentity] = useState<MemberIdentity>("personal");
   const [cycle, setCycle] = useState<MemberCycle>("month");
@@ -330,7 +369,7 @@ function MemberSection({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => scrollToSection("recharge")}
+            onClick={onOpenRecharge}
             className="flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-[13px] font-bold text-black transition-all hover:brightness-105 active:scale-[0.97]"
           >
             充值积分

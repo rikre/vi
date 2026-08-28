@@ -13,14 +13,15 @@ type AssetCardProps = {
   asset?: Asset;
   isNew?: boolean;
   newLabel?: string;
+  onAction?: (message: string) => void;
 };
 
-function AssetCard({ asset, isNew, newLabel = "新建" }: AssetCardProps) {
+function AssetCard({ asset, isNew, newLabel = "新建", onAction }: AssetCardProps) {
   if (isNew || !asset) {
     return (
       <button
         type="button"
-        onClick={() => console.log("新建资产")}
+        onClick={() => onAction?.("新建资产功能将在生成接口接入后开放")}
         className="group flex aspect-square flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-white/10 bg-white/[0.02] text-white/40 transition-all hover:border-brand/40 hover:bg-brand/5 hover:text-brand"
       >
         <PlusCircleIcon className="size-10 transition-transform group-hover:scale-110" />
@@ -45,7 +46,7 @@ function AssetCard({ asset, isNew, newLabel = "新建" }: AssetCardProps) {
         <div className="absolute right-2 top-2 flex flex-col gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
           <button
             type="button"
-            onClick={() => console.log("收藏资产", asset.name)}
+            onClick={() => onAction?.(`已将「${asset.name}」加入收藏（演示）`)}
             className="flex size-8 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur-md transition-colors hover:bg-black/70 hover:text-white"
             aria-label="收藏"
           >
@@ -53,7 +54,7 @@ function AssetCard({ asset, isNew, newLabel = "新建" }: AssetCardProps) {
           </button>
           <button
             type="button"
-            onClick={() => console.log("资产更多操作", asset.name)}
+            onClick={() => onAction?.(`「${asset.name}」的更多操作将在资产接口接入后开放`)}
             className="flex size-8 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur-md transition-colors hover:bg-black/70 hover:text-white"
             aria-label="更多操作"
           >
@@ -79,14 +80,15 @@ function AssetCard({ asset, isNew, newLabel = "新建" }: AssetCardProps) {
 type AssetGridProps = {
   assets: Asset[];
   newLabel?: string;
+  onAction?: (message: string) => void;
 };
 
-export function AssetGrid({ assets, newLabel }: AssetGridProps) {
+export function AssetGrid({ assets, newLabel, onAction }: AssetGridProps) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-      <AssetCard isNew newLabel={newLabel} />
+      <AssetCard isNew newLabel={newLabel} onAction={onAction} />
       {assets.map((asset) => (
-        <AssetCard key={asset.id} asset={asset} />
+        <AssetCard key={asset.id} asset={asset} onAction={onAction} />
       ))}
     </div>
   );

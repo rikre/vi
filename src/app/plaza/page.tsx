@@ -284,6 +284,7 @@ function OrderCard({ order, onClick }: { order: Order; onClick: () => void }) {
 }
 
 function OrderDetailDialog({ order, onClose }: { order: Order | null; onClose: () => void }) {
+  const [notice, setNotice] = useState<string | null>(null);
   // ESC 关闭 — 仅在有 order 时挂载监听
   useEffect(() => {
     if (!order) return;
@@ -334,11 +335,17 @@ function OrderDetailDialog({ order, onClose }: { order: Order | null; onClose: (
           </div>
         </div>
 
+        {notice && (
+          <p className="mt-5 text-right text-[12px] text-brand" role="status" aria-live="polite">
+            {notice}
+          </p>
+        )}
+
         <div className="mt-6 flex justify-end">
           <button
             type="button"
             disabled={order.status !== "open"}
-            onClick={() => window.console.log("[plaza] apply order (mock)", order.id)}
+            onClick={() => setNotice("申请流程将在合作接口接入后开放，当前为演示数据")}
             className={cn(
               "rounded-xl px-6 py-2.5 text-[14px] font-semibold transition-colors",
               order.status === "open"
@@ -378,6 +385,8 @@ function PlazaPageInner() {
   useEffect(() => {
     const t = searchParams.get("tab");
     if (t && VALID_TABS.includes(t) && t !== activeTab) {
+      // 这里是 URL 与本地 tab 状态的单向同步，避免后退/前进后页面仍停留在旧标签。
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab(t);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -542,4 +551,3 @@ function EmptyState({ onClear }: { onClear: () => void }) {
     </div>
   );
 }
-

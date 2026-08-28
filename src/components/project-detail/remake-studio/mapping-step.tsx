@@ -55,7 +55,7 @@ export function MappingStep({
         </span>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="inline-flex items-center gap-1 rounded-lg bg-white/[0.04] p-1 ring-1 ring-white/[0.06]">
           {ASSET_CATEGORIES.map((c) => (
             <button
@@ -73,7 +73,7 @@ export function MappingStep({
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className="text-[12px] text-white/50">
             形象总计 {mappings.length} · 已解析{" "}
             {mappings.filter((m) => m.status === "已完成").length}
@@ -107,7 +107,7 @@ export function MappingStep({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {mappings.map((m) => (
             <article
               key={m.id}

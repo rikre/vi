@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CoinsIcon } from "@/components/icons";
 
@@ -28,15 +29,15 @@ export function LeftMenu({
   onChange: (id: string) => void;
 }) {
   return (
-    <nav aria-label="剧本章节导航" className="w-[200px] shrink-0">
-      <div className="space-y-0.5">
+    <nav aria-label="剧本章节导航" className="w-full shrink-0 lg:w-[200px]">
+      <div className="flex gap-1 overflow-x-auto pb-1 no-scrollbar lg:block lg:space-y-0.5">
         {LEFT_MENU.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => onChange(item.id)}
             className={cn(
-              "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] transition-colors",
+              "flex shrink-0 items-center justify-between rounded-md px-2 py-2 text-left text-[13px] transition-colors lg:w-full lg:py-1.5",
               active === item.id
                 ? "text-white"
                 : "text-white/45 hover:text-white/70",
@@ -64,8 +65,10 @@ export function RightPanel({
   price: number;
   sold: boolean;
 }) {
+  const [notice, setNotice] = useState<string | null>(null);
+
   return (
-    <aside className="w-[300px] shrink-0 space-y-8">
+    <aside className="w-full shrink-0 space-y-8 lg:w-[300px]">
       {/* 封面 */}
       <div>
         <img
@@ -89,7 +92,7 @@ export function RightPanel({
         <button
           type="button"
           disabled={sold}
-          onClick={() => console.log("buy script", { title, price })}
+          onClick={() => setNotice("购买流程将在支付接口接入后开放，当前为预览演示")}
           className={cn(
             "mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-md text-[14px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]",
             sold
@@ -102,11 +105,16 @@ export function RightPanel({
         </button>
         <button
           type="button"
-          onClick={() => console.log("preview script", { title })}
+          onClick={() => setNotice("试读内容已在左侧章节中展示")}
           className="mt-2 flex h-10 w-full items-center justify-center rounded-md text-[13px] text-white/70 transition-colors hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
         >
           试读剧本
         </button>
+        {notice && (
+          <p className="mt-3 text-[12px] leading-relaxed text-brand" role="status" aria-live="polite">
+            {notice}
+          </p>
+        )}
       </div>
     </aside>
   );

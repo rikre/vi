@@ -126,7 +126,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="关闭"
-            className="absolute right-4 top-4 text-white/60 transition-colors hover:text-white motion-reduce:transition-none"
+            className="absolute right-3 top-3 flex size-11 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/[0.06] hover:text-white motion-reduce:transition-none"
           >
             <CloseIcon className="size-5" />
           </button>

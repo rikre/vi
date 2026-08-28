@@ -129,12 +129,12 @@ function EfficiencyTab() {
   return (
     <div className="space-y-6">
       {/* KPI */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {KPI_CARDS.map((k) => (
           <div key={k.label} className={CARD}>
             <div className="text-[13px] text-white/50">{k.label}</div>
             <div className="mt-3 flex items-baseline gap-1.5">
-              <span className="font-mono text-[32px] font-extrabold text-white">{k.value}</span>
+              <span className="font-mono text-[28px] font-extrabold text-white sm:text-[32px]">{k.value}</span>
               <span className="text-[13px] text-white/40">{k.unit}</span>
             </div>
             <div
@@ -181,7 +181,7 @@ function EfficiencyTab() {
       </div>
 
       {/* Top projects + Top members */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className={CARD}>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-[15px] font-semibold text-white">制剧项目能耗 Top5</h3>
@@ -258,10 +258,10 @@ function EfficiencyTab() {
 
 // ─── Tab: 团队 ───────────────────────────────────────────────────────────────
 
-function TeamTab() {
+function TeamTab({ onNotify }: { onNotify: (message: string) => void }) {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {TEAM_KPIS.map((k) => (
           <div key={k.label} className={CARD}>
             <div className="text-[13px] text-white/50">{k.label}</div>
@@ -272,16 +272,16 @@ function TeamTab() {
 
       <div className="flex justify-end">
         <button
-          onClick={() => console.log("新建团队")}
+          onClick={() => onNotify("新建团队功能将在团队接口接入后开放")}
           className="rounded-full bg-brand px-4 py-2 text-[13px] font-semibold text-black transition-opacity hover:opacity-90"
         >
           + 新建团队
         </button>
       </div>
 
-      <div className={CARD + " overflow-hidden p-0"}>
+      <div className={CARD + " overflow-x-auto p-0"}>
         {/* Header */}
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.5fr] gap-4 border-b border-white/[0.08] px-6 py-3 text-[12px] font-medium text-white/50">
+        <div className="grid min-w-[720px] grid-cols-[2fr_1fr_1fr_1fr_1.5fr] gap-4 border-b border-white/[0.08] px-6 py-3 text-[12px] font-medium text-white/50">
           <div>团队名称</div>
           <div>状态</div>
           <div>积分</div>
@@ -292,7 +292,7 @@ function TeamTab() {
         {TEAM_ROWS.map((r) => (
           <div
             key={r.name}
-            className="grid grid-cols-[2fr_1fr_1fr_1fr_1.5fr] items-center gap-4 border-b border-white/[0.05] px-6 py-4 text-[13px] transition-colors last:border-0 hover:bg-white/[0.02]"
+            className="grid min-w-[720px] grid-cols-[2fr_1fr_1fr_1fr_1.5fr] items-center gap-4 border-b border-white/[0.05] px-6 py-4 text-[13px] transition-colors last:border-0 hover:bg-white/[0.02]"
           >
             <div className="font-medium text-white">{r.name}</div>
             <div>
@@ -306,7 +306,7 @@ function TeamTab() {
               {["管理", "分配", "回收", "移除"].map((a) => (
                 <button
                   key={a}
-                  onClick={() => console.log(a, r.name)}
+                  onClick={() => onNotify(`${a}「${r.name}」的功能将在团队接口接入后开放`)}
                   className={cn(
                     "rounded-md px-2 py-1 transition-colors",
                     a === "移除"
@@ -327,26 +327,26 @@ function TeamTab() {
 
 // ─── Tab: 成员 ───────────────────────────────────────────────────────────────
 
-function MemberTab() {
+function MemberTab({ onNotify }: { onNotify: (message: string) => void }) {
   return (
     <div className="space-y-5">
       <div className="flex justify-end gap-2">
         <button
-          onClick={() => console.log("邮箱邀请")}
+          onClick={() => onNotify("邮箱邀请功能将在团队接口接入后开放")}
           className="rounded-full border border-white/15 px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.05] hover:text-white"
         >
           邮箱邀请
         </button>
         <button
-          onClick={() => console.log("链接邀请")}
+          onClick={() => onNotify("链接邀请功能将在团队接口接入后开放")}
           className="rounded-full border border-white/15 px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.05] hover:text-white"
         >
           链接邀请
         </button>
       </div>
 
-      <div className={CARD + " overflow-hidden p-0"}>
-        <div className="grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 border-b border-white/[0.08] px-6 py-3 text-[12px] font-medium text-white/50">
+      <div className={CARD + " overflow-x-auto p-0"}>
+        <div className="grid min-w-[720px] grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 border-b border-white/[0.08] px-6 py-3 text-[12px] font-medium text-white/50">
           <div>成员</div>
           <div>邀请状态</div>
           <div>邀请方式</div>
@@ -355,7 +355,7 @@ function MemberTab() {
         {MEMBER_ROWS.map((m) => (
           <div
             key={m.email}
-            className="grid grid-cols-[2.5fr_1fr_1fr_1.5fr] items-center gap-4 border-b border-white/[0.05] px-6 py-4 text-[13px] last:border-0 hover:bg-white/[0.02]"
+            className="grid min-w-[720px] grid-cols-[2.5fr_1fr_1fr_1.5fr] items-center gap-4 border-b border-white/[0.05] px-6 py-4 text-[13px] last:border-0 hover:bg-white/[0.02]"
           >
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.08] text-[13px] font-semibold text-white/80">
@@ -382,14 +382,14 @@ function MemberTab() {
             <div className="flex justify-end gap-2 text-[12px]">
               {m.status === "待接受" && (
                 <button
-                  onClick={() => console.log("重发激活", m.email)}
+                  onClick={() => onNotify(`已重新生成 ${m.email} 的激活提醒（演示）`)}
                   className="rounded-md px-2 py-1 text-white/50 transition-colors hover:bg-white/[0.06] hover:text-white"
                 >
                   重发激活
                 </button>
               )}
               <button
-                onClick={() => console.log("移除", m.email)}
+                onClick={() => onNotify(`移除成员功能将在团队接口接入后开放：${m.email}`)}
                 className="rounded-md px-2 py-1 text-danger/80 transition-colors hover:bg-danger/10 hover:text-danger"
               >
                 移除
@@ -406,8 +406,8 @@ function MemberTab() {
 
 function LedgerTab() {
   return (
-    <div className={CARD + " overflow-hidden p-0"}>
-      <div className="grid grid-cols-[1.2fr_1fr_2fr_1.2fr] gap-4 border-b border-white/[0.08] px-6 py-3 text-[12px] font-medium text-white/50">
+    <div className={CARD + " overflow-x-auto p-0"}>
+      <div className="grid min-w-[680px] grid-cols-[1.2fr_1fr_2fr_1.2fr] gap-4 border-b border-white/[0.08] px-6 py-3 text-[12px] font-medium text-white/50">
         <div>动作</div>
         <div>变动金额</div>
         <div>目标团队</div>
@@ -416,7 +416,7 @@ function LedgerTab() {
       {LEDGER_ROWS.map((r, i) => (
         <div
           key={i}
-          className="grid grid-cols-[1.2fr_1fr_2fr_1.2fr] items-center gap-4 border-b border-white/[0.05] px-6 py-4 text-[13px] last:border-0 hover:bg-white/[0.02]"
+          className="grid min-w-[680px] grid-cols-[1.2fr_1fr_2fr_1.2fr] items-center gap-4 border-b border-white/[0.05] px-6 py-4 text-[13px] last:border-0 hover:bg-white/[0.02]"
         >
           <div className="font-medium text-white">{r.action}</div>
           <div
@@ -441,11 +441,12 @@ function LedgerTab() {
 
 export default function TeamPage() {
   const [tab, setTab] = useState<TabKey>("效能");
+  const [notice, setNotice] = useState<string | null>(null);
 
   return (
     <AppShell>
       <div className="h-full overflow-y-auto">
-        <div className="mx-auto max-w-[1400px] px-6 pb-10 pt-8">
+        <div className="mx-auto max-w-[1400px] px-4 pb-10 pt-8 sm:px-6">
           {/* Page header */}
           <div className="mb-6">
             <div className="flex items-start justify-between gap-4">
@@ -461,6 +462,12 @@ export default function TeamPage() {
               </Link>
             </div>
           </div>
+
+          {notice && (
+            <div className="mb-6 rounded-lg bg-brand/10 px-3 py-2 text-[13px] text-brand ring-1 ring-brand/20" role="status" aria-live="polite">
+              {notice}
+            </div>
+          )}
 
           {/* 团队版订阅引导（T-2：团队管理员常驻页面提供升级/加席入口） */}
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-brand/[0.12] to-transparent p-4 ring-1 ring-brand/30">
@@ -495,8 +502,8 @@ export default function TeamPage() {
 
           {/* Panels */}
           {tab === "效能" && <EfficiencyTab />}
-          {tab === "团队" && <TeamTab />}
-          {tab === "成员" && <MemberTab />}
+          {tab === "团队" && <TeamTab onNotify={setNotice} />}
+          {tab === "成员" && <MemberTab onNotify={setNotice} />}
           {tab === "流水" && <LedgerTab />}
         </div>
       </div>

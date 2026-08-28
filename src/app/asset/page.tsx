@@ -59,6 +59,7 @@ const FAVORITES = [...CHARACTERS.slice(0, 3), ...SCENES.slice(0, 2), ...PROPS.sl
 export default function AssetPage() {
   const [activeTab, setActiveTab] = useState("character");
   const [searchQuery, setSearchQuery] = useState("");
+  const [notice, setNotice] = useState<string | null>(null);
 
   const getAssets = () => {
     switch (activeTab) {
@@ -109,6 +110,7 @@ export default function AssetPage() {
               type="button"
               className="flex h-11 items-center gap-2 rounded-xl bg-white/[0.08] px-4 text-[14px] font-medium text-white transition-all hover:bg-white/[0.12]"
               aria-label="回收站"
+              onClick={() => setNotice("回收站功能将在资产接口接入后开放")}
             >
               <TrashIcon className="size-4" />
               回收站
@@ -117,6 +119,7 @@ export default function AssetPage() {
               type="button"
               className="flex h-11 items-center gap-2 rounded-xl bg-brand px-5 text-[14px] font-semibold text-brand-foreground transition-all hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20"
               aria-label="AI 生成"
+              onClick={() => setNotice("AI 生成资产功能将在生成接口接入后开放")}
             >
               <PlusIcon className="size-4" />
               AI 生成
@@ -124,6 +127,7 @@ export default function AssetPage() {
             <button
               type="button"
               className="flex h-11 items-center gap-2 rounded-xl bg-white/[0.08] px-4 text-[14px] font-medium text-white transition-all hover:bg-white/[0.12]"
+              onClick={() => setNotice("上传资产功能将在文件接口接入后开放")}
             >
               <UploadIcon className="size-4" />
               上传
@@ -163,7 +167,17 @@ export default function AssetPage() {
           />
         </div>
 
-        <AssetGrid assets={filteredAssets} newLabel={getNewLabel()} />
+        {notice && (
+          <div className="mb-5 rounded-lg bg-brand/10 px-3 py-2 text-[13px] text-brand ring-1 ring-brand/20" role="status" aria-live="polite">
+            {notice}
+          </div>
+        )}
+
+        <AssetGrid
+          assets={filteredAssets}
+          newLabel={getNewLabel()}
+          onAction={setNotice}
+        />
       </div>
     </AppShell>
   );

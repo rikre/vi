@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CloseIcon, LayersIcon, PlusIcon, UsersIcon } from "@/components/icons";
+import { useState } from "react";
+import { LayersIcon, PlusIcon, UsersIcon } from "@/components/icons";
+import { Modal } from "@/components/ui/modal";
 
 function CloudIcon({ className }: { className?: string }) {
   return (
@@ -50,42 +51,20 @@ const TEAM_FEATURES = [
 export function TeamDialog({ onClose }: { onClose: () => void }) {
   const [notice, setNotice] = useState(false);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="团队版会员"
-      onClick={onClose}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+    <Modal
+      open
+      onClose={onClose}
+      title="团队版会员"
+      className="max-h-[calc(100vh-2rem)] w-full max-w-[920px] overflow-y-auto rounded-3xl bg-gradient-to-br from-[#101b31] via-[#111a32] to-[#081a42] px-6 py-8 sm:px-14 sm:py-12"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-[880px] overflow-hidden rounded-3xl bg-gradient-to-b from-[#151c33] to-[#0d1222] px-8 py-12 ring-1 ring-white/[0.08] md:px-14"
-      >
+      <div className="relative overflow-hidden">
         {/* 氛围光 */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 top-0 h-56 w-[480px] -translate-x-1/2 rounded-full bg-brand/[0.06] blur-3xl"
-        />
-        <button
-          type="button"
-          aria-label="关闭"
-          onClick={onClose}
-          className="absolute right-5 top-5 flex size-8 items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/[0.06] hover:text-white"
-        >
-          <CloseIcon className="size-4" />
-        </button>
-
+        <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-24 size-72 rounded-full bg-[#ff6b44]/[0.15] blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full bg-[#1c5cff]/[0.18] blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-56 w-[480px] -translate-x-1/2 rounded-full bg-[#7c5cff]/[0.08] blur-3xl" />
         <div className="relative flex flex-col items-center text-center">
-          <GemIcon className="size-14" />
+          <GemIcon className="size-[68px]" />
           <h2 className="mt-5 text-[20px] font-bold text-white">
             开通团队会员后即可使用团队功能
           </h2>
@@ -96,7 +75,7 @@ export function TeamDialog({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={() => setNotice(true)}
-            className="mt-6 flex items-center gap-1.5 rounded-full bg-brand px-6 py-2.5 text-[13px] font-bold text-black transition-all hover:brightness-105 active:scale-[0.97]"
+            className="mt-6 flex items-center gap-1.5 rounded-full bg-[#a855f7] px-6 py-2.5 text-[13px] font-bold text-white transition-all hover:bg-[#b66cff] active:scale-[0.97]"
           >
             <PlusIcon className="size-4" />
             创建团队
@@ -118,7 +97,7 @@ export function TeamDialog({ onClose }: { onClose: () => void }) {
         {/* 功能三卡 */}
         <div className="relative mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
           {TEAM_FEATURES.map(({ Icon, title, desc }) => (
-            <div key={title} className="flex items-start gap-3 rounded-2xl bg-white/[0.03] p-4 ring-1 ring-white/[0.06]">
+            <div key={title} className="flex items-start gap-3 rounded-2xl p-2 sm:p-4">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-white/70">
                 <Icon className="size-[18px]" />
               </span>
@@ -130,6 +109,6 @@ export function TeamDialog({ onClose }: { onClose: () => void }) {
           ))}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

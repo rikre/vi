@@ -303,7 +303,7 @@ function InviteTab() {
     <div className="max-w-[760px]">
       <h3 className="text-[16px] font-bold text-white">邀请好友</h3>
       <p className="mt-1.5 text-[12px] text-white/45">
-        每邀请 1 位好友注册并订阅会员，可获得 200 积分，30 天有效；好友获得 100 积分。
+        好友注册可得 100 积分，你按邀请阶段获得 60 / 120 / 150 积分，活动累计最高 3,000 积分。
       </p>
 
       {/* 统计 */}

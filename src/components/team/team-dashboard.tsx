@@ -173,7 +173,7 @@ function EfficiencyPanel() {
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {KPI_CARDS.map((card) => {
           const tone = TONE_MAP[card.tone];
           return (
@@ -197,7 +197,7 @@ function EfficiencyPanel() {
       </div>
 
       {/* Trend + Project rank */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card title="日趋势" action="每日趋势详情">
           <TrendChart />
         </Card>
@@ -211,7 +211,7 @@ function EfficiencyPanel() {
       </div>
 
       {/* Group share + Member rank */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card title="制剧小组分配占比">
           <ul className="divide-y divide-white/[0.04]">
             {GROUP_SHARE.map((item) => (
@@ -242,7 +242,7 @@ function EfficiencyPanel() {
 
       {/* Gen type breakdown */}
       <Card title="生成类型拆分">
-        <div className="flex items-start gap-8">
+        <div className="flex flex-col items-start gap-6 sm:flex-row sm:gap-8">
           <DonutChart />
           <ul className="flex-1 space-y-2.5 pt-2">
             {GEN_TYPES.slice(0, 5).map((item) => (
@@ -269,7 +269,7 @@ function EfficiencyPanel() {
 function TeamPanel() {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {TEAM_KPIS.map((kpi) => (
           <div key={kpi.label} className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
             <span className="text-[12px] text-white/45">{kpi.label}</span>
@@ -284,8 +284,8 @@ function TeamPanel() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/[0.06]">
-        <table className="w-full text-left text-[13px]">
+      <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+        <table className="min-w-[860px] w-full text-left text-[13px]">
           <thead>
             <tr className="border-b border-white/[0.06] bg-white/[0.02]">
               {["团队名称", "状态", "团队积分", "成员数量", "备注", "创建日期", "操作"].map((h) => (
@@ -344,8 +344,8 @@ function MemberPanel() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/[0.06]">
-        <table className="w-full text-left text-[13px]">
+      <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+        <table className="min-w-[760px] w-full text-left text-[13px]">
           <thead>
             <tr className="border-b border-white/[0.06] bg-white/[0.02]">
               {["成员", "备注", "邀请状态", "邀请方式", "邀请时间", "操作"].map((h) => (
@@ -401,8 +401,8 @@ function MemberPanel() {
 
 function LedgerPanel() {
   return (
-    <div className="overflow-hidden rounded-xl border border-white/[0.06]">
-      <table className="w-full text-left text-[13px]">
+    <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+      <table className="min-w-[760px] w-full text-left text-[13px]">
         <thead>
           <tr className="border-b border-white/[0.06] bg-white/[0.02]">
             {["动作", "变动", "余额", "目标", "备注", "创建时间"].map((h) => (

@@ -1,19 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { StyleLibraryDialog } from "@/components/style-library-dialog";
 import { cn } from "@/lib/utils";
 import {
-  SearchIcon,
-  ChevronDownIcon,
   UploadIcon,
   SparkleIcon,
   SceneIcon,
   UserGroupIcon,
   FolderIcon,
   SendIcon,
-  PlayIcon,
 } from "@/components/icons";
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -301,20 +299,47 @@ function DiscoverCard({
  * ──────────────────────────────────────────────────────────────────────── */
 
 export default function CreatePage() {
+  const router = useRouter();
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("9:16");
   const [inputValue, setInputValue] = useState("");
   const [hoveredCardId, setHoveredCardId] = useState<number | null>(null);
   const [styleOpen, setStyleOpen] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const showNotice = (message: string) => setNotice(message);
+  const startCreation = () => {
+    if (!inputValue.trim()) {
+      showNotice("先描述一个创作想法，再开始生成");
+      return;
+    }
+    router.push("/project/new?action=short");
+  };
 
   return (
     <AppShell>
       <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-6 pb-10 no-scrollbar">
-        {/* 移动端提示 */}
-        <div className="block py-10 text-center text-white/60 md:hidden">
-          <p className="text-[16px] font-medium">为获得最佳体验，请访问网页版</p>
-          <p className="mt-2 text-[13px] text-white/40">
-            在桌面端使用完整功能创作 AI 视频
-          </p>
+        {/* 移动端创作入口 */}
+        <div className="block px-1 py-8 md:hidden">
+          <h1 className="text-[28px] font-normal leading-tight text-white">今天想创作什么？</h1>
+          <p className="mt-2 text-[13px] text-white/45">先写下想法，下一步可选择剧本模式或分镜模式。</p>
+          <textarea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            aria-label="移动端创作输入框"
+            placeholder="描述你想要的画面或故事…"
+            rows={6}
+            className="mt-6 w-full resize-none rounded-2xl bg-white/[0.05] px-4 py-4 text-[14px] leading-relaxed text-white outline-none ring-1 ring-inset ring-white/[0.08] placeholder:text-white/35 focus:ring-brand/40"
+          />
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <span className="text-[12px] text-white/35">画面比例 {aspectRatio}</span>
+            <button
+              type="button"
+              onClick={startCreation}
+              className="min-h-11 rounded-full bg-brand px-5 text-[14px] font-semibold text-black transition-opacity hover:opacity-90"
+            >
+              开始创作
+            </button>
+          </div>
         </div>
 
         {/* 创作输入区 — 居中巨标题 + 输入区 + 工具栏 */}
@@ -352,7 +377,7 @@ export default function CreatePage() {
                   Icon={btn.Icon}
                   label={btn.label}
                   onClick={() =>
-                    btn.id === "style" ? setStyleOpen(true) : console.log(btn.label)
+                    btn.id === "style" ? setStyleOpen(true) : showNotice(`${btn.label}将在下一步配置`)
                   }
                 />
               ))}
@@ -365,7 +390,7 @@ export default function CreatePage() {
 
               {/* 影棚模式 主 CTA — 推到右 */}
               <div className="ml-auto flex items-center gap-2">
-                <PrimaryCTA Icon={SparkleIcon} onClick={() => console.log("影棚模式")}>
+                <PrimaryCTA Icon={SparkleIcon} onClick={startCreation}>
                   影棚模式
                 </PrimaryCTA>
 
@@ -373,7 +398,7 @@ export default function CreatePage() {
                   ariaLabel="发送"
                   Icon={SendIcon}
                   variant="brand"
-                  onClick={() => console.log("发送创作请求", inputValue)}
+                  onClick={startCreation}
                 />
               </div>
             </div>
@@ -384,7 +409,7 @@ export default function CreatePage() {
                 <QuickLink
                   key={link.label}
                   label={link.label}
-                  onClick={() => console.log(link.label)}
+                  onClick={() => showNotice(`${link.label}入口将在内容服务接入后开放`)}
                 />
               ))}
             </div>
@@ -413,12 +438,18 @@ export default function CreatePage() {
                 isHover={hoveredCardId === card.id}
                 onHover={() => setHoveredCardId(card.id)}
                 onLeave={() => setHoveredCardId(null)}
-                onClick={() => console.log("查看作品", card.title)}
+                onClick={() => showNotice(`正在打开作品：${card.title}`)}
               />
             ))}
           </div>
         </section>
       </div>
+
+      {notice && (
+        <div className="fixed bottom-5 left-1/2 z-30 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-full bg-white px-4 py-2 text-center text-[13px] text-black shadow-xl" role="status" aria-live="polite">
+          {notice}
+        </div>
+      )}
 
       <StyleLibraryDialog open={styleOpen} onClose={() => setStyleOpen(false)} />
     </AppShell>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CoinsIcon } from "@/components/icons";
 import {
@@ -31,6 +32,8 @@ function TypeBadge({ type, className }: { type: ScriptType; className?: string }
 }
 
 export function ScriptCard({ script }: { script: Script }) {
+  const [previewing, setPreviewing] = useState(false);
+
   return (
     <article
       className={cn(
@@ -114,10 +117,10 @@ export function ScriptCard({ script }: { script: Script }) {
       <div className="px-3 pb-3">
         <button
           type="button"
-          onClick={() => console.log("preview script", script.id)}
+          onClick={() => setPreviewing(true)}
           className="w-full rounded-lg bg-white/[0.06] py-1.5 text-[11px] font-semibold text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#141414]"
         >
-          试读剧本
+          {previewing ? "试读已打开" : "试读剧本"}
         </button>
       </div>
     </article>
