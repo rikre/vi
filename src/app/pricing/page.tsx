@@ -74,7 +74,8 @@ export default function PricingPage() {
           ? "recharge"
           : null;
     if (target === "recharge") {
-      setRechargeOpen(true);
+      const frame = window.requestAnimationFrame(() => setRechargeOpen(true));
+      return () => window.cancelAnimationFrame(frame);
     } else if (target) {
       scrollToSection(target);
     }
