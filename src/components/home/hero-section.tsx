@@ -153,6 +153,8 @@ function DropdownPicker({
     <div ref={ref} className="relative">
       <button
         type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "flex items-center gap-1 text-[13px] transition-colors",
@@ -166,14 +168,25 @@ function DropdownPicker({
           </>
         )}
         <span className={cn(accent === "cyan" ? "text-brand" : "text-white/70")}>{value}</span>
-        <ChevronDownIcon className="size-3 text-white/30" />
+        <ChevronDownIcon
+          className={cn(
+            "size-3 text-white/30 transition-transform duration-200",
+            open && "rotate-180"
+          )}
+        />
       </button>
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1.5 min-w-[120px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a1a] py-1 shadow-xl">
+        <div
+          role="listbox"
+          aria-label={label ?? value}
+          className="absolute left-0 top-full z-50 mt-1.5 min-w-[120px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a1a] py-1 shadow-xl"
+        >
           {options.map((opt) => (
             <button
               key={opt}
               type="button"
+              role="option"
+              aria-selected={opt === value}
               onClick={() => {
                 onSelect(opt);
                 setOpen(false);
@@ -573,12 +586,7 @@ export function HeroSection() {
                     router.push("/project/new?action=import");
                   }
                 }}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-full px-5 py-2 text-[13px] font-bold text-black shadow-lg transition-all active:scale-[0.98]",
-                  isShort
-                    ? "bg-brand hover:brightness-110"
-                    : "bg-brand hover:brightness-110"
-                )}
+                className="flex shrink-0 items-center gap-1.5 rounded-full bg-brand px-5 py-2 text-[13px] font-bold text-black shadow-lg transition-all hover:brightness-110 active:scale-[0.98]"
               >
                 开始创作
                 <CoinsIcon className="size-4" />

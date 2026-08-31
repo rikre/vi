@@ -13,6 +13,7 @@ import {
   AssetIcon,
   PublishIcon,
   HelpIcon,
+  CrownIcon,
 } from "@/components/icons";
 import { PublishDialog } from "@/components/publish-dialog";
 import { TeamDialog } from "@/components/team-dialog";
@@ -131,8 +132,18 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
           })}
         </div>
 
-        {/* 底部用户区（mt-auto 固定贴底：帮助 + 头像） */}
+        {/* 底部用户区（mt-auto 固定贴底：订阅会员 + 帮助 + 头像） */}
         <div className="flex shrink-0 flex-col items-center gap-1 px-2 pb-[20px] pt-3 md:px-[12px]">
+          {/* 订阅会员入口（参考站左下角「订阅会员」常驻位） */}
+          <Link
+            href="/pricing#membership"
+            aria-label="订阅会员"
+            title="订阅会员"
+            className="group relative flex size-9 items-center justify-center rounded-[10px] text-brand ring-1 ring-brand/25 transition-all duration-150 hover:bg-brand/10 hover:ring-brand/50 active:scale-90"
+          >
+            <CrownIcon className="size-[18px] transition-transform duration-200 group-hover:scale-110" />
+          </Link>
+
           {/* 帮助 / QR */}
           <button
             type="button"
