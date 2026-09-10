@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { AppProviders } from "@/components/app-providers";
 import "./globals.css";
-import { AuthProvider } from "@/components/auth-provider";
 
 export const metadata: Metadata = {
   title: "bollo - AI 动画创作工作台",
@@ -47,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <AuthProvider>{children}</AuthProvider>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

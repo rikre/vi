@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Keep development tools away from the sidebar's login/account controls.
+  devIndicators: { position: "bottom-right" },
   // Treat the project dir (not the parent home dir with its own package-lock.json)
   // as the workspace root so Next.js does not scan sibling directories for assets.
   outputFileTracingRoot: process.cwd(),

@@ -14,6 +14,7 @@ import {
   PublishIcon,
   HelpIcon,
   CrownIcon,
+  SettingsIcon,
 } from "@/components/icons";
 import { PublishDialog } from "@/components/publish-dialog";
 import { TeamDialog } from "@/components/team-dialog";
@@ -21,6 +22,8 @@ import { InviteCampaignDialog } from "@/components/invite-campaign-dialog";
 import { AccountDropdown } from "@/components/account-dropdown";
 import { AccountDialog, AiWatermarkDialog, type AccountTab } from "@/components/account-dialog";
 import { UserAvatar } from "@/components/user-avatar";
+import { useAuth } from "@/components/auth-provider";
+import { normalizeAdminRoles } from "@/lib/admin/rbac";
 
 type NavItem = {
   label: string;
@@ -35,7 +38,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "项目", href: "/project", Icon: FolderOpenIcon },
   { label: "资产", href: "/library", Icon: AssetIcon },
   { label: "技能", href: "/skill", Icon: BookOpenIcon },
-  { label: "发布", href: "#", Icon: PublishIcon },
+  { label: "发布", href: "#", Icon: PublishIcon, action: "publish" },
 ];
 
 type SidebarProps = {
@@ -47,6 +50,8 @@ const ICON_BTN =
 
 export function Sidebar({ onOpenMessages }: SidebarProps) {
   const pathname = usePathname();
+  const { status, user, showLogin } = useAuth();
+  const isAdmin = normalizeAdminRoles(user?.roles ?? []).length > 0;
   const [publishOpen, setPublishOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -109,7 +114,7 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
                 <button
                   key="publish"
                   type="button"
-                  onClick={() => setPublishOpen(true)}
+                  onClick={() => status === "authenticated" ? setPublishOpen(true) : showLogin()}
                   title={item.label}
                   className={cls}
                 >
@@ -134,6 +139,11 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
 
         {/* 底部用户区（mt-auto 固定贴底：订阅会员 + 帮助 + 头像） */}
         <div className="flex shrink-0 flex-col items-center gap-1 px-2 pb-[20px] pt-3 md:px-[12px]">
+          {isAdmin && (
+            <Link href="/admin" aria-label="企业管理后台" title="企业管理后台" className={ICON_BTN}>
+              <SettingsIcon className="size-[18px]" />
+            </Link>
+          )}
           {/* 订阅会员入口（参考站左下角「订阅会员」常驻位） */}
           <Link
             href="/pricing#membership"
@@ -163,7 +173,7 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
           </button>
 
           {/* Avatar / 个人中心（消息、兑换码等入口收纳在下拉菜单内） */}
-          <div className="relative">
+          {status === "authenticated" ? <div className="relative">
             <button
               type="button"
               onClick={() => {
@@ -198,7 +208,11 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
                 onOpenInviteCampaign={() => setInviteCampaignOpen(true)}
               />
             </div>
-          </div>
+          </div> : (
+            <button type="button" onClick={showLogin} disabled={status === "loading"} className="rounded-full bg-brand px-3 py-2 text-xs font-semibold text-brand-foreground">
+              {status === "loading" ? "加载中" : "登录"}
+            </button>
+          )}
         </div>
 
         {/* QR popup */}

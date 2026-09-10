@@ -14,9 +14,11 @@ import {
   CrownIcon,
   UsersIcon,
   LogoutIcon,
+  SettingsIcon,
 } from "@/components/icons";
 import { useAuth } from "@/components/auth-provider";
 import { UserAvatar } from "@/components/user-avatar";
+import { normalizeAdminRoles } from "@/lib/admin/rbac";
 
 interface AccountDropdownProps {
   open: boolean;
@@ -78,12 +80,6 @@ function subscribeSign(cb: () => void) {
 const getSign = () => readSign() === todayStr();
 const getSignServer = () => false;
 
-// Mock signed-in user
-const USER = {
-  name: "bollo 用户",
-  tier: "普通用户",
-  points: 2580,
-};
 
 function Row({
   Icon,
@@ -128,10 +124,16 @@ export function AccountDropdown({
   onOpenTeam,
 }: AccountDropdownProps) {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const USER = {
+    name: user?.nickname ?? "未登录",
+    tier: user?.tier ?? "普通用户",
+    points: user?.credits ?? 0,
+  };
+  const isAdmin = normalizeAdminRoles(user?.roles ?? []).length > 0;
   const signedToday = useSyncExternalStore(subscribeSign, getSign, getSignServer);
 
-  const isMember = USER.tier !== "普通用户";
+  const isMember = !!user && !["普通用户", "free"].includes(user.tier);
 
   const openAccount = (tab: "profile" | "points" | "invite") => {
     onClose();
@@ -272,6 +274,14 @@ export function AccountDropdown({
             </div>
           </div>
 
+          {user?.pointsBreakdown && (
+            <div className="mx-3 mt-2 grid grid-cols-3 gap-2 text-center text-xs text-muted-foreground">
+              <span>充值 {user.pointsBreakdown.recharge.toLocaleString()}</span>
+              <span>会员 {user.pointsBreakdown.member.toLocaleString()}</span>
+              <span>赠送 {user.pointsBreakdown.gift.toLocaleString()}</span>
+            </div>
+          )}
+
           {/* 邀请活动：品牌渐变胶囊入口 */}
           <div className="px-3 pt-3">
             <button
@@ -294,6 +304,11 @@ export function AccountDropdown({
           <div className="px-3 pt-3">
             <div className="overflow-hidden rounded-xl bg-white/[0.02] ring-1 ring-white/[0.06]">
               <div className="divide-y divide-white/[0.05]">
+                {isAdmin && (
+                  <Row Icon={SettingsIcon} title="商业化控制台" onClick={() => { onClose(); router.push("/admin"); }} />
+                )}
+                <Row Icon={CoinsIcon} title="我的积分" right={<span className="text-brand">{USER.points.toLocaleString()}</span>} onClick={() => openAccount("points")} />
+                <Row Icon={UsersIcon} title="团队管理" right={user?.team ? <span className="text-xs text-muted-foreground">{user.team.name}</span> : undefined} onClick={() => { onClose(); router.push("/team"); }} />
                 <Row
                   Icon={UserIcon}
                   title="个人中心与作品"

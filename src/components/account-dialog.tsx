@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/auth-provider";
+import { UserAvatar } from "@/components/user-avatar";
 import {
   CoinsIcon,
   EditIcon,
@@ -101,13 +103,14 @@ const TD = "px-4 py-3 text-[13px] text-white/80";
 /* ---------- 子页：个人资料 ---------- */
 
 function ProfileTab({ onLogout }: { onLogout: () => void }) {
+  const { user, logout } = useAuth();
   return (
     <div className="max-w-[720px]">
       <div className="flex items-center gap-3 border-b border-white/[0.08] pb-5">
         <div className="flex size-12 items-center justify-center rounded-full bg-white/[0.08] text-[18px] font-bold text-white">
-          b
+          <UserAvatar className="rounded-full" />
         </div>
-        <span className="text-[15px] font-semibold text-white">bollo 用户</span>
+        <span className="text-[15px] font-semibold text-white">{user?.nickname ?? "未登录"}</span>
         <button type="button" aria-label="编辑昵称" className="text-white/40 transition-colors hover:text-white">
           <EditIcon className="size-4" />
         </button>
@@ -121,7 +124,7 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
         </div>
         <button
           type="button"
-          onClick={onLogout}
+          onClick={() => { onLogout(); void logout(); }}
           className="flex items-center gap-1.5 rounded-lg border border-danger/40 px-4 py-2 text-[13px] text-danger transition-colors hover:bg-danger/10"
         >
           <LogoutIcon className="size-3.5" />

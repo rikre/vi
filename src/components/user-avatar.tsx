@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-
-const AVATAR_URL =
-  "https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=cute%20anime%20avatar%20mascot%20character%20bollo%20lime%20green%20theme%20simple%20design&image_size=square";
+import { useAuth } from "@/components/auth-provider";
 
 /**
  * 用户头像：远程图片加载失败（如签名过期 301）时回退到品牌色字母占位，避免破图。
@@ -16,9 +14,11 @@ export function UserAvatar({
   className?: string;
   alt?: string;
 }) {
-  const [failed, setFailed] = useState(false);
+  const { user } = useAuth();
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const avatarUrl = user?.avatarUrl;
 
-  if (failed) {
+  if (!avatarUrl || failedUrl === avatarUrl) {
     return (
       <div
         role="img"
@@ -28,17 +28,17 @@ export function UserAvatar({
           className
         )}
       >
-        B
+        {user?.nickname.slice(0, 1).toUpperCase() || "B"}
       </div>
     );
   }
 
   return (
     <img
-      src={AVATAR_URL}
+      src={avatarUrl}
       alt={alt}
       loading="lazy"
-      onError={() => setFailed(true)}
+      onError={() => setFailedUrl(avatarUrl)}
       className={cn("size-full object-cover", className)}
     />
   );

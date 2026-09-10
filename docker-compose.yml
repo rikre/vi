@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bollo-admin-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bollo
+      POSTGRES_PASSWORD: bollo
+      POSTGRES_DB: bollo_admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - bollo-admin-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bollo -d bollo_admin"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  bollo-admin-pgdata:

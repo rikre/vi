@@ -1,0 +1,383 @@
+// Bollo 商业化管理后台 — 数据模型
+// 金额一律使用“分”为单位的整数；积分一律使用整数；禁止浮点数记账。
+// CreditLedger / AdminAuditLog 仅允许追加（migration 中附加触发器禁止 UPDATE/DELETE）。
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  active
+  risk
+  disabled
+}
+
+enum AdminRoleName {
+  platform_admin
+  enterprise_admin
+  commercial_ops
+  finance
+  support
+  auditor
+}
+
+enum OrganizationStatus {
+  active
+  suspended
+  closed
+}
+
+enum CreditAccountType {
+  recharge
+  member
+  gift
+  enterprise
+}
+
+enum CreditLedgerEntryType {
+  grant
+  consume
+  refund
+  expire
+  recharge
+  membership_reset
+}
+
+enum ApprovalStatus {
+  approved
+  pending
+  rejected
+}
+
+enum OrderCategory {
+  recharge
+  membership
+  enterprise
+}
+
+enum OrderStatus {
+  pending
+  paid
+  refunded
+  closed
+}
+
+enum PaymentChannel {
+  wechat
+  alipay
+  bank
+  balance
+}
+
+enum PlanAudience {
+  personal
+  team
+  enterprise
+}
+
+enum QueueType {
+  standard
+  priority
+  dedicated
+}
+
+enum ModelCapability {
+  video
+  image
+  audio
+  text
+}
+
+enum ModelHealth {
+  healthy
+  degraded
+  offline
+}
+
+enum UsageStatus {
+  success
+  failed
+  refunded
+}
+
+model User {
+  id                  String        @id
+  phone               String?       @unique
+  email               String?       @unique
+  nickname            String
+  avatarUrl           String?
+  status              UserStatus    @default(active)
+  registeredAt        DateTime      @default(now())
+  lastActiveAt        DateTime      @default(now())
+  organizationId      String?
+  organization        Organization? @relation("OrgMembers", fields: [organizationId], references: [id])
+  membershipPlanId    String?
+  membershipExpiresAt DateTime?
+  maxConcurrency      Int           @default(3)
+  monthlyComputeQuota Int           @default(0)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  adminRoles       AdminRole[]
+  userRoles        UserRole[]
+  creditAccounts   CreditAccount[]
+  ledgers          CreditLedger[]
+  orders           Order[]
+  usageRecords     UsageLedger[]
+  operatedAudits   AdminAuditLog[] @relation("Operator")
+  operatedLedgers  CreditLedger[]  @relation("LedgerOperator")
+  approvedLedgers  CreditLedger[]  @relation("Approver")
+  adminOfOrgs      Organization[]  @relation("OrgAdmin")
+
+  @@index([status])
+  @@index([organizationId])
+  @@index([lastActiveAt])
+}
+
+/// 管理员角色（服务端 RBAC 唯一来源；绝不信任客户端提交的角色）
+model AdminRole {
+  id        String        @id @default(cuid())
+  userId    String
+  role      AdminRoleName
+  grantedBy String?
+  grantedAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@index([role])
+}
+
+/// 站点角色（与后台角色分离）
+model UserRole {
+  id     String @id @default(cuid())
+  userId String
+  role   String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+}
+
+model Organization {
+  id                 String             @id @default(cuid())
+  name               String             @unique
+  status             OrganizationStatus @default(active)
+  contractNo         String?
+  adminUserId        String?
+  seats              Int                @default(1)
+  creditBalance      Int                @default(0)
+  maxConcurrency     Int                @default(10)
+  monthlyComputeQuota Int               @default(0)
+  expiresAt          DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  users     User[]  @relation("OrgMembers")
+  adminUser User?   @relation("OrgAdmin", fields: [adminUserId], references: [id])
+
+  @@index([status])
+}
+
+/// 四类积分账户；version 用于乐观锁，防止并发超扣
+model CreditAccount {
+  id          String             @id @default(cuid())
+  userId      String
+  accountType CreditAccountType
+  balance     Int                @default(0)
+  expiresAt   DateTime?
+  version     Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, accountType])
+}
+
+/// 积分账本：只允许追加。amount 为带符号整数（发放为正、消耗为负）。
+model CreditLedger {
+  id             String               @id @default(cuid())
+  entryType      CreditLedgerEntryType
+  accountType    CreditAccountType
+  amount         Int
+  beforeBalance  Int
+  afterBalance   Int
+  userId         String
+  taskId         String?
+  orderId        String?
+  operatorId     String?
+  approverId     String?
+  approvalStatus ApprovalStatus       @default(approved)
+  reason         String?
+  idempotencyKey String?              @unique
+  createdAt      DateTime             @default(now())
+
+  user     User  @relation(fields: [userId], references: [id])
+  operator User? @relation("LedgerOperator", fields: [operatorId], references: [id])
+  approver User? @relation("Approver", fields: [approverId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([entryType, createdAt])
+  @@index([operatorId, createdAt])
+}
+
+model Order {
+  id             String         @id
+  userId         String
+  category       OrderCategory
+  status         OrderStatus    @default(pending)
+  amountCent     Int
+  credits        Int            @default(0)
+  channel        PaymentChannel
+  productSnapshot Json
+  priceSnapshot   Json
+  paymentNo      String?
+  refundNo       String?
+  paidAt         DateTime?
+  refundedAt     DateTime?
+  createdAt      DateTime       @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@index([category, createdAt])
+}
+
+model UsageLedger {
+  id                  String       @id
+  taskId              String       @unique
+  userId              String
+  projectId           String?
+  projectName         String?
+  taskType            String       @default("")
+  modelId             String
+  modelConfigVersion  Int          @default(1)
+  credits             Int
+  vendorCostCent      Int          @default(0)
+  priceSnapshot       Json
+  status              UsageStatus  @default(success)
+  units               String       @default("")
+  createdAt           DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([modelId, createdAt])
+  @@index([status, createdAt])
+}
+
+model Plan {
+  id                   String       @id
+  name                 String
+  audience             PlanAudience
+  priceMonthlyCent     Int
+  priceYearlyMonthlyCent Int
+  monthlyCredits       Int
+  seats                Int          @default(1)
+  concurrency          Int          @default(1)
+  monthlyComputeQuota  Int          @default(0)
+  queue                QueueType    @default(standard)
+  featureWhitelist     String[]
+  modelWhitelist       String[]
+  enabled              Boolean      @default(true)
+  version              Int          @default(1)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  entitlements PlanEntitlement[]
+
+  @@index([audience, enabled])
+}
+
+/// 套餐权益 key-value（运行时判断顺序：user override > enterprise override > plan > default）
+model PlanEntitlement {
+  id     String @id @default(cuid())
+  planId String
+  key    String
+  value  String
+  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, key])
+}
+
+model RechargeTier {
+  id               String   @id
+  name             String
+  priceCent        Int
+  baseCredits      Int
+  bonusCredits     Int      @default(0)
+  firstPurchaseOnly Boolean @default(false)
+  enabled          Boolean  @default(true)
+  version          Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([enabled])
+}
+
+/// 模型配置。密钥永不明文返回前端：仅存 secretRef / secretCipher（本地加密适配器）与 apiKeyLast4。
+model ModelConfig {
+  id              String           @id
+  name            String
+  vendor          String
+  capability      ModelCapability
+  endpoint        String
+  secretRef       String?
+  secretCipher    String?
+  apiKeyLast4     String?
+  billingUnit     String
+  vendorCostCent  Int              @default(0)
+  creditPrice     Int              @default(0)
+  maxConcurrency  Int              @default(1)
+  timeoutSeconds  Int              @default(60)
+  health          ModelHealth      @default(healthy)
+  outputOptions   String[]
+  allowedPlans    String[]
+  enabled         Boolean          @default(true)
+  version         Int              @default(1)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([capability, enabled])
+}
+
+/// 平台唯一积分策略（单行，id 固定为 "platform"）
+model CreditPolicy {
+  id                     String   @id @default("platform")
+  creditsPerYuan         Int
+  deductionOrder        String[]
+  giftExpiryDays        Int
+  memberResetDay         Int
+  minimumGrant           Int
+  failedTaskRefund       Boolean  @default(true)
+  negativeBalanceAllowed Boolean  @default(false)
+  version                Int      @default(1)
+  updatedAt              DateTime @updatedAt
+}
+
+/// 审计日志：只允许追加。每个写操作必须落一行，idempotencyKey 唯一以支撑幂等重放。
+model AdminAuditLog {
+  id             String   @id @default(cuid())
+  operatorId     String
+  action         String
+  targetType     String
+  targetId       String
+  beforeSnapshot Json?
+  afterSnapshot  Json?
+  reason         String?
+  ip             String?
+  userAgent      String?
+  idempotencyKey String?  @unique
+  createdAt      DateTime @default(now())
+
+  operator User @relation("Operator", fields: [operatorId], references: [id])
+
+  @@index([operatorId, createdAt])
+  @@index([targetType, targetId, createdAt])
+  @@index([createdAt])
+}

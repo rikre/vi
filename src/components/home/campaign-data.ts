@@ -13,6 +13,16 @@ export type Campaign = {
 
 export const CAMPAIGNS: Campaign[] = [
   {
+    id: "campus-ai-2026",
+    title: "AI·剧在校园｜校园版漫剧创作大赛 AMI（bollo 指定创作工具）",
+    coverUrl: txi("campus film festival poster students filming with AI dark background", "landscape_4_3"),
+    endsInLabel: "10月15日截止",
+    participantsLabel: "¥20,000 奖金池",
+    kind: "ongoing",
+    specialRouteKey: "campus-ai",
+    description: "校园版漫剧创作大赛，使用 bollo 创作校园故事。",
+  },
+  {
     id: "68046b0d-1b37-4de1-8f69-04103132a63e",
     title: "bollo “一键出海” 玩法介绍",
     coverUrl: txi(
