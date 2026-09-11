@@ -379,8 +379,8 @@ function ShortPanel({
         <p className="mb-2 text-[12px] text-white/40">创作模式</p>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { id: "agent" as const, label: "Agent 模式", desc: "上传剧本，AI 自动成片" },
-            { id: "manual" as const, label: "人工模式", desc: "空项目，自主编辑每一步" },
+            { id: "agent" as const, label: "全剧智能体", desc: "从剧本开始，逐步确认创作" },
+            { id: "manual" as const, label: "自主创作", desc: "自由编辑每一步" },
           ].map((m) => (
             <button
               key={m.id}
@@ -399,7 +399,10 @@ function ShortPanel({
       </div>
 
       {mode === "agent" && (
-        <UploadDropzone label="上传剧本" accept=".docx,.txt" maxSize="10 万字" />
+        <div className="space-y-2">
+          <UploadDropzone label="上传剧本" accept=".docx,.txt" maxSize="10 万字" />
+          <p className="text-xs text-muted-foreground">创建后可在“提示词”中选择分镜、配置技能并预览。当前为本地规则模式。</p>
+        </div>
       )}
       {mode === "manual" && (
         <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-white/[0.15] px-6 py-8">

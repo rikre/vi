@@ -29,19 +29,19 @@ type CreateProjectInput = {
   scriptContent?: string;
 };
 
-function readCustomProjects(): ShortDramaProject[] {
+function readCustomProjects(): Project[] {
   if (typeof window === "undefined") return [];
 
   try {
     const value = window.localStorage.getItem(STORAGE_KEY);
     const projects: unknown = value ? JSON.parse(value) : [];
-    return Array.isArray(projects) ? (projects as ShortDramaProject[]) : [];
+    return Array.isArray(projects) ? (projects as Project[]) : [];
   } catch {
     return [];
   }
 }
 
-function writeCustomProjects(projects: ShortDramaProject[]) {
+function writeCustomProjects(projects: Project[]) {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
@@ -172,7 +172,7 @@ export function updateProject(
   const custom = readCustomProjects();
   const existingCustom = custom.find((p) => p.id === id);
 
-  if (existingCustom) {
+  if (existingCustom?.type === "short") {
     const updated = { ...existingCustom, ...patch, updatedAt: "刚刚" };
     writeCustomProjects(
       custom.map((p) => (p.id === id ? updated : p)),
@@ -195,6 +195,19 @@ export function updateProject(
 export function deleteProject(id: number): void {
   const custom = readCustomProjects();
   writeCustomProjects(custom.filter((p) => p.id !== id));
+}
+
+/** 剧本草稿、版本和配置原子写入；失败向调用方报告，不伪报保存成功。 */
+export function saveScriptWorkspace(id: number, workspace: NonNullable<Project["scriptWorkspace"]>, commit = false): void {
+  const project = getProject(id);
+  if (!project) throw new Error("项目不存在");
+  const content = commit ? workspace.draft : project.scriptContent;
+  const updated: Project = project.type === "short"
+    ? { ...project, scriptWorkspace: workspace, scriptContent: content, ...(commit ? { scriptChapters: [{ id: "script-main", title: "完整剧本", content: workspace.draft }] } : {}), updatedAt: new Date().toISOString() }
+    : { ...project, scriptWorkspace: workspace, scriptContent: content, updatedAt: new Date().toISOString() };
+  const next = [updated, ...readCustomProjects().filter((item) => item.id !== id)];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
 export function renameProject(id: number, title: string): void {

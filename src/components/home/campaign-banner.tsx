@@ -31,19 +31,14 @@ export function CampaignBanner() {
   return (
     <div className="sticky top-0 z-40 flex h-10 shrink-0 items-center justify-center gap-2 bg-[#0a0a0a]/95 px-10 text-[13px] text-white/90 backdrop-blur-sm">
       <span className="truncate">
-        <span className="mr-1">🔥</span>
-        Seedance 2.5 上线大促，充值积分最高赠送
+        充值活动：积分最高赠送
         <span className="font-semibold text-brand">70%</span>
-        <span className="mx-2 text-white/30">｜</span>
-        2.0 mini <span className="font-semibold text-brand">4折</span>
-        <span className="mx-2 text-white/30">｜</span>
-        2.0 fast <span className="font-semibold text-brand">75折</span>
       </span>
       <Link
         href="/pricing?tab=credits"
         className="shrink-0 rounded-full bg-white/[0.1] px-3 py-1 text-[12px] font-medium text-brand ring-1 ring-brand/30 transition-colors hover:bg-white/[0.15]"
       >
-        去充值
+        查看活动
       </Link>
       <button
         type="button"

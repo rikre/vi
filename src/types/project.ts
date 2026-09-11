@@ -62,6 +62,7 @@ export type ProjectTab =
   | "rewrite"
   | "assets"
   | "breakdown"
+  | "prompts"
   | "references";
 
 // ─── 剧本评估（evaluation tab）──────────────────────────────────────────────
@@ -81,6 +82,7 @@ export interface ProjectEvaluation {
 
 export interface BreakdownShot {
   id: string;
+  prompt?: string;
   time: string;
   scene: string;
   action: string;

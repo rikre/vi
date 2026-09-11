@@ -5,6 +5,7 @@ import { VideoCameraIcon } from "@/components/icons";
 import { useStoryboard } from "@/hooks/use-storyboard";
 import { StoryboardTableView } from "./storyboard/storyboard-table-view";
 import { StoryboardGenerateView } from "./storyboard/storyboard-generate-view";
+import { ProjectPromptWorkbench } from "@/components/project/project-prompt-workbench";
 
 export default function StoryboardTab({
   project,
@@ -29,6 +30,11 @@ export default function StoryboardTab({
   } = useStoryboard(project);
 
   return (
+    <div className="space-y-4">
+      <details className="rounded-2xl bg-surface p-4 ring-1 ring-border">
+        <summary className="cursor-pointer text-sm font-medium text-brand">提示词与创作技能</summary>
+        <div className="mt-4"><ProjectPromptWorkbench projectId={project.id} /></div>
+      </details>
     <div className="flex gap-4 animate-fade-in">
       {/* 左侧：集数列表 */}
       <aside className="w-[180px] shrink-0 rounded-2xl bg-[#1b1b1b]/90 p-3 ring-1 ring-white/10 backdrop-blur-sm">
@@ -155,6 +161,7 @@ export default function StoryboardTab({
           />
         )}
       </section>
+    </div>
     </div>
   );
 }

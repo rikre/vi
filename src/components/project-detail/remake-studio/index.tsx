@@ -78,6 +78,9 @@ export default function RemakeStudio({
   return (
     <div className="flex h-full flex-col bg-[#0d0d0d] text-white">
       {/* ===== 顶部栏 ===== */}
+      <div className="flex justify-end border-b border-border px-4 py-2">
+        <button type="button" className="cursor-pointer rounded-full border border-border px-4 py-2 text-sm text-brand" onClick={() => router.push(`/project/${project.id}?tab=script`)}>编辑剧本与创编设置</button>
+      </div>
       <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-4 py-3 backdrop-blur-md bg-[#0d0d0d]/80 sm:px-6 sm:py-4">
         <div className="flex items-center gap-3">
           <button

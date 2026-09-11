@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   BookOpenIcon,
-  ChevronRightIcon,
   CloseIcon,
   CoinsIcon,
 } from "@/components/icons";
@@ -68,41 +67,15 @@ export function CourseFab() {
 
   return (
     <>
-      {/* 右下角悬浮入口 — 默认收起为圆钮避免遮挡页面操作区，hover 平滑展开文案 */}
+      {/* 次级帮助入口，不与创作主按钮争夺视觉焦点 */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="AIGC 公开课，听课赢积分"
-        className="group fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full bg-brand p-2 shadow-[0_12px_32px_-12px_rgba(212,255,63,0.45)] transition-transform hover:scale-[1.03] active:scale-[0.97] max-md:bottom-4 max-md:right-4"
+        aria-label="创作公开课"
+        className="fixed bottom-5 right-5 z-40 flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm text-muted-foreground transition-colors hover:bg-surface-elevated hover:text-foreground focus-visible:outline-2 focus-visible:outline-brand max-md:bottom-4 max-md:right-4"
       >
-        <span
-          aria-hidden
-          className="absolute -right-1 -top-2 rounded-full bg-black px-1.5 py-px text-[9px] font-bold text-brand ring-1 ring-brand/30"
-        >
-          NEW
-        </span>
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black/15 text-black">
-          <BookOpenIcon className="size-5" />
-        </span>
-        <span
-          aria-hidden
-          className="grid max-w-0 grid-cols-[0fr] items-center gap-2.5 overflow-hidden opacity-0 transition-all duration-300 ease-out group-hover:max-w-[180px] group-hover:grid-cols-[1fr] group-hover:opacity-100 max-md:hidden"
-        >
-          <span className="flex min-w-0 items-center gap-2.5 whitespace-nowrap">
-            <span className="h-7 w-px shrink-0 bg-black/15" />
-            <span className="text-left">
-              <span className="block text-[14px] font-bold leading-tight text-black">
-                AIGC公开课
-              </span>
-              <span className="mt-0.5 block text-[11px] leading-tight text-black/65">
-                听课赢积分
-              </span>
-            </span>
-            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-black/15 text-black">
-              <ChevronRightIcon className="size-3.5" />
-            </span>
-          </span>
-        </span>
+        <BookOpenIcon className="size-4" />
+        <span>公开课</span>
       </button>
 
       {/* 课程任务弹框 */}

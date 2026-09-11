@@ -1,47 +1,13 @@
 import type { SVGProps } from "react";
 
 /**
- * bollo brand logo — stylized geometric 'b' icon + custom wordmark.
- * Design language: rounded modernist, playful yet premium,
- * with a distinctive negative-space 'o' that echoes creativity/play.
- * The icon uses a 28px square mark with an integrated film/play motif.
+ * 官方品牌图标与文字标识；全站入口复用同一来源。
  */
 export function BolloLogo(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg
-      width="96"
-      height="28"
-      viewBox="0 0 96 28"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="bollo"
-      role="img"
-      {...props}
-    >
-      {/* Rounded square background */}
-      <rect x="0" y="0" width="28" height="28" rx="7" fill="#D4FF3F" />
-      {/* Star with curved cutout */}
-      <path
-        d="M14 5.5L15.6 10.4L20.9 10.6L16.8 13.9L18.2 19L14 16.1L9.8 19L11.2 13.9L7.1 10.6L12.4 10.4L14 5.5Z"
-        fill="#0D0D0D"
-      />
-      {/* Curved cutout on top-right of star */}
-      <path
-        d="M17.5 8.5C19.5 7 22 6.5 24 7C22.5 8 20.5 9.5 19.5 11.5C19 10 18 9 17.5 8.5Z"
-        fill="#D4FF3F"
-      />
-      {/* Wordmark */}
-      <text
-        x="34"
-        y="20.5"
-        fill="#FFFFFF"
-        fontFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
-        fontSize="19"
-        fontWeight="600"
-        letterSpacing="-0.8px"
-      >
-        bollo
-      </text>
+    <svg width="96" height="32" viewBox="0 0 96 32" role="img" aria-label="菠萝视频" {...props}>
+      <image href="https://bollo.video/images/home-v2/BOLLO%20icon.png" width="32" height="32" />
+      <text x="39" y="23" fill="currentColor" fontSize="20" fontWeight="600">bollo</text>
     </svg>
   );
 }
@@ -341,50 +307,10 @@ export function WaveHand(props: SVGProps<SVGSVGElement>) {
 }
 
 /**
- * bollo footer logo — inverted-color version of BolloLogo for dark backgrounds.
- * Preserves the rounded-square + star + curved-cutout shape system of the
- * header BolloLogo, but flips the palette so it reads on dark surfaces:
- * white rounded background, dark star, light cutout, white wordmark.
+ * 页脚复用官方品牌标识，不另造反色图标。
  */
 export function FooterLogo(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      width="96"
-      height="28"
-      viewBox="0 0 96 28"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-label="bollo"
-      {...props}
-    >
-      <title>bollo</title>
-      {/* Rounded square background — inverted to white for dark surfaces */}
-      <rect x="0" y="0" width="28" height="28" rx="7" fill="#FFFFFF" />
-      {/* Star with curved cutout — same geometry as BolloLogo */}
-      <path
-        d="M14 5.5L15.6 10.4L20.9 10.6L16.8 13.9L18.2 19L14 16.1L9.8 19L11.2 13.9L7.1 10.6L12.4 10.4L14 5.5Z"
-        fill="#0D0D0D"
-      />
-      {/* Curved cutout on top-right of star — matches background color */}
-      <path
-        d="M17.5 8.5C19.5 7 22 6.5 24 7C22.5 8 20.5 9.5 19.5 11.5C19 10 18 9 17.5 8.5Z"
-        fill="#FFFFFF"
-      />
-      {/* Wordmark — light for dark footer background */}
-      <text
-        x="34"
-        y="20.5"
-        fill="#FFFFFF"
-        fontFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
-        fontSize="19"
-        fontWeight="600"
-        letterSpacing="-0.8px"
-      >
-        bollo
-      </text>
-    </svg>
-  );
+  return <BolloLogo {...props} />;
 }
 
 /** X (Twitter) — 14x14, currentColor */

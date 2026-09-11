@@ -576,12 +576,12 @@ export default function ComicPage() {
           {/* 项目名称 */}
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-white/40">
-              项目名称 &lt;必填&gt;
+              项目名称（必填）
             </label>
             <input
               type="text"
               required
-              placeholder="如: 媳妇井 / 绝境逃生"
+              placeholder="例如：绝境逃生"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
               className="h-10 w-full rounded-lg border border-white/[0.12] bg-white/[0.04] px-4 text-[14px] text-white outline-none transition-colors placeholder:text-white/30 focus:border-brand"
@@ -591,11 +591,11 @@ export default function ComicPage() {
           {/* 项目简介 */}
           <div>
             <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-white/40">
-              项目简介 &lt;选填&gt;
+              项目简介（选填）
             </label>
             <textarea
               rows={2}
-              placeholder="一句话描述项目定位，将展示在概览页全剧总览中"
+              placeholder="简要描述故事主题"
               value={formDescription}
               onChange={(e) => setFormDescription(e.target.value)}
               className="w-full resize-none rounded-lg border border-white/[0.12] bg-white/[0.04] px-4 py-2.5 text-[14px] text-white outline-none transition-colors placeholder:text-white/30 focus:border-brand"
@@ -1159,7 +1159,7 @@ function EmptyProjectsState({ hasFilter }: { hasFilter: boolean }) {
       </div>
       <p className="text-[15px] font-medium text-white/60">还没有任何项目</p>
       <p className="mt-1 text-[13px] text-white/40">
-        点击上方「进入创作」开始你的第一个项目
+        创建项目，开始创作
       </p>
     </div>
   );

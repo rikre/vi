@@ -7,7 +7,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   WeChatIcon,
-  XIcon,
+  CloseIcon,
 } from "@/components/icons";
 import { useToast } from "@/components/ui/toast";
 import { authApi, AuthApiError } from "@/lib/auth-client";
@@ -43,10 +43,10 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
   const [tab, setTab] = useState<LoginTab>("phone");
   const [mode, setMode] = useState<LoginMode>("code");
   const [countryCode] = useState("+86");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(process.env.NODE_ENV === "development" ? "13800138000" : "");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState(process.env.NODE_ENV === "development" ? "123456" : "");
+  const [password, setPassword] = useState(process.env.NODE_ENV === "development" ? "bollo123" : "");
   const [agreed, setAgreed] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -170,22 +170,27 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
     >
       <div
         onClick={(event) => event.stopPropagation()}
-        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-[420px] overflow-y-auto rounded-2xl bg-[#141414] p-6 ring-1 ring-white/[0.08] sm:p-8"
+        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-[420px] overflow-y-auto rounded-2xl bg-background p-6 ring-1 ring-border sm:p-8"
       >
         <button
           type="button"
           aria-label="关闭"
           onClick={onClose}
           disabled={loading}
-          className="absolute right-5 top-5 text-white/40 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <XIcon className="size-5" />
+          <CloseIcon className="size-4" />
         </button>
 
-        <div className="mb-8 flex flex-col items-center">
-          <BolloLogo className="mb-4 w-[72px]" />
-          <h1 className="text-[24px] font-bold text-white">欢迎来到 Bollo</h1>
-          <p className="mt-1 text-[13px] text-white/45">登录后开启你的 AI 创作之旅</p>
+        <div className="mb-6 flex flex-col items-center">
+          <BolloLogo className="mb-4 w-[64px]" />
+          <h2 className="text-2xl font-semibold text-foreground">登录菠萝</h2>
+          <p className="mt-2 text-[13px] text-muted-foreground">保存项目，继续创作</p>
+          {process.env.NODE_ENV === "development" && (
+            <p className="mt-3 rounded-xl bg-brand/10 px-3 py-2 text-center text-xs text-brand">
+              本地测试账号已预填，验证码 123456，密码 bollo123
+            </p>
+          )}
         </div>
 
         {showWechatQr ? (
@@ -206,7 +211,7 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
                     tab === item ? "text-white" : "text-white/40 hover:text-white/60",
                   )}
                 >
-                  {item === "phone" ? "手机号登录" : "邮箱登录"}
+                  {item === "phone" ? "手机号" : "邮箱"}
                   {tab === item ? (
                     <span className="absolute bottom-[-1px] left-1/2 h-[2px] w-12 -translate-x-1/2 rounded-full bg-brand" />
                   ) : null}
@@ -231,6 +236,7 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
                     </button>
                     <input
                       type="tel"
+                      aria-label="手机号"
                       inputMode="numeric"
                       autoComplete="tel-national"
                       aria-invalid={Boolean(errors.target)}
@@ -249,6 +255,7 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
                 ) : (
                   <input
                     type="email"
+                    aria-label="邮箱"
                     inputMode="email"
                     autoComplete="email"
                     aria-invalid={Boolean(errors.target)}
@@ -277,6 +284,7 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
                       type="text"
                       inputMode="numeric"
                       autoComplete="one-time-code"
+                      aria-label="验证码"
                       aria-invalid={Boolean(errors.credential)}
                       placeholder="6 位验证码"
                       value={code}
@@ -296,12 +304,13 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
                       disabled={countdown > 0 || sendingCode}
                       className="h-12 shrink-0 rounded-full px-4 text-[13px] font-medium text-brand ring-1 ring-brand/30 transition-colors hover:bg-brand/10 disabled:cursor-not-allowed disabled:bg-white/[0.04] disabled:text-white/25 disabled:ring-transparent"
                     >
-                      {sendingCode ? "发送中..." : countdown > 0 ? `${countdown}s 后重试` : "获取验证码"}
+                      {sendingCode ? "发送中…" : countdown > 0 ? `${countdown} 秒后重试` : "获取验证码"}
                     </button>
                   </div>
                 ) : (
                   <input
                     type="password"
+                    aria-label="密码"
                     autoComplete="current-password"
                     aria-invalid={Boolean(errors.credential)}
                     placeholder="请输入密码"
@@ -368,13 +377,13 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
                 disabled={loading}
                 className="mt-2 h-12 w-full rounded-full bg-brand text-[15px] font-semibold text-brand-foreground transition-all hover:bg-brand-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "登录中..." : "登录 / 注册"}
+                {loading ? "登录中…" : "登录"}
               </button>
             </form>
 
-            <div className="my-6 flex items-center gap-3">
+            <div className="my-5 flex items-center gap-3">
               <div className="h-px flex-1 bg-white/[0.08]" />
-              <span className="text-[11px] text-white/25">其他登录方式</span>
+              <span className="text-xs text-muted-foreground">或使用微信</span>
               <div className="h-px flex-1 bg-white/[0.08]" />
             </div>
 

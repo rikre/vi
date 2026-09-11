@@ -49,20 +49,26 @@ export function AdminConsole() {
             {status === "loading" ? "正在同步控制面数据…" : status === "error" ? "数据同步失败" : status === "ready" ? "控制面数据已同步" : "等待同步"}
           </div>
         </header>
+        <nav aria-label="商业化控制台模块" className="mt-6 overflow-x-auto pb-1"><div className="flex min-w-max gap-1 rounded-2xl bg-[#141414] p-1.5 ring-1 ring-white/[0.07]">{NAV.map(({ id, label, Icon }) => <button key={id} type="button" onClick={() => setView(id)} aria-current={view === id ? "page" : undefined} className={cn("flex h-10 items-center gap-2 rounded-xl px-3.5 text-[12px] font-medium transition-colors", view === id ? "bg-brand/12 text-brand ring-1 ring-brand/20" : "text-white/42 hover:bg-white/[0.04] hover:text-white")}><Icon className="size-4" />{label}</button>)}</div></nav>
+        <p className="mt-3 text-xs leading-5 text-muted-foreground">配置流程：编辑 → 校验保存 → 审计追溯。前台价格发布与生成任务权益校验尚未接通。</p>
         {status === "error" ? (
           <div className="mt-6 flex flex-col items-center gap-4 rounded-2xl bg-[#141414] p-10 text-center ring-1 ring-white/[0.08]">
             <span className="flex size-12 items-center justify-center rounded-2xl bg-danger/10 text-danger"><RefreshCwIcon className="size-5" /></span>
             <div>
-              <h2 className="text-[16px] font-semibold text-white">数据加载失败</h2>
+              <h2 className="text-[16px] font-semibold text-white">数据加载失败</h2><p className="mt-2 text-sm text-muted-foreground">当前模块：{NAV.find((item) => item.id === view)?.label}。数据恢复前不提供编辑操作。</p>
               <p className="mt-1.5 max-w-[520px] text-[12px] leading-relaxed text-white/45">{error ?? "请稍后重试"}</p>
             </div>
+            <ol aria-label="后台恢复步骤" className="list-inside list-decimal space-y-2 text-left text-xs leading-5 text-muted-foreground">
+              <li>确认管理员权限与服务连接正常。</li>
+              <li>若提示数据库未配置，由部署人员配置数据库并完成迁移。</li>
+              <li>重新加载并核对数据后，再进行配置修改；不会展示演示数据替代真实结果。</li>
+            </ol>
             <button type="button" onClick={() => void loadAdminState()} className="inline-flex h-9 items-center gap-2 rounded-full bg-brand px-4 text-[13px] font-semibold text-brand-foreground"><RefreshCwIcon className="size-3.5" />重新加载</button>
           </div>
         ) : status === "loading" || status === "idle" ? (
           <div className="mt-6 space-y-4"><div className="grid grid-cols-2 gap-3 xl:grid-cols-4">{[0, 1, 2, 3].map((key) => <div key={key} className="h-[104px] animate-pulse rounded-2xl bg-white/[0.04]" />)}</div><div className="h-[300px] animate-pulse rounded-2xl bg-white/[0.03]" /></div>
         ) : (
           <>
-            <nav aria-label="商业化控制台模块" className="mt-6 overflow-x-auto pb-1"><div className="flex min-w-max gap-1 rounded-2xl bg-[#141414] p-1.5 ring-1 ring-white/[0.07]">{NAV.map(({ id, label, Icon }) => <button key={id} type="button" onClick={() => setView(id)} aria-current={view === id ? "page" : undefined} className={cn("flex h-10 items-center gap-2 rounded-xl px-3.5 text-[12px] font-medium transition-colors", view === id ? "bg-brand/12 text-brand ring-1 ring-brand/20" : "text-white/42 hover:bg-white/[0.04] hover:text-white")}><Icon className="size-4" />{label}</button>)}</div></nav>
             <div className="mt-6">{view === "overview" ? <AdminOverview state={state} /> : null}{view === "users" ? <AdminUsers state={state} /> : null}{view === "finance" ? <AdminFinance state={state} /> : null}{view === "plans" ? <AdminPlans state={state} /> : null}{view === "models" ? <AdminModels state={state} /> : null}{view === "settings" ? <AdminSettings state={state} /> : null}</div>
           </>
         )}

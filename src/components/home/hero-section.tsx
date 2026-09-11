@@ -26,8 +26,8 @@ type ShortSubMode = "Agent" | "人工模式";
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const MAIN_MODES: { id: MainMode; label: string }[] = [
-  { id: "short", label: "做短剧" },
-  { id: "script", label: "写剧本" },
+  { id: "short", label: "创作短剧" },
+  { id: "script", label: "编写剧本" },
 ];
 
 const SCRIPT_SUB_TABS: ScriptSubTab[] = ["创剧本", "评剧本", "改剧本", "传剧本"];
@@ -217,8 +217,8 @@ export function HeroSection() {
   const [episodes, setEpisodes] = useState("40集");
   const [scriptText, setScriptText] = useState("");
   const [audience, setAudience] = useState("男频");
-  const [genre, setGenre] = useState("✦");
-  const [setting, setSetting] = useState("✦");
+  const [genre, setGenre] = useState("不限");
+  const [setting, setSetting] = useState("不限");
 
   // Short drama state
   const [shortSubMode, setShortSubMode] = useState<ShortSubMode>("Agent");
@@ -232,54 +232,18 @@ export function HeroSection() {
 
   return (
     <section className="relative overflow-hidden">
-      {/* cosmic backdrop */}
-      <img
-        src={txi(
-          "dark cosmic accretion disk swirl, glowing golden orange light flare on the left, deep black space on the right, cinematic, ultra detailed, no text",
-          "square"
-        )}
-        alt=""
-        aria-hidden
-        loading="lazy"
-        className="absolute inset-0 size-full object-cover"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-[radial-gradient(60%_80%_at_18%_40%,rgba(255,150,60,0.18),transparent_60%)]"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/55 to-[#0a0a0a]"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0a0a0a]/80"
-      />
-
       <div className="relative mx-auto max-w-[1400px] px-6 pb-9 pt-9">
         {/* Title block */}
         <div className="flex flex-col items-center text-center">
-          <h1 className="text-[34px] font-extrabold leading-[1.15] tracking-tight text-white drop-shadow-[0_2px_24px_rgba(255,255,255,0.18)] sm:text-[44px]">
+          <h1 className="text-[32px] font-semibold leading-tight text-foreground sm:text-[40px]">
             一人一座
             <span className="text-brand">梦工厂</span>
           </h1>
-          <div className="mt-4 flex items-center gap-3 text-[13px] font-medium text-white/60">
-            {["灵感", "剧本", "成片", "发行"].map((word, i) => (
-              <span key={word} className="flex items-center gap-3">
-                <span className="relative">
-                  {word}
-                  <span className="absolute -bottom-1 left-0 h-px w-full bg-gradient-to-r from-transparent via-brand/50 to-transparent" />
-                </span>
-                {i < 3 && (
-                  <span className="size-1 rounded-full bg-gradient-to-r from-brand/60 to-[#00e5c8]/60" />
-                )}
-              </span>
-            ))}
-          </div>
+          <p className="mt-3 text-sm text-muted-foreground">从灵感到成片，一站完成创作</p>
         </div>
 
         {/* Main mode toggle — top center */}
-        <div className="mx-auto mt-6 flex w-fit items-center gap-1 rounded-full bg-white/15 p-1 ring-1 ring-white/10 backdrop-blur-md">
+        <div className="mx-auto mt-7 flex w-fit items-center gap-1 rounded-full bg-surface p-1">
           {MAIN_MODES.map((m) => (
             <button
               key={m.id}
@@ -288,8 +252,8 @@ export function HeroSection() {
               className={cn(
                 "rounded-full px-8 py-2 text-[14px] font-semibold transition-colors",
                 mainMode === m.id
-                  ? "bg-white text-black shadow"
-                  : "text-white/65 hover:text-white"
+                  ? "bg-surface-elevated text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               {m.label}
@@ -310,11 +274,11 @@ export function HeroSection() {
                   className={cn(
                     "flex items-center gap-1 rounded-xl px-4 py-2 text-[13px] font-medium transition-colors",
                     shortSubMode === mode
-                      ? "bg-gradient-to-br from-[#00e5c8] to-[#7dff8c] text-black shadow-lg"
-                      : "bg-white/5 text-white/60 hover:text-white"
+                      ? "bg-brand/10 text-brand"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  {mode}
+                  {mode === "Agent" ? "智能协作" : "自主创作"}
                   {mode === "人工模式" && (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-3.5" aria-hidden="true">
                       <path d="M5 12h14M12 5l7 7-7 7" />
@@ -331,8 +295,8 @@ export function HeroSection() {
                   className={cn(
                     "rounded-xl px-4 py-2 text-[13px] font-medium transition-colors",
                     scriptSubTab === sub
-                      ? "bg-brand text-black shadow-lg shadow-brand/20"
-                      : "bg-white/5 text-white/60 hover:text-white"
+                      ? "bg-brand/10 text-brand"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {sub}
@@ -341,16 +305,16 @@ export function HeroSection() {
             )}
           </div>
 
-          <div className="relative rounded-2xl bg-[#1b1b1b]/90 p-4 ring-1 ring-white/10 backdrop-blur-sm">
+          <div className="relative rounded-2xl bg-surface p-4 ring-1 ring-border">
             {/* ── Short drama: Agent mode upload area ── */}
             {isShort && shortSubMode === "Agent" && (
-              <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-white/[0.15] px-6 py-8">
+              <div className="flex items-center justify-center rounded-xl border border-dashed border-border px-2 py-8 sm:px-6">
                 <div className="flex flex-col items-center gap-2">
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => router.push("/project/new?action=short")}
-                      className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
+                      className="flex items-center gap-2 whitespace-nowrap rounded-full bg-surface-elevated px-3 py-2 text-[13px] text-foreground transition-colors hover:text-brand sm:px-4"
                     >
                       <UploadIcon className="size-4" />
                       上传剧本
@@ -358,7 +322,7 @@ export function HeroSection() {
                     <button
                       type="button"
                       onClick={() => router.push("/project/new?action=short")}
-                      className="flex items-center gap-2 rounded-lg bg-white/[0.08] px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.12]"
+                      className="flex items-center gap-2 whitespace-nowrap rounded-full bg-surface-elevated px-3 py-2 text-[13px] text-foreground transition-colors hover:text-brand sm:px-4"
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
@@ -367,8 +331,8 @@ export function HeroSection() {
                       粘贴文本
                     </button>
                   </div>
-                  <p className="text-[12px] text-white/40">
-                    支持.docx/.txt，最多 10 万字，可拖拽至此上传
+                  <p className="text-center text-[12px] text-muted-foreground">
+                    支持 DOCX、TXT，最多 10 万字
                   </p>
                 </div>
               </div>
@@ -378,7 +342,7 @@ export function HeroSection() {
             {isShort && shortSubMode === "人工模式" && (
               <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-white/[0.15] px-6 py-8">
                 <p className="text-[13px] text-white/40">
-                  此模式无需上传剧本，创建项目后所有步骤均可自主编辑
+                  无需上传剧本，可逐步编辑内容
                 </p>
               </div>
             )}
@@ -434,7 +398,7 @@ export function HeroSection() {
                     </button>
                   </div>
                   <p className="text-[12px] text-white/40">
-                    支持 .docx/.txt/.pdf，最多 15 万字，可拖拽至此上传
+                    支持 DOCX、TXT、PDF，最多 15 万字
                   </p>
                 </div>
               </div>
@@ -465,7 +429,7 @@ export function HeroSection() {
                     </button>
                   </div>
                   <p className="text-[12px] text-white/40">
-                    支持 .docx/.txt/.pdf/.fountain/.fdx，最多 20 万字
+                    支持 DOCX、TXT、PDF、Fountain、FDX，最多 20 万字
                   </p>
                 </div>
               </div>
@@ -497,7 +461,7 @@ export function HeroSection() {
                     </button>
                   </div>
                   <p className="text-[12px] text-white/40">
-                    支持 .docx/.txt/.pdf/.fountain/.fdx，最多 20 万字
+                    支持 DOCX、TXT、PDF、Fountain、FDX，最多 20 万字
                   </p>
                 </div>
               </div>
@@ -599,7 +563,7 @@ export function HeroSection() {
         {/* Quick entry cards */}
         <div className="mx-auto mt-4 grid max-w-[880px] gap-3">
           {isShort ? (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {SHORT_QUICK_ENTRIES.map((entry) => (
                 <Link
                   key={entry.label}
@@ -625,7 +589,7 @@ export function HeroSection() {
                         {entry.desc}
                       </span>
                     </div>
-                    <div className="ml-auto flex -space-x-2">
+                    <div className="ml-auto hidden -space-x-2 lg:flex">
                       {[0, 1, 2, 3, 4].map((i) => (
                         <div
                           key={i}
@@ -646,7 +610,7 @@ export function HeroSection() {
               ))}
             </div>
           ) : (
-            <div className="grid-cols-4 gap-3 grid">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {QUICK_ENTRIES.map((entry) => (
                 <Link
                   key={entry.label}

@@ -199,7 +199,12 @@ export function Workbench({ project }: WorkbenchProps) {
         {/* Tab 内容 */}
         <div role="tabpanel">
           {activeTab === "概览" && <OverviewTab project={project} />}
-          {activeTab === "剧本" && <ScriptTab project={project} />}
+          {activeTab === "剧本" && <>
+            <div className="mb-4 flex justify-end">
+              <Link href={`/project/${project.id}?tab=script`} className="rounded-full border border-border px-4 py-2 text-sm text-brand">创编、历史与项目配置</Link>
+            </div>
+            <ScriptTab project={project} />
+          </>}
           {activeTab === "资产" && <AssetTab project={project} />}
           {activeTab === "分镜" && <StoryboardTab project={project} />}
           {activeTab === "成片" && <FilmTab project={project} />}

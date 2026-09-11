@@ -194,7 +194,7 @@ export function AccountDropdown({
             : "pointer-events-none scale-[0.98] opacity-0"
         )}
       >
-        <div className="max-h-[calc(100vh-96px)] overflow-y-auto overflow-x-hidden rounded-2xl bg-[#141414] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.08]">
+        <div className="max-h-[calc(100vh-96px)] overflow-y-auto overflow-x-hidden rounded-2xl bg-background ring-1 ring-border">
           {/* 身份头部：头像 + 昵称 + 等级 */}
           <div className="relative overflow-hidden px-4 pb-3 pt-4">
             <div
@@ -290,13 +290,10 @@ export function AccountDropdown({
                 onClose();
                 onOpenInviteCampaign?.();
               }}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-[#ffb03d] py-2.5 text-[13px] font-bold text-black transition-all hover:brightness-105 active:scale-[0.98]"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-surface py-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-surface-elevated"
             >
               <GiftIcon className="size-4" />
-              邀请好友赚积分
-              <span className="rounded-full bg-black/15 px-1.5 py-px text-[10px] font-bold">
-                +200
-              </span>
+              邀请好友
             </button>
           </div>
 
@@ -311,18 +308,12 @@ export function AccountDropdown({
                 <Row Icon={UsersIcon} title="团队管理" right={user?.team ? <span className="text-xs text-muted-foreground">{user.team.name}</span> : undefined} onClick={() => { onClose(); router.push("/team"); }} />
                 <Row
                   Icon={UserIcon}
-                  title="个人中心与作品"
+                  title="个人资料"
                   onClick={() => openAccount("profile")}
                 />
                 <Row
                   Icon={BellIcon}
                   title="消息中心"
-                  badge={
-                    <span className="flex items-center gap-1 rounded bg-[#ff2d6b]/15 px-1.5 py-px text-[10px] font-bold text-[#ff5c8a]">
-                      <span className="size-1.5 animate-pulse rounded-full bg-[#ff2d6b]" />
-                      3
-                    </span>
-                  }
                   onClick={() => {
                     onClose();
                     onOpenMessages?.();

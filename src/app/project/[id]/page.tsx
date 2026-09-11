@@ -23,6 +23,8 @@ import {
   ShareIcon,
 } from "@/components/icons";
 import { ShareDialog } from "@/components/share-dialog";
+import { ProjectPromptWorkbench } from "@/components/project/project-prompt-workbench";
+import { ScriptStudio } from "@/components/project/script-studio";
 
 // ─── Tab navigation ─────────────────────────────────────────────────────────
 
@@ -33,6 +35,7 @@ const TABS: { id: ProjectTab; label: string }[] = [
   { id: "rewrite", label: "改写" },
   { id: "assets", label: "资产" },
   { id: "breakdown", label: "分镜" },
+  { id: "prompts", label: "提示词" },
   { id: "references", label: "引用" },
 ];
 
@@ -88,36 +91,6 @@ function ConfigRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ScriptTab() {
-  return (
-    <div className="rounded-xl bg-[#141414] p-5 ring-1 ring-white/[0.06]">
-      <div className="flex items-center justify-between">
-        <h3 className="text-[14px] font-medium text-white">剧本版本</h3>
-        <button className="text-[12px] text-brand hover:underline">+ 新版本</button>
-      </div>
-      <div className="mt-4 space-y-2">
-        {["v1 · 原始版本", "v2 · 轻度改稿", "v3 · 深度改写"].map((v, i) => (
-          <div
-            key={v}
-            className={cn(
-              "flex items-center justify-between rounded-lg px-4 py-3 text-[13px]",
-              i === 2 ? "bg-brand/10 text-brand" : "bg-white/[0.03] text-white/70"
-            )}
-          >
-            <span>{v}</span>
-            <span className="text-[11px] text-white/40">{i === 2 ? "当前" : "历史"}</span>
-          </div>
-        ))}
-      </div>
-      <div className="mt-4 rounded-lg bg-black/30 p-4">
-        <p className="text-[12px] text-white/40">第一集 · 场景 1</p>
-        <p className="mt-2 text-[13px] leading-relaxed text-white/70">
-          凌晨三点的凯撒大堂空无一人。林策西装笔挺地站在落地窗前，俯瞰着这座他曾经熟悉的城市。雨点打在玻璃上，像是在敲打着他心底最后的防线……
-        </p>
-      </div>
-    </div>
-  );
-}
 
 // ─── Radar chart (SVG) ──────────────────────────────────────────────────────
 
@@ -1051,8 +1024,7 @@ function ProjectDetailContent() {
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const tab = (searchParams.get("tab") || "overview") as ProjectTab;
-  const [activeTab, setActiveTab] = useState<ProjectTab>(tab);
+  const activeTab = TABS.find((item) => item.id === searchParams.get("tab"))?.id ?? "overview";
   const [shareOpen, setShareOpen] = useState(false);
   const id = params.id;
 
@@ -1089,7 +1061,6 @@ function ProjectDetailContent() {
     setDrivenIssues(issues);
     const encoded = encodeURIComponent(JSON.stringify(issues));
     router.replace(`/project/${id}?tab=rewrite&from=evaluation&issues=${encoded}`);
-    setActiveTab("rewrite");
   };
 
   const handleClearDriven = () => {
@@ -1132,12 +1103,16 @@ function ProjectDetailContent() {
 
       {/* Tab nav */}
       <div className="shrink-0 border-b border-white/[0.06] px-6">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 overflow-x-auto">
           {TABS.map((t) => (
             <button
               key={t.id}
               type="button"
-              onClick={() => setActiveTab(t.id)}
+              onClick={() => {
+                const query = new URLSearchParams(searchParams.toString());
+                query.set("tab", t.id);
+                router.push(`/project/${id}?${query.toString()}`, { scroll: false });
+              }}
               className={cn(
                 "relative px-4 py-3 text-[13px] font-medium transition-colors",
                 activeTab === t.id
@@ -1172,7 +1147,7 @@ function ProjectDetailContent() {
           )}
 
           {activeTab === "overview" && <OverviewTab project={project} />}
-          {activeTab === "script" && <ScriptTab />}
+          {activeTab === "script" && <ScriptStudio projectId={project.id} />}
           {activeTab === "evaluation" && (
             <EvaluationTab project={project} onDriveRewrite={handleDriveRewrite} />
           )}
@@ -1185,6 +1160,7 @@ function ProjectDetailContent() {
           )}
           {activeTab === "assets" && <AssetsTab />}
           {activeTab === "breakdown" && <BreakdownTab project={project} />}
+          {activeTab === "prompts" && <ProjectPromptWorkbench projectId={project.id} />}
           {activeTab === "references" && <ReferencesTab />}
         </div>
       </div>

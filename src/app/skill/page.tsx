@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { SkillGrid } from "@/components/skill/skill-grid";
 import { PlusIcon, SearchIcon, HeartIcon } from "@/components/icons";
+import { PromptWorkbench } from "@/components/skill/prompt-workbench";
+import { Modal } from "@/components/ui/modal";
 
 const SKILL_CATEGORIES = [
   { id: "all", label: "全部" },
@@ -71,6 +73,7 @@ export default function SkillPage() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+  const [promptOpen, setPromptOpen] = useState(false);
 
   const filteredSkills = SKILLS.filter((skill) => {
     const matchesCategory =
@@ -84,8 +87,11 @@ export default function SkillPage() {
 
   return (
     <AppShell>
+      <Modal open={promptOpen} onClose={() => setPromptOpen(false)} title="提示词与自定义技能" className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-[960px] overflow-y-auto pt-12">
+        <PromptWorkbench />
+      </Modal>
       <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-6 pb-10">
-        <div className="mt-8 flex items-center justify-between pt-2 pb-6">
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 pt-2 pb-6">
           <div>
             <h1 className="text-[32px] font-bold leading-tight tracking-tight text-white">
               技能广场
@@ -96,11 +102,12 @@ export default function SkillPage() {
           </div>
           <button
             type="button"
-            className="flex h-11 items-center gap-2 rounded-xl bg-brand px-5 text-[14px] font-semibold text-brand-foreground transition-all hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/20"
-            aria-label="创建我的 Skill"
+            className="flex h-11 cursor-pointer items-center gap-2 rounded-full bg-brand px-5 text-[14px] font-semibold text-brand-foreground"
+            aria-label="提示词与自定义技能"
+            onClick={() => setPromptOpen(true)}
           >
             <PlusIcon className="size-4" />
-            创建我的 Skill
+            提示词与自定义技能
           </button>
         </div>
 
