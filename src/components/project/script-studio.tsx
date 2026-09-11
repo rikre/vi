@@ -93,7 +93,7 @@ function ScriptEditor({ projectId, workspace }: { projectId: number; workspace: 
       </div>
     </div>
     <aside className="min-w-0 space-y-4 rounded-2xl bg-surface p-4">
-      <header className="flex flex-wrap items-center justify-between gap-2"><h2 className="flex items-center gap-2 font-semibold"><SparkleIcon className="size-4 text-brand" />创编助手</h2><button type="button" className={button} onClick={() => setSettings(true)}>Skills / Agent 设置</button></header>
+      <header className="flex flex-wrap items-center justify-between gap-2"><h2 className="flex items-center gap-2 font-semibold"><SparkleIcon className="size-4 text-brand" />创编助手</h2><button type="button" className={button} onClick={() => setSettings(true)}>剧本偏好</button></header>
       <p className="text-xs leading-5 text-muted-foreground">{workspace.config.name} · 已启用 {workspace.config.skills.filter((skill) => skill.enabled).length} 项技能。当前未连接模型，仅支持编排请求和明确文本替换。</p>
       <label className="block space-y-2 text-sm"><span>修改方式</span><select className={field} value={operation} onChange={(event) => { setOperation(event.target.value); setCandidate(null); setRequest(""); }}><option value="request">结构、人物、场景创编</option><option value="replace">精确替换人物或选段</option></select></label>
       {operation === "replace" ? <>
@@ -137,8 +137,8 @@ function AgentSettings({ config, onClose, onSave }: { config: ScriptAgentConfig;
     if (JSON.stringify(value) !== JSON.stringify(config) && !window.confirm("放弃未保存的项目配置？")) return;
     onClose();
   };
-  return <Modal open onClose={requestClose} title="项目 Skills 与 Agent 设置" className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-[960px] overflow-y-auto p-5 pt-14">
-    <h2 className="text-lg font-semibold">项目 Skills 与 Agent 设置</h2><p className="mt-1 text-xs text-muted-foreground">仅作用于当前项目 · 本地存储 · 测试不修改剧本、不扣积分</p>
+  return <Modal open onClose={requestClose} title="剧本创编偏好" className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-[960px] overflow-y-auto p-5 pt-14">
+    <h2 className="text-lg font-semibold">剧本创编偏好</h2><p className="mt-1 text-xs text-muted-foreground">仅作用于当前项目 · 本地存储 · 测试不修改剧本、不扣积分</p>
     <div className="mt-5 grid gap-5 md:grid-cols-2"><div className="space-y-3">
       <label className="block space-y-1 text-sm"><span>助手名称</span><input className={field} maxLength={40} value={value.name} onChange={(event) => change({ ...value, name: event.target.value })} /></label>
       <label className="block space-y-1 text-sm"><span>默认角色与规则</span><textarea className={field} maxLength={4000} value={value.role} onChange={(event) => change({ ...value, role: event.target.value })} /></label>

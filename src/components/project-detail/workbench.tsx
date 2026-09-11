@@ -21,6 +21,7 @@ import AssetTab from "./asset-tab";
 import StoryboardTab from "./storyboard-tab";
 import FilmTab from "./film-tab";
 import RemakeStudio from "./remake-studio";
+import { CreationSettingsButton } from "@/components/project/creation-settings";
 
 const MODE_META: Record<
   ShortDramaProject["mode"],
@@ -151,6 +152,7 @@ export function Workbench({ project }: WorkbenchProps) {
             </div>
 
             <div className="flex items-center gap-2">
+              <CreationSettingsButton projectId={project.id} />
               <button
                 type="button"
                 className="flex h-9 items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 text-[13px] font-medium text-white/80 backdrop-blur-sm transition-colors hover:bg-white/[0.08]"

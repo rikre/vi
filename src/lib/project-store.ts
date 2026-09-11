@@ -5,6 +5,7 @@ import {
   type ShortDramaProject,
 } from "@/lib/mock-projects";
 import type { CreateAction, ProjectConfig } from "@/types/project";
+import { creationSettingsSchema, type CreationSettings } from "@/lib/creation-settings";
 
 const STORAGE_KEY = "bollo-custom-projects";
 const CHANGE_EVENT = "bollo-projects-change";
@@ -212,4 +213,13 @@ export function saveScriptWorkspace(id: number, workspace: NonNullable<Project["
 
 export function renameProject(id: number, title: string): void {
   updateProject(id, { title });
+}
+
+export function saveCreationSettings(id: number, input: CreationSettings): void {
+  const config = creationSettingsSchema.parse(input);
+  const project = getProject(id);
+  if (!project) throw new Error("项目不存在");
+  const updated = { ...project, creationSettings: config, updatedAt: new Date().toISOString() };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([updated, ...readCustomProjects().filter((item) => item.id !== id)]));
+  window.dispatchEvent(new Event(CHANGE_EVENT));
 }

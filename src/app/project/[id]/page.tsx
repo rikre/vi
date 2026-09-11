@@ -25,6 +25,7 @@ import {
 import { ShareDialog } from "@/components/share-dialog";
 import { ProjectPromptWorkbench } from "@/components/project/project-prompt-workbench";
 import { ScriptStudio } from "@/components/project/script-studio";
+import { CreationSettingsButton, CreationStageSummary } from "@/components/project/creation-settings";
 
 // ─── Tab navigation ─────────────────────────────────────────────────────────
 
@@ -1072,7 +1073,7 @@ function ProjectDetailContent() {
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
       <div className="shrink-0 border-b border-white/[0.06] px-6 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="rounded-lg bg-brand/10 px-2 py-1 text-[11px] font-medium text-brand">
               {typeLabel(project.type)}
@@ -1083,6 +1084,7 @@ function ProjectDetailContent() {
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <CreationSettingsButton projectId={project.id} />
             <button
               type="button"
               onClick={() => setShareOpen(true)}
@@ -1158,8 +1160,8 @@ function ProjectDetailContent() {
               onClearDriven={handleClearDriven}
             />
           )}
-          {activeTab === "assets" && <AssetsTab />}
-          {activeTab === "breakdown" && <BreakdownTab project={project} />}
+          {activeTab === "assets" && <><CreationStageSummary projectId={project.id} stage="assets" /><AssetsTab /></>}
+          {activeTab === "breakdown" && <><CreationStageSummary projectId={project.id} stage="storyboard" /><BreakdownTab project={project} /></>}
           {activeTab === "prompts" && <ProjectPromptWorkbench projectId={project.id} />}
           {activeTab === "references" && <ReferencesTab />}
         </div>

@@ -1,0 +1,35 @@
+import { expect, test } from "@playwright/test";
+
+test("project header settings persist across stages and do not leak to remake projects", async ({ page }) => {
+  await page.goto("/comic/10");
+  const login = page.getByRole("dialog", { name: "登录", exact: true });
+  await login.getByPlaceholder("请输入手机号").fill("13800138000");
+  await login.getByPlaceholder("6 位验证码").fill("123456");
+  await login.getByRole("checkbox").check();
+  await login.getByRole("button", { name: "登录", exact: true }).click();
+  await page.getByRole("button", { name: "创作设置", exact: true }).click();
+  const modal = page.getByRole("dialog", { name: "项目创作设置" });
+  await modal.getByRole("button", { name: "新建自定义方案" }).click();
+  await modal.getByLabel("方案名称", { exact: true }).fill("我的分镜导演");
+  await modal.getByLabel("Agent 指令 / Skills 规则").fill("只使用固定镜头，不新增角色。");
+  await modal.getByRole("button", { name: "预览请求", exact: true }).click();
+  await expect(modal.getByLabel("方案测试结果")).toHaveValue(/只使用固定镜头/);
+  await page.screenshot({ path: "/tmp/creation-settings-desktop.png" });
+  await modal.getByRole("button", { name: /资产提炼 Agent/ }).click();
+  await modal.getByLabel("当前环节默认方案").selectOption("minimal");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: "/tmp/creation-settings-mobile.png" });
+  expect(await modal.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await modal.getByRole("button", { name: "保存创作设置" }).click();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.reload();
+  await page.getByRole("tab", { name: "资产", exact: true }).click();
+  await expect(page.getByText("精简资产", { exact: true }).first()).toBeVisible();
+  await page.goto("/project/10?tab=prompts");
+  await page.getByLabel("分镜内容或视频提示词", { exact: true }).fill("主角走进门。");
+  await page.getByRole("button", { name: "生成规则预览" }).click();
+  await expect(page.getByLabel("提示词预览（可编辑）")).toHaveValue(/只使用固定镜头/);
+  await page.goto("/comic/1");
+  await page.getByRole("button", { name: "创作设置", exact: true }).click();
+  await expect(modal.getByLabel("方案名称", { exact: true })).toHaveValue("叙事分镜");
+});

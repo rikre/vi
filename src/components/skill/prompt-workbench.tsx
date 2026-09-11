@@ -27,16 +27,18 @@ function subscribe(callback: () => void) {
   };
 }
 
-export function PromptWorkbench({ sources = [], onApply }: {
+export function PromptWorkbench({ sources = [], onApply, projectRules }: {
+  projectRules?: Partial<Record<PromptMode, string>>;
   sources?: PromptSource[];
   onApply?: (id: string, prompt: string) => void;
 }) {
   const { user } = useAuth();
   // 用户级隔离；本版本不向云端同步技能内容。
-  return <PromptEditor key={user?.id ?? "guest"} owner={String(user?.id ?? "guest")} sources={sources} onApply={onApply} />;
+  return <PromptEditor key={`${user?.id ?? "guest"}:${JSON.stringify(projectRules)}`} owner={String(user?.id ?? "guest")} sources={sources} onApply={onApply} projectRules={projectRules} />;
 }
 
-function PromptEditor({ owner, sources, onApply }: {
+function PromptEditor({ owner, sources, onApply, projectRules }: {
+  projectRules?: Partial<Record<PromptMode, string>>;
   owner: string;
   sources: PromptSource[];
   onApply?: (id: string, prompt: string) => void;
@@ -115,6 +117,7 @@ function PromptEditor({ owner, sources, onApply }: {
           <div className="flex items-center justify-between gap-2"><h3 className="text-sm font-medium">创作技能</h3>
             <button type="button" className="flex cursor-pointer items-center gap-1 text-sm text-brand" onClick={() => { setName(""); setInstruction(""); setEditingId(null); setEditor(true); }}><PlusIcon className="size-4" />自定义技能</button>
           </div>
+          {projectRules?.[mode] && <p className="rounded-xl border border-brand/20 bg-brand/10 p-3 text-xs leading-6 text-foreground">项目默认规则：{projectRules[mode]}<span className="block text-muted-foreground">在项目右上角“创作设置”中切换。</span></p>}
           {skills.map((skill) => <div key={skill.id} className="rounded-xl bg-surface p-3">
             <label className="flex cursor-pointer items-start gap-3 text-sm"><input type="checkbox" checked={selected.includes(skill.id)} className="mt-1 accent-brand" onChange={() => { setSelected((value) => value.includes(skill.id) ? value.filter((id) => id !== skill.id) : [...value, skill.id]); setPreview(""); }} /><span><span className="font-medium">{skill.name}</span><span className="mt-1 block text-xs leading-5 text-muted-foreground">{skill.instruction}</span></span></label>
             {custom.some((item) => item.id === skill.id) && <div className="mt-2 flex gap-3 pl-6 text-xs">
@@ -133,7 +136,7 @@ function PromptEditor({ owner, sources, onApply }: {
           <h3 className="text-sm font-medium">确认后应用</h3>
           <p className="text-xs leading-5 text-muted-foreground">当前按模板整理内容并附加技能规则，尚未连接语言模型。去瑕疵仅检查提示词，不处理视频文件。</p>
           {warnings.map((warning) => <p key={warning} role="status" className="rounded-xl bg-warning/10 p-3 text-sm text-warning">{warning}</p>)}
-          <button type="button" className={primary} disabled={!source.trim()} onClick={() => setPreview(buildPrompt(source, mode, skills.filter((skill) => selected.includes(skill.id))))}>生成规则预览</button>
+          <button type="button" className={primary} disabled={!source.trim()} onClick={() => setPreview(buildPrompt(source, mode, [...skills.filter((skill) => selected.includes(skill.id)), ...(projectRules?.[mode] ? [{ id: "project-default", name: "项目默认", mode, instruction: projectRules[mode] }] : [])]))}>生成规则预览</button>
           <label className="block space-y-2 text-sm"><span>提示词预览（可编辑）</span><textarea className={`${field} min-h-64 resize-y`} value={preview} onChange={(event) => setPreview(event.target.value)} placeholder="生成后检查、编辑，再应用到当前镜头。" /></label>
           <div className="flex flex-wrap gap-2">
             <button type="button" className={secondary} disabled={!preview.trim()} onClick={async () => { try { await navigator.clipboard.writeText(preview); toast({ title: "提示词已复制", tone: "success" }); } catch { toast({ title: "复制失败，请手动复制", tone: "error" }); } }}>复制提示词</button>

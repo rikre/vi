@@ -10,8 +10,8 @@ test("script editing, project configuration, preview and restore", async ({ page
   await expect(page.getByLabel("剧本正文", { exact: true })).toBeVisible();
   await page.getByLabel("剧本正文", { exact: true }).fill("林安走进院子。林安发现门已经打开。");
   await page.getByRole("button", { name: "保存版本", exact: true }).click();
-  await page.getByRole("button", { name: "Skills / Agent 设置", exact: true }).click();
-  const modal = page.getByRole("dialog", { name: "项目 Skills 与 Agent 设置" });
+  await page.getByRole("button", { name: "剧本偏好", exact: true }).click();
+  const modal = page.getByRole("dialog", { name: "剧本创编偏好" });
   await modal.getByLabel("助手名称", { exact: true }).fill("项目专属编剧");
   await modal.getByRole("button", { name: "添加自定义技能" }).click();
   await modal.getByLabel("技能 4 名称").fill("人物检查");
@@ -49,7 +49,7 @@ test("script editing, project configuration, preview and restore", async ({ page
   await page.goBack();
   await expect(page.getByRole("region", { name: "提示词工作台" })).toBeVisible();
   await page.goForward();
-  await page.getByRole("button", { name: "Skills / Agent 设置", exact: true }).click();
+  await page.getByRole("button", { name: "剧本偏好", exact: true }).click();
   await modal.getByLabel("助手名称", { exact: true }).fill("未保存配置");
   page.once("dialog", (dialog) => dialog.dismiss());
   await modal.getByRole("button", { name: "取消", exact: true }).click();
@@ -58,6 +58,6 @@ test("script editing, project configuration, preview and restore", async ({ page
   await modal.getByRole("button", { name: "取消", exact: true }).click();
   await page.screenshot({ path: "/tmp/bollo-script-studio.png" });
   await page.goto("/project/3?tab=script");
-  await page.getByRole("button", { name: "Skills / Agent 设置", exact: true }).click();
+  await page.getByRole("button", { name: "剧本偏好", exact: true }).click();
   await expect(page.getByLabel("助手名称", { exact: true })).toHaveValue("剧本创编助手");
 });

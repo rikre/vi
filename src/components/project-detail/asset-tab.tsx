@@ -16,6 +16,7 @@ import BatchGenerateDialog, {
 import { useAssetManager, type AssetFilter } from "@/hooks/use-asset-manager";
 import { AssetCard } from "./asset/asset-card";
 import { ExtractProgressModal } from "./asset/extract-progress-modal";
+import { CreationStageSummary } from "@/components/project/creation-settings";
 
 const FILTER_LABELS: {
   key: AssetFilter;
@@ -61,6 +62,7 @@ export default function AssetTab({ project }: { project: ShortDramaProject }) {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <CreationStageSummary projectId={project.id} stage="assets" />
       {/* 顶部标题 + 操作 */}
       <header className="flex items-end justify-between gap-4">
         <div>

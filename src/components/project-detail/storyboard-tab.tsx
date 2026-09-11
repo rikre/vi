@@ -6,6 +6,7 @@ import { useStoryboard } from "@/hooks/use-storyboard";
 import { StoryboardTableView } from "./storyboard/storyboard-table-view";
 import { StoryboardGenerateView } from "./storyboard/storyboard-generate-view";
 import { ProjectPromptWorkbench } from "@/components/project/project-prompt-workbench";
+import { CreationStageSummary } from "@/components/project/creation-settings";
 
 export default function StoryboardTab({
   project,
@@ -31,6 +32,7 @@ export default function StoryboardTab({
 
   return (
     <div className="space-y-4">
+      <CreationStageSummary projectId={project.id} stage="storyboard" />
       <details className="rounded-2xl bg-surface p-4 ring-1 ring-border">
         <summary className="cursor-pointer text-sm font-medium text-brand">提示词与创作技能</summary>
         <div className="mt-4"><ProjectPromptWorkbench projectId={project.id} /></div>

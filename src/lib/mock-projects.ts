@@ -1,5 +1,6 @@
 // 项目 mock 数据（列表页与详情页工作台共享）
 import type { ScriptWorkspace } from "@/lib/script-workspace";
+import type { CreationSettings } from "@/lib/creation-settings";
 
 import type {
   ProjectAgent,
@@ -14,6 +15,7 @@ import type {
 export type ShortDramaMode = "剧本模式" | "自由模式" | "AI重绘";
 
 export type ShortDramaProject = {
+  creationSettings?: CreationSettings;
   scriptWorkspace?: ScriptWorkspace;
   id: number;
   type: "short";
@@ -59,6 +61,7 @@ export type ShortDramaProject = {
 };
 
 export type ScriptProject = {
+  creationSettings?: CreationSettings;
   scriptContent?: string;
   scriptWorkspace?: ScriptWorkspace;
   id: number;
