@@ -21,10 +21,9 @@ const GRID_VIDEOS: VideoItem[] = [
     id: "6b0f748d-edbb-410b-b60c-0a5418d6d237",
     title: "水果庄园",
     author: "18995680247",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/skill-cases/tang_dynastic_cover.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/69a99f8e1f820539/outputs/final_video_1763566011.mp4",
     subtitle: "一纸宣纸，道断两相倾心",
     description:
       "国内首部全 AIGC 非遗古装中剧，上线两周站内累计播放9200万+；非遗古风分类稳居第2，全站热播榜稳定前12。",
@@ -38,10 +37,9 @@ const GRID_VIDEOS: VideoItem[] = [
     id: "5b050f1f-f9b3-42f6-8610-29b3d91e767b",
     title: "九州明君录",
     author: "霓凰",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/skill-cases/horrible_story_cover.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://store.cdn.bollo.video/media/66a43f7f7b25453b981ffb6803285a2a/3aa1fd7beab08226/outputs/final_video_1776509607.mp4",
     subtitle: "乱世烽烟，谁主沉浮",
     description:
       "大周历372年，开国明君姬文渊于牧野之战力竭崩殂，临终命重臣裴守约将轩辕剑沉入洛水，以待后世明君。",
@@ -55,10 +53,9 @@ const GRID_VIDEOS: VideoItem[] = [
     id: "6cac390c-0a29-41da-9f7e-47cfc18c7856",
     title: "天降绝症：我反手整顿全世界",
     author: "文化火焰AIGC",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/skill-cases/funny_story_cover.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/686db70e930740d8a5698450e435ea45/4b62b9dc6bf0c060/outputs/final_video_1764765522.mp4",
     subtitle: "生命倒计时，开启疯狂反击",
     description:
       "当一张肺癌晚期的诊断书彻底撕碎了社畜林默三十年的懦弱，他决定用生命最后的倒计时，向油腻的上司、势利的亲属和霸凌的社会发起最疯狂的还击。",
@@ -72,10 +69,9 @@ const GRID_VIDEOS: VideoItem[] = [
     id: "34622f24-4c8a-4e2c-8643-1c628fea40a8",
     title: "终末地丨在超市后门喝酒的二人",
     author: "多兰克斯",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/home/story-anime.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://store.cdn.bollo.video/media/3e373f32289841fda24e32096f5a917e/6dc02e9b328ab2b2/outputs/final_video_1779181877.mp4",
     subtitle: "末日废墟里，一杯酒的温度",
     description: "ed的风格是这样，主要是图片处理麻烦一点，视频生成用到的较少~",
     stats: "二次元末日题材佳作，站内播放量2800万，评论区互动率35%，被誉为最治愈的末世短片。",
@@ -87,10 +83,9 @@ const GRID_VIDEOS: VideoItem[] = [
     id: "76c68868-eed6-4eec-904d-8d4e9c643539",
     title: "人间善话",
     author: "17716637375",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/skill-cases/pet_story_cover.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/0fdebea15dcb6bf7/outputs/final_video_1760507562.mp4",
     subtitle: "一群人温暖一座城",
     description: "一群人温暖一座城",
     stats: "温情纪实风格短剧，播放量4500万+，多次登上平台正能量内容推荐位。",
@@ -102,10 +97,9 @@ const GRID_VIDEOS: VideoItem[] = [
     id: "e836eafc-dca3-4a00-bfdb-8b045964328a",
     title: "牛马鬼差之天师钟馗",
     author: "18687122002",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/skill-cases/mput7uzv.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/54daf7d8058e4e40/outputs/final_video_1762230516.mp4",
     subtitle: "死后觉醒，杀穿地府",
     description:
       "社畜牛马猝死工位前，死后觉醒地府系统穿越至大唐，看钟小小如何杀穿地府一步步变为大唐子民家喻户晓的镇魔天师钟馗",
@@ -118,10 +112,9 @@ const GRID_VIDEOS: VideoItem[] = [
     id: "e2f2c3fd-18ed-45c3-b79a-7bc8a5a36152",
     title: "玄枯界·归真潮",
     author: "15973721801",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/skill-cases/hnlnheuv.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1fccece2e713471392f9e773f7e02cbb/fe1130aed9d7ea83/outputs/final_video_1764655726.mp4",
     subtitle: "以身证道，问道归真",
     description: "林砚以身证道第三百年。",
     stats: "仙侠玄幻题材口碑之作，站内评分9.1，深度用户占比达58%。",
@@ -130,13 +123,12 @@ const GRID_VIDEOS: VideoItem[] = [
     link: "发现更多精彩视频 · 抖音搜索",
   },
   {
-    id: "8fef85a6-069e-42b0-b758-c3479195983a",
+    id: "8fef85a6-069e-42b0-b758-c34791959983a",
     title: "山鬼",
     author: "金金",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/skill-cases/horrible_story_cover.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/69a99f8e1f820539/outputs/final_video_1763566011.mp4",
     subtitle: "鬼山探险，揭开山鬼真相",
     description: "网红主播刘星失恋后赴“鬼山”探险散心，偶遇神秘男孩，揭开“山鬼”真相",
     stats: "悬疑探险短剧，播放量6200万，剧情反转引发全网热议。",
@@ -148,10 +140,9 @@ const GRID_VIDEOS: VideoItem[] = [
     id: "62522151-d893-49bb-b2f7-6684c376ca22",
     title: "一剑赴山河，江湖本是客",
     author: "19806692620",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/skill-cases/tang_dynastic_cover.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://store.cdn.bollo.video/media/66a43f7f7b25453b981ffb6803285a2a/3aa1fd7beab08226/outputs/final_video_1776509607.mp4",
     subtitle: "女子仗剑，踏遍山河",
     description: "世人总说女子该安分守于闺阁，可她偏要一身劲装，手握长剑踏遍山河。",
     stats: "古风武侠女性向短剧，播放量3800万+，女性用户占比76%。",
@@ -163,10 +154,9 @@ const GRID_VIDEOS: VideoItem[] = [
     id: "740eff2e-5b20-4c73-a0a4-52b88d4c4133",
     title: "终末地｜小猫只想睡觉",
     author: "多兰克斯",
-    coverUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo",
+    coverUrl: "/images/skill-cases/pet_story_cover.webp",
     previewVideoUrl:
-      "https://placehold.co/600x400/141414/D4FF3F?text=bollo+video",
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1fccece2e713471392f9e773f7e02cbb/fe1130aed9d7ea83/outputs/final_video_1764655726.mp4",
     subtitle: "末日危机，小猫只想躺平",
     description: "复刻了一下小猫快跑配对打危机合约~",
     stats: "萌系末日题材创意短片，站内播放量2100万，萌宠类目周榜TOP2。",

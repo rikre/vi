@@ -37,7 +37,7 @@ const QUICK_ENTRIES = [
   { label: "剧本广场", icon: "clapper", href: "/plaza" },
   { label: "AI 拉片", icon: "film", href: "/project/new?action=breakdown" },
   { label: "剧本评分", icon: "star", href: "/project/new?action=evaluate" },
-  { label: "定制剧本", icon: "triangle", href: "#" },
+  { label: "定制剧本", icon: "triangle", href: "/project/new?action=original" },
 ];
 
 const SHORT_QUICK_ENTRIES = [
@@ -46,14 +46,14 @@ const SHORT_QUICK_ENTRIES = [
     desc: "去接单广场赚钱",
     icon: "briefcase",
     bg: "dark mountain landscape with dramatic lightning, cinematic",
-    href: "#",
+    href: "/plaza",
   },
   {
     label: "资产广场",
     desc: "挑选演员，锁定形象",
     icon: "users",
     bg: "ancient chinese palace with misty mountains, epic cinematic",
-    href: "#",
+    href: "/asset",
   },
 ];
 

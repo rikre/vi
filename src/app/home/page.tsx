@@ -12,12 +12,14 @@ export default function HomePage() {
     <AppShell>
       <div className="h-full overflow-y-auto">
         <CampaignLayer />
+        <div className="mx-auto max-w-[1400px] px-6">
+          <ActivitySection />
+        </div>
         <HeroSection />
         <div className="mx-auto max-w-[1400px] px-6 pb-10">
           <HotRanking />
           <ContentPlazas />
           <VideoGrid />
-          <ActivitySection />
           <Footer />
         </div>
       </div>

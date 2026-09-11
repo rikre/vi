@@ -25,10 +25,7 @@ export const CAMPAIGNS: Campaign[] = [
   {
     id: "68046b0d-1b37-4de1-8f69-04103132a63e",
     title: "bollo “一键出海” 玩法介绍",
-    coverUrl: txi(
-      "minimal globe and rocket illustration, lime green accent, dark background, simple clean design",
-      "landscape_4_3",
-    ),
+    coverUrl: "/images/campaigns/overseas.jpg",
     endsInLabel: "184天后结束",
     participantsLabel: "成为第一个参与者",
     kind: "ongoing",
@@ -39,10 +36,7 @@ export const CAMPAIGNS: Campaign[] = [
   {
     id: "1fee866f-135e-49bd-ae6e-423df7a5ac7f",
     title: "bollo超创计划 纳新啦",
-    coverUrl: txi(
-      "minimal creator community illustration, diverse silhouettes collaborating, lime green accent, dark background, simple clean design",
-      "landscape_4_3",
-    ),
+    coverUrl: "/images/campaigns/supercreator.jpg",
     endsInLabel: "163天后结束",
     participantsLabel: "738 人已参与",
     kind: "ongoing",
@@ -53,10 +47,7 @@ export const CAMPAIGNS: Campaign[] = [
   {
     id: "d1c2134c-35fd-44c4-b3c1-24b9c182e060",
     title: "bollo 2.0 使用说明书",
-    coverUrl: txi(
-      "minimal open book guide illustration, lime green accent, dark background, simple clean design",
-      "landscape_4_3",
-    ),
+    coverUrl: "/images/campaigns/manual-2-0.jpg",
     endsInLabel: "10天后结束",
     participantsLabel: "1 人已参与",
     kind: "ongoing",

@@ -175,6 +175,26 @@
   }
 }
 
+/* 沉浸式轮播进度条动画 */
+@keyframes carousel-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* 活动幻灯片图片 Ken Burns 呼吸动效 */
+@keyframes kenburns {
+  from {
+    transform: scale(1) translateY(0);
+  }
+  to {
+    transform: scale(1.08) translateY(-1.5%);
+  }
+}
+
 /* 尊重用户减少动效偏好 — WCAG 2.3.3 */
 @media (prefers-reduced-motion: reduce) {
   *,

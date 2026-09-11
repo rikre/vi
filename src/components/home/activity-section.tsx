@@ -36,7 +36,7 @@ export function ActivitySection() {
   };
 
   return (
-    <section className="mt-10">
+    <section className="mt-4">
       <h2 className="text-base font-medium text-foreground/85">活动</h2>
 
       <div className="relative mt-3">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
+import { ShowcaseCarousel } from "@/components/create/showcase-carousel";
 import { StyleLibraryDialog } from "@/components/style-library-dialog";
 import { cn } from "@/lib/utils";
 import {
@@ -46,51 +47,6 @@ const QUICK_LINKS: { label: string; isLink: boolean }[] = [
   { label: "AI拉片", isLink: false },
   { label: "剧本大师", isLink: true },
   { label: "儿童创作", isLink: true },
-];
-
-const DISCOVER_CARDS = [
-  {
-    id: 1,
-    title: "水上同行",
-    videoSrc:
-      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/69a99f8e1f820539/outputs/final_video_1763566011.mp4",
-  },
-  {
-    id: 2,
-    title: "星际觉醒：岩石战神的太空绝地反击",
-    videoSrc:
-      "https://store.cdn.bollo.video/media/3e373f32289841fda24e32096f5a917e/6dc02e9b328ab2b2/outputs/final_video_1779181877.mp4",
-  },
-  {
-    id: 3,
-    title: "先知弥迦：从摩利设加特到伯利恒的公义与怜悯",
-    videoSrc:
-      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/54daf7d8058e4e40/outputs/final_video_1762230516.mp4",
-  },
-  {
-    id: 4,
-    title: "以斯帖记：波斯王宫里的生死豪赌与民族救赎",
-    videoSrc:
-      "https://store.cdn.bollo.video/media/66a43f7f7b25453b981ffb6803285a2a/3aa1fd7beab08226/outputs/final_video_1776509607.mp4",
-  },
-  {
-    id: 5,
-    title: "授时中心",
-    videoSrc:
-      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/686db70e930740d8a5698450e435ea45/4b62b9dc6bf0c060/outputs/final_video_1764765522.mp4",
-  },
-  {
-    id: 6,
-    title: "被爱，无需理由",
-    videoSrc:
-      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/0fdebea15dcb6bf7/outputs/final_video_1760507562.mp4",
-  },
-  {
-    id: 7,
-    title: "心光",
-    videoSrc:
-      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1fccece2e713471392f9e773f7e02cbb/fe1130aed9d7ea83/outputs/final_video_1764655726.mp4",
-  },
 ];
 
 /* ──────────────── Small visual atoms (matching reference site) ───────────── */
@@ -235,65 +191,6 @@ function QuickLink({ label, onClick }: { label: string; onClick?: () => void }) 
   );
 }
 
-function DiscoverCard({
-  title,
-  videoSrc,
-  isHover,
-  onHover,
-  onLeave,
-  onClick,
-}: {
-  title: string;
-  videoSrc: string;
-  isHover: boolean;
-  onHover: () => void;
-  onLeave: () => void;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
-      className={cn(
-        "group relative aspect-[0.9/1] w-[224px] shrink-0 overflow-hidden rounded-2xl",
-        "bg-card ring-1 ring-inset ring-white/[0.06]",
-        "transition-all duration-200",
-        "hover:ring-white/15 hover:-translate-y-0.5",
-        "active:scale-[0.98]",
-      )}
-    >
-      <video
-        src={videoSrc}
-        autoPlay={isHover}
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        className="absolute inset-0 size-full object-cover"
-      />
-      <img
-        src={`https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=${encodeURIComponent(
-          `cinematic anime key visual, ${title}, moody atmosphere, lime green accent, dark background, professional poster art`,
-        )}&image_size=portrait_4_3`}
-        alt={title}
-        loading="lazy"
-        className="absolute inset-0 size-full object-cover"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"
-      />
-      <div className="absolute inset-x-0 bottom-0 p-3 text-left">
-        <h3 className="text-[12px] font-medium leading-[16px] text-white line-clamp-2">
-          {title}
-        </h3>
-      </div>
-    </button>
-  );
-}
-
 /* ──────────────────────────────────────────────────────────────────────────
  * Page
  * ──────────────────────────────────────────────────────────────────────── */
@@ -302,7 +199,6 @@ export default function CreatePage() {
   const router = useRouter();
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("9:16");
   const [inputValue, setInputValue] = useState("");
-  const [hoveredCardId, setHoveredCardId] = useState<number | null>(null);
   const [styleOpen, setStyleOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -318,6 +214,9 @@ export default function CreatePage() {
   return (
     <AppShell>
       <div className="mx-auto h-full max-w-[1400px] overflow-y-auto px-6 pb-10 no-scrollbar">
+        {/* 沉浸式作品轮播 — 置顶 hero */}
+        <ShowcaseCarousel />
+
         {/* 移动端创作入口 */}
         <div className="block px-1 py-8 md:hidden">
           <h1 className="text-[28px] font-normal leading-tight text-white">今天想创作什么？</h1>
@@ -344,11 +243,11 @@ export default function CreatePage() {
 
         {/* 创作输入区 — 居中巨标题 + 输入区 + 工具栏 */}
         <div className="hidden md:block">
-          <h1 className="mt-[80px] text-center text-[40px] font-normal leading-[40px] text-foreground">
+          <h1 className="mt-10 text-center text-[40px] font-normal leading-[40px] text-foreground">
             今天想创作什么？
           </h1>
 
-          <div className="mx-auto mt-[40px] w-full max-w-[1094px]">
+          <div className="mx-auto mt-8 w-full max-w-[1094px]">
             {/* 输入区 — 半透明深底 + 圆角 + placeholder 伪元素 */}
             <div
               contentEditable
@@ -416,33 +315,6 @@ export default function CreatePage() {
           </div>
         </div>
 
-        {/* 发现更多 section — 横向滚动卡片 */}
-        <section className="hidden md:block md:mt-[80px]">
-          <div className="flex items-baseline justify-between pb-3">
-            <h2 className="text-[16px] font-medium leading-[24px] text-white/85">
-              发现更多
-            </h2>
-            <button
-              type="button"
-              className="text-[12px] text-white/40 transition-colors hover:text-white/70"
-            >
-              查看全部 →
-            </button>
-          </div>
-          <div className="no-scrollbar -mx-6 flex gap-3 overflow-x-auto px-6 pb-[50px]">
-            {DISCOVER_CARDS.map((card) => (
-              <DiscoverCard
-                key={card.id}
-                title={card.title}
-                videoSrc={card.videoSrc}
-                isHover={hoveredCardId === card.id}
-                onHover={() => setHoveredCardId(card.id)}
-                onLeave={() => setHoveredCardId(null)}
-                onClick={() => showNotice(`正在打开作品：${card.title}`)}
-              />
-            ))}
-          </div>
-        </section>
       </div>
 
       {notice && (
