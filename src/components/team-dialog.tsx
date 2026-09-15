@@ -25,15 +25,15 @@ function GemIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 48 48" className={className}>
       <defs>
         <linearGradient id="team-gem-g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#ffe9a3" />
-          <stop offset="0.5" stopColor="#f5b93c" />
-          <stop offset="1" stopColor="#c77b1e" />
+          <stop offset="0" stopColor="#f0ffb0" />
+          <stop offset="0.5" stopColor="#d4ff3f" />
+          <stop offset="1" stopColor="#8fbf00" />
         </linearGradient>
       </defs>
       <path d="M14 8h20l8 10-18 22L6 18z" fill="url(#team-gem-g)" />
       <path
         d="M6 18h36M14 8l4 10 6-10 6 10 4-10M18 18l6 22 6-22"
-        stroke="#fff7dd"
+        stroke="#f8ffe0"
         strokeWidth="1.2"
         fill="none"
         opacity=".65"
@@ -56,13 +56,13 @@ export function TeamDialog({ onClose }: { onClose: () => void }) {
       open
       onClose={onClose}
       title="团队版会员"
-      className="max-h-[calc(100vh-2rem)] w-full max-w-[920px] overflow-y-auto rounded-3xl bg-gradient-to-br from-[#101b31] via-[#111a32] to-[#081a42] px-6 py-8 sm:px-14 sm:py-12"
+      className="max-h-[calc(100vh-2rem)] w-full max-w-[920px] overflow-y-auto rounded-3xl bg-gradient-to-br from-[#161c0c] via-[#11160a] to-[#0b0f06] px-6 py-8 sm:px-14 sm:py-12"
     >
       <div className="relative overflow-hidden">
         {/* 氛围光 */}
-        <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-24 size-72 rounded-full bg-[#ff6b44]/[0.15] blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full bg-[#1c5cff]/[0.18] blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-56 w-[480px] -translate-x-1/2 rounded-full bg-[#7c5cff]/[0.08] blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-24 size-72 rounded-full bg-brand/[0.10] blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full bg-brand/[0.08] blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-56 w-[480px] -translate-x-1/2 rounded-full bg-brand/[0.06] blur-3xl" />
         <div className="relative flex flex-col items-center text-center">
           <GemIcon className="size-[68px]" />
           <h2 className="mt-5 text-[20px] font-bold text-white">
@@ -75,7 +75,7 @@ export function TeamDialog({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={() => setNotice(true)}
-            className="mt-6 flex items-center gap-1.5 rounded-full bg-[#a855f7] px-6 py-2.5 text-[13px] font-bold text-white transition-all hover:bg-[#b66cff] active:scale-[0.97]"
+            className="mt-6 flex items-center gap-1.5 rounded-full bg-brand px-6 py-2.5 text-[13px] font-bold text-brand-foreground transition-all hover:brightness-105 active:scale-[0.97]"
           >
             <PlusIcon className="size-4" />
             创建团队
@@ -98,7 +98,7 @@ export function TeamDialog({ onClose }: { onClose: () => void }) {
         <div className="relative mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
           {TEAM_FEATURES.map(({ Icon, title, desc }) => (
             <div key={title} className="flex items-start gap-3 rounded-2xl p-2 sm:p-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-white/70">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
                 <Icon className="size-[18px]" />
               </span>
               <span className="min-w-0 text-left">

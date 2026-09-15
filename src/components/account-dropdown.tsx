@@ -304,7 +304,6 @@ export function AccountDropdown({
                 {isAdmin && (
                   <Row Icon={SettingsIcon} title="商业化控制台" onClick={() => { onClose(); router.push("/admin"); }} />
                 )}
-                <Row Icon={CoinsIcon} title="我的积分" right={<span className="text-brand">{USER.points.toLocaleString()}</span>} onClick={() => openAccount("points")} />
                 <Row Icon={UsersIcon} title="团队管理" right={user?.team ? <span className="text-xs text-muted-foreground">{user.team.name}</span> : undefined} onClick={() => { onClose(); router.push("/team"); }} />
                 <Row
                   Icon={UserIcon}
@@ -321,7 +320,7 @@ export function AccountDropdown({
                 />
                 <Row
                   Icon={CrownIcon}
-                  title="团队版"
+                  title="创建团队"
                   right={
                     <span className="rounded bg-brand/15 px-1.5 py-px text-[10px] font-bold text-brand">
                       开通解锁

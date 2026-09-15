@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { PlayIcon, CloseIcon } from "@/components/icons";
+import { PlayIcon, CloseIcon, ChevronDownIcon } from "@/components/icons";
 
 type VideoItem = {
   id: string;
@@ -164,7 +164,85 @@ const GRID_VIDEOS: VideoItem[] = [
       "末日世界里，其他生物都在为生存厮杀，只有小猫一心只想找个暖和的地方睡觉。然而命运偏偏不让它如愿，一次次被卷入危机合约的漩涡。",
     link: "发现更多精彩视频 · 抖音搜索",
   },
+  {
+    id: "a1c4e7b2-9d31-4f6a-8e2b-5c7d9f1a3b6e",
+    title: "长安夜行录",
+    author: "霓凰",
+    coverUrl: "/images/skill-cases/tang_dynastic_cover.webp",
+    previewVideoUrl:
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/69a99f8e1f820539/outputs/final_video_1763566011.mp4",
+    subtitle: "上元灯会，夜行长安",
+    description:
+      "上元节夜，长安城灯火如昼。不良人少年尉迟焰巡夜时撞破一桩离奇失窃案，线索竟指向深宫。",
+    stats: "古风悬疑探案短剧，上线首周播放量2600万，探案类目周榜TOP3。",
+    plot:
+      "上元节夜，长安城灯火如昼。不良人少年尉迟焰巡夜时撞破一桩离奇失窃案，线索层层指向深宫。他与胡商之女联手追查，在灯影人潮间揭开一桩尘封十年的旧案。",
+    link: "发现更多精彩视频 · 抖音搜索",
+  },
+  {
+    id: "b2d5f8c3-0e42-4a7b-9f3c-6d8e0a2b4c7f",
+    title: "星空织梦人",
+    author: "15973721801",
+    coverUrl: "/images/skill-cases/hnlnheuv.webp",
+    previewVideoUrl:
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1fccece2e713471392f9e773f7e02cbb/fe1130aed9d7ea83/outputs/final_video_1764655726.mp4",
+    subtitle: "以星为线，织梦人间",
+    description:
+      "少女阿澜继承祖母的织梦机，每晚把人们的噩梦织成美梦，直到某天织进了一个不属于人类的梦。",
+    stats: "奇幻治愈系短片，站内评分9.0，收藏率21%，二创插画超3000幅。",
+    plot:
+      "少女阿澜继承祖母的织梦机，每晚把人们的噩梦织成美梦。直到某天，她织进了一个不属于人类的梦——梦里有人向她求救。循着梦的丝线，阿澜踏入星空深处。",
+    link: "发现更多精彩视频 · 抖音搜索",
+  },
+  {
+    id: "c3e6a9d4-1f53-4b8c-0a4d-7e9f1b3c5d8a",
+    title: "巷尾猫事",
+    author: "金金",
+    coverUrl: "/images/skill-cases/pet_story_cover.webp",
+    previewVideoUrl:
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/0fdebea15dcb6bf7/outputs/final_video_1760507562.mp4",
+    subtitle: "一条老巷，七只猫的江湖",
+    description:
+      "老巷拆迁前夜，七只流浪猫开了最后一次“巷委会”，决定帮巷子里的每户人家完成一个心愿。",
+    stats: "萌宠纪实风格短剧，播放量3200万，弹幕互动率全站前5。",
+    plot:
+      "老巷拆迁前夜，七只流浪猫开了最后一次“巷委会”。它们决定在离开前，帮巷子里的每户人家完成一个心愿：给独居奶奶送一封没寄出的信，替吵架的小情侣传一句话……",
+    link: "发现更多精彩视频 · 抖音搜索",
+  },
+  {
+    id: "d4f7b0e5-2a64-4c9d-1b5e-8f0a2c4d6e9b",
+    title: "鬼市奇谈",
+    author: "18687122002",
+    coverUrl: "/images/skill-cases/mput7uzv.webp",
+    previewVideoUrl:
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/1d3e7c6defd846249ed9b5aaf9981038/54daf7d8058e4e40/outputs/final_video_1762230516.mp4",
+    subtitle: "子时开市，只售奇缘",
+    description:
+      "凌晨三点的古玩鬼市，年轻摊主陆离发现自家摊位上多了一件“不该存在”的货——他爷爷的怀表。",
+    stats: "民俗奇幻题材黑马，上线10天播放量4100万，民俗类目榜TOP1。",
+    plot:
+      "凌晨三点的古玩鬼市，只售奇缘，不售贪念。年轻摊主陆离发现自家摊位上多了一件“不该存在”的货——爷爷失踪前戴的怀表。为寻真相，他踏入鬼市最深处。",
+    link: "发现更多精彩视频 · 抖音搜索",
+  },
+  {
+    id: "e5a8c1f6-3b75-4d0e-2c6f-9a1b3d5e7f0c",
+    title: "笑骂人生",
+    author: "文化火焰AIGC",
+    coverUrl: "/images/skill-cases/funny_story_cover.webp",
+    previewVideoUrl:
+      "https://vibevideononprod.sfo3.cdn.digitaloceanspaces.com/media/686db70e930740d8a5698450e435ea45/4b62b9dc6bf0c060/outputs/final_video_1764765522.mp4",
+    subtitle: "脱口秀演员的逆袭之路",
+    description:
+      "过气脱口秀演员老周被生活按在地上摩擦，却靠一支话筒把苦难讲成段子，笑着笑着就赢了。",
+    stats: "都市喜剧题材佳作，播放量5600万，单集转发峰值12万。",
+    plot:
+      "过气脱口秀演员老周失业又失恋，被生活按在地上摩擦。他索性把苦难写成段子，从地下通道讲到小剧场，讲到万人场。笑着笑着，就把人生讲赢了。",
+    link: "发现更多精彩视频 · 抖音搜索",
+  },
 ];
+
+/* 默认展示数量，点击「更多」展开全部 */
+const DEFAULT_VISIBLE = 10;
 
 function VideoCard({
   v,
@@ -364,16 +442,49 @@ function VideoPlayerDialog({
 
 export function VideoGrid() {
   const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const visibleVideos = expanded
+    ? GRID_VIDEOS
+    : GRID_VIDEOS.slice(0, DEFAULT_VISIBLE);
+
+  const onToggle = () => {
+    const next = !expanded;
+    setExpanded(next);
+    if (!next) {
+      sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   return (
-    <section className="mt-10 pb-12">
+    <section ref={sectionRef} className="mt-10 pb-12 scroll-mt-4">
       <h2 className="text-base font-medium text-foreground/85">bollo 剧场</h2>
 
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {GRID_VIDEOS.map((v) => (
+        {visibleVideos.map((v) => (
           <VideoCard key={v.id} v={v} onClick={setSelectedVideo} />
         ))}
       </div>
+
+      {GRID_VIDEOS.length > DEFAULT_VISIBLE && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            aria-expanded={expanded}
+            onClick={onToggle}
+            className="flex h-9 items-center gap-1.5 rounded-full px-5 text-[13px] font-medium text-white/60 ring-1 ring-inset ring-white/15 transition-all hover:text-white hover:ring-white/30 active:scale-[0.97]"
+          >
+            {expanded ? "收起" : `更多（还有 ${GRID_VIDEOS.length - DEFAULT_VISIBLE} 部）`}
+            <ChevronDownIcon
+              className={
+                "size-4 transition-transform duration-300 " +
+                (expanded ? "rotate-180" : "")
+              }
+            />
+          </button>
+        </div>
+      )}
 
       <VideoPlayerDialog
         video={selectedVideo}

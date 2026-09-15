@@ -8,7 +8,7 @@ import { PartnerContactDialog } from "@/components/partner-contact-dialog";
 const PARTNER_HERO =
   "https://console.enterprise.trae.cn/api/ide/v1/text_to_image?prompt=" +
   encodeURIComponent(
-    "wide cinematic anime ensemble poster for a creative AI short drama studio, five distinct characters in vertical panels, deep navy and violet atmosphere, subtle warm red glow, premium editorial composition, no text, no logos"
+    "wide cinematic anime ensemble poster for a creative AI short drama studio, five distinct characters in vertical panels, deep charcoal black atmosphere, glowing lime green #D4FF3F accent light, premium editorial composition, no text, no logos"
   ) +
   "&image_size=landscape_16_9";
 
@@ -22,7 +22,7 @@ function InfoPanel({ title, items, Icon }: InfoPanelProps) {
   return (
     <article className="rounded-3xl bg-white/[0.075] p-6 ring-1 ring-white/[0.14] backdrop-blur-md sm:p-8">
       <div className="flex flex-col items-center text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-[#d8a8ff]/10 text-[#e0b7ff] ring-1 ring-[#d8a8ff]/25">
+        <span className="flex size-14 items-center justify-center rounded-2xl bg-brand/10 text-brand ring-1 ring-brand/25">
           <Icon className="size-7" />
         </span>
         <h2 className="mt-5 text-2xl font-semibold tracking-[-0.02em] text-white sm:text-3xl">
@@ -35,7 +35,7 @@ function InfoPanel({ title, items, Icon }: InfoPanelProps) {
           <li key={item} className="flex items-start gap-3">
             <span
               aria-hidden
-              className="mt-[9px] size-1.5 shrink-0 rounded-full bg-[#d8a8ff]"
+              className="mt-[9px] size-1.5 shrink-0 rounded-full bg-brand"
             />
             <span>{item}</span>
           </li>
@@ -58,12 +58,12 @@ export default function PartnerPage() {
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_50%,rgba(172,76,70,0.26),transparent_34%),radial-gradient(circle_at_80%_20%,rgba(58,105,255,0.25),transparent_40%),linear-gradient(180deg,rgba(5,7,16,0.06)_0%,rgba(8,9,14,0.6)_48%,#08090e_76%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_50%,rgba(212,255,63,0.14),transparent_34%),radial-gradient(circle_at_80%_20%,rgba(212,255,63,0.10),transparent_40%),linear-gradient(180deg,rgba(5,7,16,0.06)_0%,rgba(8,9,14,0.6)_48%,#08090e_76%)]"
         />
 
         <div className="relative mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-8 sm:pt-16 lg:px-12 lg:pt-20">
           <header className="mx-auto max-w-[980px] text-center">
-            <h1 className="text-4xl font-bold leading-tight tracking-[-0.04em] text-[#dfafff] sm:text-6xl">
+            <h1 className="text-4xl font-bold leading-tight tracking-[-0.04em] text-brand sm:text-6xl">
               超创合伙人中心
             </h1>
             <p className="mx-auto mt-6 max-w-[900px] text-sm leading-7 text-white/70 sm:text-lg sm:leading-8">
@@ -73,7 +73,7 @@ export default function PartnerPage() {
             <button
               type="button"
               onClick={() => setContactOpen(true)}
-              className="mt-9 inline-flex h-14 w-full max-w-[500px] items-center justify-center gap-2 rounded-2xl bg-[#a855f7] px-8 text-base font-semibold text-white transition-colors hover:bg-[#b86cff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8a8ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090e] sm:mt-11 sm:h-[68px] sm:text-lg"
+              className="mt-9 inline-flex h-14 w-full max-w-[500px] items-center justify-center gap-2 rounded-2xl bg-brand px-8 text-base font-semibold text-brand-foreground transition-all hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090e] active:scale-[0.98] sm:mt-11 sm:h-[68px] sm:text-lg"
             >
               <MessageIcon className="size-5" />
               联系合作顾问
