@@ -8,6 +8,8 @@ import {
   CheckIcon,
   RefreshCwIcon,
   TrashIcon,
+  LayersIcon,
+  LayoutGridIcon,
 } from "@/components/icons";
 
 // ─── 图片生成（与 comic/[id]/page.tsx 同源） ─────────────────────────────────
@@ -30,6 +32,8 @@ interface AssetCardProps {
   onOpenVoice: () => void;
   onRegenerate: () => void;
   onDelete: () => void;
+  onOpenVersions: () => void;
+  onOpenGrid: () => void;
 }
 
 export function AssetCard({
@@ -37,10 +41,13 @@ export function AssetCard({
   onOpenVoice,
   onRegenerate,
   onDelete,
+  onOpenVersions,
+  onOpenGrid,
 }: AssetCardProps) {
   const isCharacter = asset.type === "character";
   const isDone = asset.status === "已生成";
   const isRunning = asset.status === "生成中";
+  const versionCount = asset.versions?.length ?? 0;
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] transition-all duration-300 hover:-translate-y-0.5 hover:border-white/[0.12]">
@@ -62,11 +69,20 @@ export function AssetCard({
           {TYPE_BADGE[asset.type]}
         </div>
 
-        {/* 左下：版本标签（角色+已生成） */}
-        {isCharacter && isDone && (
-          <div className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white/80 backdrop-blur-sm">
-            版本 1
-          </div>
+        {/* 左下：版本标签（已生成且有版本记录） */}
+        {isDone && versionCount > 0 && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenVersions();
+            }}
+            className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white/80 backdrop-blur-sm transition-colors hover:bg-brand hover:text-black"
+            aria-label="查看版本"
+          >
+            <LayersIcon className="size-2.5" />
+            V{versionCount}
+          </button>
         )}
 
         {/* 右上：状态点 */}
@@ -106,6 +122,30 @@ export function AssetCard({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
+                  onOpenGrid();
+                }}
+                aria-label="九宫格生成选图"
+                title="九宫格生成选图"
+                className="flex size-8 items-center justify-center rounded-lg bg-white/10 text-white/90 backdrop-blur-sm transition-colors hover:bg-brand hover:text-black"
+              >
+                <LayoutGridIcon className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenVersions();
+                }}
+                aria-label="版本管理"
+                title="版本管理"
+                className="flex size-8 items-center justify-center rounded-lg bg-white/10 text-white/90 backdrop-blur-sm transition-colors hover:bg-brand hover:text-black"
+              >
+                <LayersIcon className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
                   onRegenerate();
                 }}
                 aria-label="重新生成"
@@ -132,9 +172,16 @@ export function AssetCard({
       {/* 资产信息 */}
       <div className="space-y-2 p-3">
         <div>
-          <h5 className="truncate text-[14px] font-semibold text-white">
-            {asset.name}
-          </h5>
+          <div className="flex items-center justify-between gap-2">
+            <h5 className="truncate text-[14px] font-semibold text-white">
+              {asset.name}
+            </h5>
+            {isDone && (
+              <span className="shrink-0 text-[10px] text-white/35">
+                引用 {asset.usage ?? 0}
+              </span>
+            )}
+          </div>
           <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-white/50">
             {asset.description}
           </p>

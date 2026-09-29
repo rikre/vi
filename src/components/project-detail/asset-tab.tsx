@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { ShortDramaProject } from "@/lib/mock-projects";
 import {
   PlusIcon,
@@ -15,6 +16,10 @@ import BatchGenerateDialog, {
 } from "@/components/batch-generate-dialog";
 import { useAssetManager, type AssetFilter } from "@/hooks/use-asset-manager";
 import { AssetCard } from "./asset/asset-card";
+import {
+  AssetVersionsDialog,
+  GridSelectDialog,
+} from "./asset/asset-versions-dialog";
 import { ExtractProgressModal } from "./asset/extract-progress-modal";
 import { CreationStageSummary } from "@/components/project/creation-settings";
 
@@ -45,6 +50,10 @@ export default function AssetTab({ project }: { project: ShortDramaProject }) {
     filteredAssets,
     stats,
     regenerateAsset,
+    addGridVersion,
+    switchVersion,
+    deleteVersion,
+    copyVersion,
     deleteAsset,
     batchGenerate,
     addAsset,
@@ -52,6 +61,11 @@ export default function AssetTab({ project }: { project: ShortDramaProject }) {
     openVoiceFor,
     handleVoiceSelect,
   } = useAssetManager(project);
+
+  const [versionsTargetId, setVersionsTargetId] = useState<string | null>(null);
+  const [gridTargetId, setGridTargetId] = useState<string | null>(null);
+  const versionsTarget = assets.find((a) => a.id === versionsTargetId) ?? null;
+  const gridTarget = assets.find((a) => a.id === gridTargetId) ?? null;
 
   const batchAssets: BatchAsset[] = assets.map((a) => ({
     id: a.id,
@@ -186,6 +200,8 @@ export default function AssetTab({ project }: { project: ShortDramaProject }) {
             onOpenVoice={() => openVoiceFor(asset.id)}
             onRegenerate={() => regenerateAsset(asset.id)}
             onDelete={() => deleteAsset(asset.id)}
+            onOpenVersions={() => setVersionsTargetId(asset.id)}
+            onOpenGrid={() => setGridTargetId(asset.id)}
           />
         ))}
 
@@ -224,6 +240,26 @@ export default function AssetTab({ project }: { project: ShortDramaProject }) {
         open={extractProgress.open}
         step={extractProgress.step}
       />
+
+      {/* 版本管理弹窗 */}
+      {versionsTarget && (
+        <AssetVersionsDialog
+          asset={versionsTarget}
+          onClose={() => setVersionsTargetId(null)}
+          onSwitch={(vid) => switchVersion(versionsTarget.id, vid)}
+          onDelete={(vid) => deleteVersion(versionsTarget.id, vid)}
+          onCopy={(vid) => copyVersion(versionsTarget.id, vid)}
+        />
+      )}
+
+      {/* 九宫格生成选图弹窗 */}
+      {gridTarget && (
+        <GridSelectDialog
+          asset={gridTarget}
+          onClose={() => setGridTargetId(null)}
+          onPick={(prompt) => addGridVersion(gridTarget.id, prompt)}
+        />
+      )}
     </div>
   );
 }

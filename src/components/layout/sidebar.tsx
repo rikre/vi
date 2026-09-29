@@ -24,6 +24,7 @@ import { AccountDialog, AiWatermarkDialog, type AccountTab } from "@/components/
 import { UserAvatar } from "@/components/user-avatar";
 import { useAuth } from "@/components/auth-provider";
 import { normalizeAdminRoles } from "@/lib/admin/rbac";
+import { FeedbackDialog } from "@/components/feedback-dialog";
 
 type NavItem = {
   label: string;
@@ -53,7 +54,7 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
   const { status, user, showLogin } = useAuth();
   const isAdmin = normalizeAdminRoles(user?.roles ?? []).length > 0;
   const [publishOpen, setPublishOpen] = useState(false);
-  const [qrOpen, setQrOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountTab, setAccountTab] = useState<AccountTab | null>(null);
   const [watermarkOpen, setWatermarkOpen] = useState(false);
@@ -154,20 +155,16 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
             <CrownIcon className="size-[18px] transition-transform duration-200 group-hover:scale-110" />
           </Link>
 
-          {/* 帮助 / QR */}
+          {/* 帮助与反馈（反馈中心 + 站内公告） */}
           <button
             type="button"
             onClick={() => {
-              setQrOpen((v) => !v);
+              setFeedbackOpen(true);
               setMenuOpen(false);
             }}
             aria-label="帮助与反馈"
             title="帮助与反馈"
-            className={cn(
-              ICON_BTN,
-              "transition-transform duration-150 active:scale-90",
-              qrOpen && "bg-white/[0.08] text-white"
-            )}
+            className={cn(ICON_BTN, "transition-transform duration-150 active:scale-90")}
           >
             <HelpIcon className="size-[18px]" />
           </button>
@@ -178,7 +175,6 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
               type="button"
               onClick={() => {
                 setMenuOpen((v) => !v);
-                setQrOpen(false);
               }}
               aria-label="个人中心"
               aria-expanded={menuOpen}
@@ -215,12 +211,6 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
           )}
         </div>
 
-        {/* QR popup */}
-        {qrOpen && (
-          <div className="absolute bottom-[92px] left-[calc(100%+8px)] z-50 max-md:left-2">
-            <QrPopupContent onClose={() => setQrOpen(false)} />
-          </div>
-        )}
       </nav>
 
       <PublishDialog open={publishOpen} onClose={() => setPublishOpen(false)} />
@@ -238,119 +228,7 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
         />
       )}
       {watermarkOpen && <AiWatermarkDialog onClose={() => setWatermarkOpen(false)} />}
+      {feedbackOpen && <FeedbackDialog onClose={() => setFeedbackOpen(false)} />}
     </>
-  );
-}
-
-function QrPopupContent({ onClose }: { onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("mousedown", handler);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", handler);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
-
-  return (
-    <div ref={ref} className="relative" role="dialog" aria-label="二维码">
-      {/* Arrow pointing down-left toward sidebar */}
-      <div className="absolute -bottom-1.5 left-[-14px] size-3 rotate-45 bg-[#1a1a1a] border-r border-b border-white/[0.08]" />
-      <div className="w-[min(380px,calc(100vw-24px))] rounded-2xl border border-white/[0.08] bg-[#1a1a1a] p-5 shadow-2xl">
-        {/* Top link */}
-        <div className="mb-4 text-right">
-          <a
-            href="https://ecncw7du1qtr.feishu.cn/wiki/R6m5w5RILiS35lkM7PycEUhHnfc"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[13px] font-medium text-brand transition-colors hover:text-brand-hover"
-          >
-            点击跳转至客服系统
-          </a>
-        </div>
-        {/* QR grid */}
-        <div className="grid grid-cols-2 gap-5">
-          <div className="flex flex-col items-center gap-3">
-            <div className="size-[130px] overflow-hidden rounded-lg bg-white p-1.5">
-              <QrCodeSvg center="wechat" />
-            </div>
-            <p className="text-[14px] font-semibold text-white/90">商务合作李经理</p>
-            <p className="text-[12px] text-white/40">合作对接、大额采购等</p>
-          </div>
-          <div className="flex flex-col items-center gap-3">
-            <div className="size-[130px] overflow-hidden rounded-lg bg-white p-1.5">
-              <QrCodeSvg center="chat" />
-            </div>
-            <p className="text-[14px] font-semibold text-white/90">官方交流群</p>
-            <p className="text-[12px] text-white/40">创作答疑、官方活动等</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function QrCodeSvg({ center }: { center: "wechat" | "chat" }) {
-  const S = 21;
-  const cells: boolean[] = [];
-  let seed = center === "wechat" ? 42 : 73;
-  const rng = () => {
-    seed = (seed * 16807 + 13) % 2147483647;
-    return seed / 2147483647;
-  };
-  for (let i = 0; i < S * S; i++) cells.push(rng() > 0.48);
-  const setFinder = (ox: number, oy: number) => {
-    for (let y = 0; y < 7; y++)
-      for (let x = 0; x < 7; x++) {
-        const edge = x === 0 || x === 6 || y === 0 || y === 6;
-        const inner = x >= 2 && x <= 4 && y >= 2 && y <= 4;
-        cells[(oy + y) * S + (ox + x)] = edge || inner;
-      }
-  };
-  setFinder(0, 0);
-  setFinder(S - 7, 0);
-  setFinder(0, S - 7);
-  const cx = Math.floor(S / 2) - 2,
-    cy = Math.floor(S / 2) - 2;
-  for (let y = 0; y < 5; y++)
-    for (let x = 0; x < 5; x++)
-      cells[(cy + y) * S + (cx + x)] = false;
-
-  return (
-    <svg viewBox={`0 0 ${S} ${S}`} className="size-full" shapeRendering="crispEdges">
-      <rect width={S} height={S} fill="#fff" />
-      {cells.map((on, i) =>
-        on ? (
-          <rect key={i} x={i % S} y={Math.floor(i / S)} width={1} height={1} fill="#000" />
-        ) : null
-      )}
-      {center === "wechat" ? (
-        <g transform={`translate(${cx},${cy})`}>
-          <rect width={5} height={5} rx={0.8} fill="#fff" />
-          <circle cx={1.7} cy={2.2} r={0.55} fill="#07c160" />
-          <circle cx={3.3} cy={2.2} r={0.55} fill="#07c160" />
-          <path
-            d="M1.2 3.2 Q2.5 4.3 3.8 3.2"
-            stroke="#07c160"
-            strokeWidth={0.35}
-            fill="none"
-          />
-        </g>
-      ) : (
-        <g transform={`translate(${cx},${cy})`}>
-          <rect width={5} height={5} rx={0.8} fill="#fff" />
-          <circle cx={2.5} cy={2.2} r={1.1} fill="none" stroke="#333" strokeWidth={0.35} />
-          <path d="M1.8 3.1 L1.4 3.8" stroke="#333" strokeWidth={0.35} />
-        </g>
-      )}
-    </svg>
   );
 }

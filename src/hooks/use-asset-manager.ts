@@ -8,6 +8,13 @@ import { updateProject } from "@/lib/project-store";
 
 export type AssetType = "character" | "scene" | "prop";
 
+export type AssetVersion = {
+  id: string;
+  prompt: string;
+  createdAt: string;
+  source: "生成" | "上传" | "复制";
+};
+
 export type AssetItem = {
   id: string;
   type: AssetType;
@@ -16,32 +23,67 @@ export type AssetItem = {
   prompt: string;
   status: "已生成" | "未开始" | "生成中";
   voice?: string;
+  /** 版本历史，[0] 为当前版本 */
+  versions?: AssetVersion[];
+  /** 资产被分镜/项目引用次数 */
+  usage?: number;
 };
+
+function nowStr() {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function daysAgoStr(n: number, hm: string) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${hm}`;
+}
 
 export type AssetFilter = "全部" | "角色" | "场景" | "道具";
 
 // ─── Mock 资产数据（从 project.characters + 扩展） ─────────────────────────
 
 function buildAssets(project: ShortDramaProject): AssetItem[] {
-  const characters: AssetItem[] = project.characters.map((c, i) => ({
-    id: c.id || `char-${i}`,
-    type: "character",
-    name: c.name,
-    description: c.description,
-    prompt: `anime character design sheet, ${c.name}, ${c.role}, ${c.description}, cinematic, detailed, dark theme, brand lime accent`,
-    status: i % 3 === 0 ? "已生成" : i % 3 === 1 ? "生成中" : "未开始",
-    voice: i === 0 ? "温柔少女音" : undefined,
-  }));
+  const characters: AssetItem[] = project.characters.map((c, i) => {
+    const prompt = `anime character design sheet, ${c.name}, ${c.role}, ${c.description}, cinematic, detailed, dark theme, brand lime accent`;
+    const generated = i % 3 === 0;
+    return {
+      id: c.id || `char-${i}`,
+      type: "character",
+      name: c.name,
+      description: c.description,
+      prompt,
+      status: generated ? "已生成" : i % 3 === 1 ? "生成中" : "未开始",
+      voice: i === 0 ? "温柔少女音" : undefined,
+      versions: generated
+        ? [
+            { id: `${c.id || `char-${i}`}-v2`, prompt, createdAt: daysAgoStr(1, "14:20"), source: "生成" },
+            { id: `${c.id || `char-${i}`}-v1`, prompt: `${prompt}, early draft`, createdAt: daysAgoStr(6, "10:05"), source: "生成" },
+          ]
+        : undefined,
+      usage: generated ? 8 + i * 3 : 0,
+    };
+  });
 
   const sceneCount = Math.max(0, project.assets.scenes);
-  const scenes: AssetItem[] = Array.from({ length: sceneCount }, (_, i) => ({
-    id: `scene-${i + 1}`,
-    type: "scene",
-    name: `场景 ${i + 1}`,
-    description: project.mode === "剧本模式" ? "由剧本提取的场景设定" : "手动创建场景",
-    prompt: `cinematic scene background, scene ${i + 1}, atmospheric, detailed environment, dark cinematic`,
-    status: i % 2 === 0 ? "已生成" : "未开始",
-  }));
+  const scenes: AssetItem[] = Array.from({ length: sceneCount }, (_, i) => {
+    const prompt = `cinematic scene background, scene ${i + 1}, atmospheric, detailed environment, dark cinematic`;
+    const generated = i % 2 === 0;
+    return {
+      id: `scene-${i + 1}`,
+      type: "scene",
+      name: `场景 ${i + 1}`,
+      description: project.mode === "剧本模式" ? "由剧本提取的场景设定" : "手动创建场景",
+      prompt,
+      status: generated ? "已生成" : "未开始",
+      versions: generated
+        ? [{ id: `scene-${i + 1}-v1`, prompt, createdAt: daysAgoStr(3, "16:40"), source: "生成" }]
+        : undefined,
+      usage: generated ? 4 + i * 2 : 0,
+    };
+  });
 
   const propCount = Math.max(0, project.assets.props);
   const props: AssetItem[] = Array.from({ length: propCount }, (_, i) => ({
@@ -144,11 +186,93 @@ export function useAssetManager(project: ShortDramaProject) {
     setTimeout(() => {
       const latest = assetsRef.current.find((a) => a.id === id);
       if (!latest) return;
-      setOverrides((prev) => ({
-        ...prev,
-        [id]: { ...latest, status: "已生成" },
-      }));
+      setOverrides((prev) => {
+        const cur = prev[id] ?? latest;
+        const newVersion: AssetVersion = {
+          id: `${id}-v${Date.now()}`,
+          prompt: cur.prompt,
+          createdAt: nowStr(),
+          source: "生成",
+        };
+        return {
+          ...prev,
+          [id]: { ...cur, status: "已生成", versions: [newVersion, ...(cur.versions ?? [])] },
+        };
+      });
     }, 1000);
+  }, []);
+
+  /** 九宫格选图：以选中的 prompt 生成新版本并置为当前 */
+  const addGridVersion = useCallback((id: string, prompt: string) => {
+    const target = assetsRef.current.find((a) => a.id === id);
+    if (!target) return;
+    setOverrides((prev) => {
+      const cur = prev[id] ?? target;
+      const newVersion: AssetVersion = {
+        id: `${id}-v${Date.now()}`,
+        prompt,
+        createdAt: nowStr(),
+        source: "生成",
+      };
+      return {
+        ...prev,
+        [id]: { ...cur, prompt, status: "已生成", versions: [newVersion, ...(cur.versions ?? [])] },
+      };
+    });
+  }, []);
+
+  /** 切换当前版本（与当前版本互换位置） */
+  const switchVersion = useCallback((id: string, versionId: string) => {
+    const target = assetsRef.current.find((a) => a.id === id);
+    if (!target) return;
+    setOverrides((prev) => {
+      const cur = prev[id] ?? target;
+      const versions = cur.versions ?? [];
+      if (versions[0]?.id === versionId) return prev;
+      const targetVersion = versions.find((v) => v.id === versionId);
+      if (!targetVersion) return prev;
+      const swapped = versions.map((v) =>
+        v.id === versionId ? versions[0] : v.id === versions[0].id ? targetVersion : v,
+      );
+      return { ...prev, [id]: { ...cur, prompt: targetVersion.prompt, versions: swapped } };
+    });
+  }, []);
+
+  /** 删除历史版本（当前版本不可删） */
+  const deleteVersion = useCallback((id: string, versionId: string) => {
+    const target = assetsRef.current.find((a) => a.id === id);
+    if (!target) return;
+    setOverrides((prev) => {
+      const cur = prev[id] ?? target;
+      const versions = cur.versions ?? [];
+      if (versions[0]?.id === versionId) return prev;
+      return {
+        ...prev,
+        [id]: { ...cur, versions: versions.filter((v) => v.id !== versionId) },
+      };
+    });
+  }, []);
+
+  /** 一键复制版本 */
+  const copyVersion = useCallback((id: string, versionId: string) => {
+    const target = assetsRef.current.find((a) => a.id === id);
+    if (!target) return;
+    setOverrides((prev) => {
+      const cur = prev[id] ?? target;
+      const versions = cur.versions ?? [];
+      const src = versions.find((v) => v.id === versionId);
+      if (!src) return prev;
+      const copied: AssetVersion = {
+        id: `${id}-v${Date.now()}`,
+        prompt: src.prompt,
+        createdAt: nowStr(),
+        source: "复制",
+      };
+      const idx = versions.findIndex((v) => v.id === versionId);
+      const next = [...versions];
+      next.splice(idx + 1, 0, copied);
+      return { ...prev, [id]: { ...cur, versions: next } };
+    });
   }, []);
 
   const deleteAsset = useCallback(
@@ -277,6 +401,10 @@ export function useAssetManager(project: ShortDramaProject) {
     filteredAssets,
     stats,
     regenerateAsset,
+    addGridVersion,
+    switchVersion,
+    deleteVersion,
+    copyVersion,
     deleteAsset,
     batchGenerate,
     bindVoice,
