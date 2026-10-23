@@ -177,3 +177,12 @@ After inspection, create these files in `docs/research/`:
 3. `LAYOUT_ARCHITECTURE.md` — Page layouts, grid system, responsive behavior
 4. `INTERACTION_PATTERNS.md` — Animations, transitions, hover states
 5. `TECH_STACK_ANALYSIS.md` — What the site uses and our chosen equivalents
+
+
+## Cursor Cloud specific instructions
+
+- Node.js 24 is installed at `/usr/local/lib/nodejs` and prepended to `PATH` for login shells. This repo requires Node `>=24`.
+- PostgreSQL 16 runs locally. Docker is not available, so do not use `docker compose` for the admin database. Role `bollo`, password `bollo`, database `bollo_admin`. Install writes `DATABASE_URL` and `AUTH_MOCK_ENABLED=true` to `.env`. Boot runs `prisma migrate deploy` and runs `prisma/seed.ts` only when `User` is empty.
+- Open the dev server at `http://localhost:3000`. Next.js dev rejects an `Origin` of `http://127.0.0.1:3000` for HMR, and that host serves HTML that never hydrates. Sibling apps use `localhost:3001` (vi2), `localhost:3002` (bollo-commercial/web), `localhost:3003` (vibe-video), and `localhost:5173` (3D director desk).
+- Mock login is phone `13800138000`, password `bollo123`, verification code `123456`.
+- `npm ci` on npm 11 must include `--dangerously-allow-all-scripts` so Prisma, esbuild, and sharp install scripts run. `bolloai-3d-director-desk` also needs `npm ci --force` because `@rollup/rollup-darwin-arm64` is a direct dependency.
