@@ -415,6 +415,21 @@ export async function handleWechatStatus(request: Request): Promise<NextResponse
   return success<WechatQrStatus>({ status: "pending" });
 }
 
+/**
+ * 解析当前登录用户（任意已登录用户，不限管理员）；未登录或校验失败返回 null。
+ * 供非 admin API 路由做登录校验，密钥与角色逻辑不变。
+ */
+export async function resolveAuthUser(request: Request): Promise<AuthUser | null> {
+  const hasToken = request.headers
+    .get("cookie")
+    ?.split(";")
+    .some((part) => part.trim().startsWith(`${AUTH_COOKIE_NAME}=`));
+  if (!hasToken) return null;
+  if (isMockEnabled()) return mockUserFromRequest(request);
+  const upstream = await callUpstream(request, "auth/me");
+  return upstream.ok ? normalizeUser(upstream.payload) : null;
+}
+
 export async function handleMe(request: Request): Promise<NextResponse> {
   const token = request.headers.get("cookie")
     ?.split(";")

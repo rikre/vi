@@ -3,6 +3,7 @@
 import { useMemo, useState, useCallback } from "react";
 import type { ShortDramaProject, Episode, ShotItem } from "@/lib/mock-projects";
 import { updateProject, getProject } from "@/lib/project-store";
+import { pollShotVideo, submitShotVideo } from "@/lib/generation/client";
 
 function buildPlaceholderEpisodes(total: number): Episode[] {
   return Array.from({ length: Math.max(1, total) }, (_, i) => ({
@@ -13,6 +14,10 @@ function buildPlaceholderEpisodes(total: number): Episode[] {
     progress: i === 0 ? 30 : 0,
   }));
 }
+
+/** 真实生成轮询节奏（协议来源 rikre/loopvideo@87a6950，MIT） */
+const POLL_INTERVAL_MS = 8_000;
+const MAX_POLL_ATTEMPTS = 75; // 约 10 分钟
 
 export function useStoryboard(project: ShortDramaProject) {
   const episodes = useMemo<Episode[]>(
@@ -84,24 +89,104 @@ export function useStoryboard(project: ShortDramaProject) {
     [shots, project.id],
   );
 
-  const generateShot = useCallback(
-    (id: string) => {
-      const generating = shots.map((s) =>
-        s.id === id ? { ...s, status: "生成中" as const } : s,
-      );
-      updateProject(project.id, { shots: generating });
+  const applyShotPatch = useCallback(
+    (ids: Set<string>, patch: (shot: ShotItem) => ShotItem) => {
+      const latest = getProject(project.id);
+      if (latest?.type !== "short") return;
+      updateProject(project.id, {
+        shots: (latest.shots ?? []).map((s) => (ids.has(s.id) ? patch(s) : s)),
+      });
+    },
+    [project.id],
+  );
 
-      setTimeout(() => {
-        const latest = getProject(project.id);
-        if (latest?.type === "short") {
-          const done = (latest.shots ?? []).map((s) =>
-            s.id === id ? { ...s, status: "已生成" as const } : s,
-          );
-          updateProject(project.id, { shots: done });
-        }
-      }, 1500);
+  const markStatus = useCallback(
+    (ids: Set<string>, status: ShotItem["status"]) => {
+      updateProject(project.id, {
+        shots: shots.map((s) => (ids.has(s.id) ? { ...s, status } : s)),
+      });
     },
     [shots, project.id],
+  );
+
+  const simulateGeneration = useCallback(
+    (ids: Set<string>, delayMs: number) => {
+      setTimeout(() => {
+        applyShotPatch(ids, (s) => ({ ...s, status: "已生成" }));
+      }, delayMs);
+    },
+    [applyShotPatch],
+  );
+
+  /**
+   * 真实生成 + 模拟回退：
+   * 1. 串行提交 DashScope 异步任务；服务端未配置可用模型（409）时整批回退模拟；
+   * 2. 已提交任务按固定间隔轮询，SUCCEEDED → 已生成（含 videoUrl），FAILED/CANCELED/超时 → 失败；
+   * 3. 提交期异常的分镜直接标记失败，不清空其他分镜状态。
+   */
+  const runGeneration = useCallback(
+    async (ids: Set<string>, simulateDelayMs: number) => {
+      markStatus(ids, "生成中");
+      const simulationIds = new Set(ids);
+      const submitted: { id: string; taskId: string }[] = [];
+
+      for (const id of ids) {
+        const shot = shots.find((s) => s.id === id);
+        if (!shot) {
+          simulationIds.delete(id);
+          continue;
+        }
+        try {
+          const result = await submitShotVideo({
+            prompt: shot.prompt || shot.description,
+            aspectRatio: "16:9",
+          });
+          if (result.kind === "notConfigured") break; // 模型未配置：剩余分镜走模拟
+          simulationIds.delete(id);
+          submitted.push({ id, taskId: result.taskId });
+        } catch {
+          simulationIds.delete(id);
+          applyShotPatch(new Set([id]), (s) => ({ ...s, status: "失败" }));
+        }
+      }
+
+      if (simulationIds.size > 0) simulateGeneration(simulationIds, simulateDelayMs);
+      if (submitted.length === 0) return;
+
+      const pending = new Map(submitted.map((t) => [t.id, t.taskId]));
+      for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS && pending.size > 0; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+        for (const [id, taskId] of pending) {
+          try {
+            const result = await pollShotVideo(taskId);
+            if (result.kind === "succeeded") {
+              pending.delete(id);
+              applyShotPatch(new Set([id]), (s) => ({
+                ...s,
+                status: "已生成",
+                videoUrl: result.videoUrl,
+              }));
+            } else if (result.kind === "failed") {
+              pending.delete(id);
+              applyShotPatch(new Set([id]), (s) => ({ ...s, status: "失败" }));
+            }
+          } catch {
+            // 单次查询失败不终止其他任务；连续失败最终按超时处理
+          }
+        }
+      }
+      if (pending.size > 0) {
+        applyShotPatch(new Set(pending.keys()), (s) => ({ ...s, status: "失败" }));
+      }
+    },
+    [shots, markStatus, applyShotPatch, simulateGeneration],
+  );
+
+  const generateShot = useCallback(
+    (id: string) => {
+      void runGeneration(new Set([id]), 1500);
+    },
+    [runGeneration],
   );
 
   const batchGenerate = useCallback(() => {
@@ -109,22 +194,8 @@ export function useStoryboard(project: ShortDramaProject) {
       shots.filter((s) => s.status === "未开始").map((s) => s.id),
     );
     if (ids.size === 0) return;
-
-    const generating = shots.map((s) =>
-      ids.has(s.id) ? { ...s, status: "生成中" as const } : s,
-    );
-    updateProject(project.id, { shots: generating });
-
-    setTimeout(() => {
-      const latest = getProject(project.id);
-      if (latest?.type === "short") {
-        const done = (latest.shots ?? []).map((s) =>
-          ids.has(s.id) ? { ...s, status: "已生成" as const } : s,
-        );
-        updateProject(project.id, { shots: done });
-      }
-    }, 2000);
-  }, [shots, project.id]);
+    void runGeneration(ids, 2000);
+  }, [shots, runGeneration]);
 
   return {
     episodes,

@@ -193,6 +193,8 @@ export type ShotItem = {
   scene: string;
   prompt: string;
   status: "未开始" | "生成中" | "已生成" | "失败";
+  /** 真实生成成功后的视频地址（演示模拟路径不填充该字段） */
+  videoUrl?: string;
 };
 
 // ─── Mock 数据 ───────────────────────────────────────────────────────────
