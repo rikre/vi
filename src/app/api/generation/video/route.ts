@@ -3,10 +3,12 @@
  * 协议核心移植自 rikre/loopvideo@87a6950（MIT）；密钥体系沿用本项目
  * admin 模型配置（secretCipher → 服务端解密，明文不出服务端、不写日志）。
  *
- * POST /api/generation/video          提交任务 → { data: { taskId } }
+ * POST /api/generation/video          提交任务（扣积分） → { data: { taskId } }
  * GET  /api/generation/video?taskId=  查询状态 → { data: { status, videoUrl?, message? } }
  *
  * 未配置可用模型时返回 409 MODEL_NOT_CONFIGURED，客户端据此回退演示模拟路径。
+ * 计费：提交前按模型 creditPrice 扣减（单事务）；提交失败全额退款；
+ * 任务终态失败按策略 failedTaskRefund 退款；用量写 UsageLedger 价格快照。
  */
 
 import { z } from "zod";
@@ -23,7 +25,14 @@ import {
 import {
   GenerationConfigError,
   resolveVideoModelRuntime,
+  resolveVideoPollRuntime,
 } from "@/lib/generation/model-secret";
+import {
+  chargeGenerationCredits,
+  recordGenerationUsage,
+  refundFailedSubmit,
+  refundFailedTask,
+} from "@/lib/generation/billing";
 
 const submitSchema = z.object({
   prompt: z.string().trim().min(1, "分镜提示词不能为空").max(2000),
@@ -54,20 +63,38 @@ async function resolveModelOrThrow(modelId?: string) {
 
 export async function POST(request: Request) {
   try {
-    await requireUser(request);
+    const user = await requireUser(request);
     const body = submitSchema.parse(await request.json().catch(() => null));
     const model = await resolveModelOrThrow(body.modelId);
 
-    const taskId = await submitDashScopeVideoTask({
-      apiBase: model.apiBase,
-      apiKey: model.apiKey,
-      model: model.apiModel,
-      prompt: body.prompt,
-      aspectRatio: body.aspectRatio,
-      duration: body.duration,
-      startImage: body.startImage,
+    const ledgerKey = await chargeGenerationCredits(user.id, model.creditPrice);
+
+    let taskId: string;
+    try {
+      taskId = await submitDashScopeVideoTask({
+        apiBase: model.apiBase,
+        apiKey: model.apiKey,
+        model: model.apiModel,
+        prompt: body.prompt,
+        aspectRatio: body.aspectRatio,
+        duration: body.duration,
+        startImage: body.startImage,
+      });
+    } catch (error) {
+      // 提交失败未产生真实用量：全额退款后再把原始错误抛给客户端
+      if (ledgerKey) await refundFailedSubmit(user.id, ledgerKey);
+      throw error;
+    }
+
+    await recordGenerationUsage({
+      taskId,
+      userId: user.id,
+      model,
+      credits: model.creditPrice,
+      ledgerKey,
     });
 
+    // 响应只回任务 ID，不回 apiModel / 端点等内部配置
     return jsonOk({ taskId }, 201);
   } catch (error) {
     if (error instanceof GenerationConfigError) {
@@ -84,13 +111,18 @@ export async function GET(request: Request) {
     if (!taskId) {
       throw new AdminApiError(400, "INVALID_TASK_ID", "缺少 taskId 查询参数");
     }
-    const model = await resolveModelOrThrow();
+    // 轮询走独立解析：优先用提交该任务的模型（含已停用行），模型下线不中断查询
+    const poll = await resolveVideoPollRuntime(taskId);
 
     const state = await fetchDashScopeVideoTask({
-      apiBase: model.apiBase,
-      apiKey: model.apiKey,
+      apiBase: poll.apiBase,
+      apiKey: poll.apiKey,
       taskId,
     });
+
+    if (state.status === "FAILED" || state.status === "CANCELED") {
+      await refundFailedTask(taskId);
+    }
 
     // 响应只回任务状态，不回 apiModel / 端点等内部配置
     return jsonOk({

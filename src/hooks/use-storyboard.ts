@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import type { ShortDramaProject, Episode, ShotItem } from "@/lib/mock-projects";
 import { updateProject, getProject } from "@/lib/project-store";
 import { pollShotVideo, submitShotVideo } from "@/lib/generation/client";
@@ -18,8 +18,24 @@ function buildPlaceholderEpisodes(total: number): Episode[] {
 /** 真实生成轮询节奏（协议来源 rikre/loopvideo@87a6950，MIT） */
 const POLL_INTERVAL_MS = 8_000;
 const MAX_POLL_ATTEMPTS = 75; // 约 10 分钟
+/** 轮询连续异常达到该轮数时提前终止，不再等满超时 */
+const MAX_CONSECUTIVE_POLL_ERRORS = 5;
 
 export function useStoryboard(project: ShortDramaProject) {
+  // 刷新/重开页面会丢失内存中的轮询循环：挂载时把孤儿"生成中"重置为"失败"，
+  // 让用户可以立即手动重试，而不是永远卡在生成中。
+  useEffect(() => {
+    const latest = getProject(project.id);
+    if (latest?.type !== "short") return;
+    const hasStuck = (latest.shots ?? []).some((s) => s.status === "生成中");
+    if (!hasStuck) return;
+    updateProject(project.id, {
+      shots: (latest.shots ?? []).map((s) =>
+        s.status === "生成中" ? { ...s, status: "失败" as const } : s,
+      ),
+    });
+  }, [project.id]);
+
   const episodes = useMemo<Episode[]>(
     () =>
       project.episodeList && project.episodeList.length > 0
@@ -154,11 +170,14 @@ export function useStoryboard(project: ShortDramaProject) {
       if (submitted.length === 0) return;
 
       const pending = new Map(submitted.map((t) => [t.id, t.taskId]));
+      let consecutiveErrors = 0;
       for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS && pending.size > 0; attempt++) {
         await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+        let attemptHadError = false;
         for (const [id, taskId] of pending) {
           try {
             const result = await pollShotVideo(taskId);
+            consecutiveErrors = 0;
             if (result.kind === "succeeded") {
               pending.delete(id);
               applyShotPatch(new Set([id]), (s) => ({
@@ -170,9 +189,17 @@ export function useStoryboard(project: ShortDramaProject) {
               pending.delete(id);
               applyShotPatch(new Set([id]), (s) => ({ ...s, status: "失败" }));
             }
-          } catch {
-            // 单次查询失败不终止其他任务；连续失败最终按超时处理
+          } catch (error) {
+            // 单次查询失败不终止本轮其他任务；按轮计数，连续异常达到阈值提前终止
+            attemptHadError = true;
+            if (typeof console !== "undefined") {
+              console.warn("分镜视频任务查询失败", taskId, error);
+            }
           }
+        }
+        if (attemptHadError) {
+          consecutiveErrors += 1;
+          if (consecutiveErrors >= MAX_CONSECUTIVE_POLL_ERRORS) break;
         }
       }
       if (pending.size > 0) {

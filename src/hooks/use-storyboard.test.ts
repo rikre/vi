@@ -154,4 +154,35 @@ describe("useStoryboard", () => {
       expect(stored.shots?.find((s) => s.id === "s1")?.description).toBe("改写描述");
     }
   });
+
+  it("挂载时应把孤儿「生成中」重置为「失败」以便重试", () => {
+    const project = makeProject({
+      shots: [{ ...makeShots(1)[1], status: "生成中" }],
+    });
+    seedProject(project);
+    renderHook(() => useStoryboard(project));
+    const stored = getProject(project.id);
+    if (stored?.type === "short") {
+      expect(stored.shots?.find((s) => s.id === "s2")?.status).toBe("失败");
+    }
+  });
+
+  it("轮询连续异常达到阈值时应提前终止并标记失败", async () => {
+    vi.mocked(submitShotVideo).mockResolvedValue({ kind: "real", taskId: "task-err" });
+    vi.mocked(pollShotVideo).mockRejectedValue(new Error("网络中断"));
+    vi.mocked(pollShotVideo).mockClear();
+    const project = makeProject({ shots: makeShots(1) });
+    seedProject(project);
+    const { result } = renderHook(() => useStoryboard(project));
+    act(() => result.current.generateShot("s2"));
+    await act(async () => {
+      // 5 轮 × 8s 触发连续异常阈值，远早于 75 轮超时
+      await vi.advanceTimersByTimeAsync(5 * 8_000 + 100);
+    });
+    const stored = getProject(project.id);
+    if (stored?.type === "short") {
+      expect(stored.shots?.find((s) => s.id === "s2")?.status).toBe("失败");
+    }
+    expect(vi.mocked(pollShotVideo)).toHaveBeenCalledTimes(5);
+  });
 });
