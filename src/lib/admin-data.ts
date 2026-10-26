@@ -119,12 +119,12 @@ export const INITIAL_ADMIN_STATE: AdminState = {
     },
   ],
   orders: [
-    { id: "ORD260904001", userId: "U10086420", product: "企业专业版年付", category: "enterprise", amount: 88_000, credits: 1_200_000, status: "paid", channel: "bank", paidAt: "2026-09-04 09:20" },
-    { id: "ORD260903184", userId: "U10086512", product: "旗舰版月付", category: "membership", amount: 1_064, credits: 9_240, status: "paid", channel: "wechat", paidAt: "2026-09-03 21:08" },
-    { id: "ORD260903102", userId: "U10086741", product: "3,450 积分包", category: "recharge", amount: 300, credits: 3_450, status: "paid", channel: "alipay", paidAt: "2026-09-03 16:42" },
-    { id: "ORD260902091", userId: "U10086603", product: "团队专业版季付", category: "membership", amount: 6_102, credits: 35_280, status: "paid", channel: "bank", paidAt: "2026-09-02 14:16" },
-    { id: "ORD260901044", userId: "U10086896", product: "1,100 积分包", category: "recharge", amount: 100, credits: 1_100, status: "refunded", channel: "wechat", paidAt: "2026-09-01 10:03" },
-    { id: "ORD260831187", userId: "U10087012", product: "500 积分包", category: "recharge", amount: 50, credits: 500, status: "paid", channel: "alipay", paidAt: "2026-08-31 22:19" },
+    { id: "ORD260904001", userId: "U10086420", product: "企业专业版年付", category: "enterprise", amount: 88_000, credits: 1_200_000, status: "paid", channel: "bank", paidAt: "2026-09-04 09:20", organization: "星河短剧工作室", discountPct: 30 },
+    { id: "ORD260903184", userId: "U10086512", product: "旗舰版月付", category: "membership", amount: 1_064, credits: 9_240, status: "paid", channel: "wechat", paidAt: "2026-09-03 21:08", organization: null, discountPct: null },
+    { id: "ORD260903102", userId: "U10086741", product: "3,450 积分包", category: "recharge", amount: 300, credits: 3_450, status: "paid", channel: "alipay", paidAt: "2026-09-03 16:42", organization: null, discountPct: null },
+    { id: "ORD260902091", userId: "U10086603", product: "团队专业版季付", category: "membership", amount: 6_102, credits: 35_280, status: "paid", channel: "bank", paidAt: "2026-09-02 14:16", organization: null, discountPct: null },
+    { id: "ORD260901044", userId: "U10086896", product: "1,100 积分包", category: "recharge", amount: 100, credits: 1_100, status: "refunded", channel: "wechat", paidAt: "2026-09-01 10:03", organization: null, discountPct: null },
+    { id: "ORD260831187", userId: "U10087012", product: "500 积分包", category: "recharge", amount: 50, credits: 500, status: "paid", channel: "alipay", paidAt: "2026-08-31 22:19", organization: null, discountPct: null },
   ],
   usage: [
     { id: "TASK905431", userId: "U10086420", modelId: "seedance-2.5", modelName: "Seedance 2.5", taskType: "多参考视频", units: "15 秒", credits: -1_245, cost: 18.2, status: "success", project: "朕真不想当皇帝啊AI版", createdAt: "2026-09-04 11:42" },
@@ -155,6 +155,8 @@ export const INITIAL_ADMIN_STATE: AdminState = {
     { id: "seedream-4.0", name: "Seedream 4.0", vendor: "火山引擎", capability: "image", endpoint: "https://ark.cn-beijing.volces.com/api/v3", apiKeyLast4: "8J2Q", enabled: true, health: "healthy", billingUnit: "张", vendorCost: 0.24, creditPrice: 10, maxConcurrency: 300, timeoutSeconds: 90, outputOptions: ["1K", "2K", "4K", "1:1", "9:16", "16:9"], allowedPlans: ["lite", "pro", "apex", "team-pro", "enterprise-pro"] },
     { id: "doubao-text", name: "Doubao Pro", vendor: "火山引擎", capability: "text", endpoint: "https://ark.cn-beijing.volces.com/api/v3", apiKeyLast4: "8J2Q", enabled: true, health: "degraded", billingUnit: "1K tokens", vendorCost: 0.024, creditPrice: 4, maxConcurrency: 500, timeoutSeconds: 60, outputOptions: ["32K", "128K"], allowedPlans: ["lite", "pro", "apex", "team-pro", "enterprise-pro"] },
   ],
+  placements: [],
+  organizations: [],
   creditPolicy: {
     creditsPerYuan: 10,
     deductionOrder: ["gift", "member", "enterprise", "recharge"],
@@ -165,8 +167,8 @@ export const INITIAL_ADMIN_STATE: AdminState = {
     negativeBalanceAllowed: false,
   },
   auditLogs: [
-    { id: "AUD-001", operator: "平台管理员", action: "企业积分发放", target: "U10086420", detail: "企业合同到账，发放 1,000,000 企业积分", createdAt: "2026-09-04 09:22" },
-    { id: "AUD-002", operator: "平台管理员", action: "用户风控", target: "U10086896", detail: "异常高频任务，标记为风险观察", createdAt: "2026-09-03 18:10" },
-    { id: "AUD-003", operator: "商业化运营", action: "模型价格调整", target: "seedance-2.5", detail: "无参考视频调整为 83 积分/秒", createdAt: "2026-09-01 14:00" },
+    { id: "AUD-001", operator: "平台管理员", action: "企业积分发放", target: "U10086420", detail: "企业合同到账，发放 1,000,000 企业积分", createdAt: "2026-09-04 09:22", amount: 1_000_000 },
+    { id: "AUD-002", operator: "平台管理员", action: "用户风控", target: "U10086896", detail: "异常高频任务，标记为风险观察", createdAt: "2026-09-03 18:10", amount: null },
+    { id: "AUD-003", operator: "商业化运营", action: "模型价格调整", target: "seedance-2.5", detail: "无参考视频调整为 83 积分/秒", createdAt: "2026-09-01 14:00", amount: null },
   ],
 };

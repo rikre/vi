@@ -37,6 +37,18 @@ describe("admin rbac", () => {
     expect(SUPPORT_GRANT_CAP).toBe(5_000);
   });
 
+  it("企业管理权限：仅平台/商业化/企业管理员可用，support 不可见", () => {
+    expect(hasPermission(["platform_admin"], "organizations:manage")).toBe(true);
+    expect(hasPermission(["platform_admin"], "organizations:read")).toBe(true);
+    expect(hasPermission(["commercial_ops"], "organizations:manage")).toBe(true);
+    expect(hasPermission(["enterprise_admin"], "organizations:manage")).toBe(true);
+    expect(hasPermission(["finance"], "organizations:read")).toBe(false);
+    expect(hasPermission(["support"], "organizations:read")).toBe(false);
+    expect(hasPermission(["support"], "organizations:manage")).toBe(false);
+    expect(hasPermission(["auditor"], "organizations:read")).toBe(false);
+    expect(isReadOnlyPermission("organizations:read")).toBe(true);
+  });
+
   it("auditor 仅可读审计日志", () => {
     expect(hasPermission(["auditor"], "audit-logs:read")).toBe(true);
     expect(hasPermission(["auditor"], "dashboard:view")).toBe(false);

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { Prisma } from "@prisma/client";
+import type { Organization as DbOrganization, Prisma } from "@prisma/client";
 import { getPrisma } from "@/lib/db";
 import { AdminApiError } from "@/lib/admin/http";
 import type { AdminSession } from "@/lib/admin/session";
@@ -8,15 +8,23 @@ import {
   SUPPORT_GRANT_BUCKET,
   SUPPORT_GRANT_CAP,
 } from "@/lib/admin/rbac";
+import { computeEnterpriseOrderPricing } from "@/lib/enterprise-pricing";
 import type {
   CreditPolicyInput,
+  EnterpriseOrderInput,
   GrantInput,
   ModelInput,
+  OrganizationInput,
+  OrganizationMemberInput,
+  OrganizationPatch,
   PlanInput,
+  PlacementItemInput,
+  PlacementItemPatch,
+  PlacementPatch,
   RechargeTierInput,
 } from "@/lib/admin/validation";
 import { storeModelSecret } from "@/lib/admin/secret-adapter";
-import { mapModel, mapPlan, mapPolicy, mapTier } from "@/lib/admin/mappers";
+import { mapModel, mapPlan, mapPlacementItem, mapPolicy, mapTier } from "@/lib/admin/mappers";
 import type { CreditBucket, ModelCapability } from "@/types/admin";
 
 type Tx = Prisma.TransactionClient;
@@ -130,7 +138,11 @@ export async function grantEntitlement(
     if (!user) throw new AdminApiError(404, "USER_NOT_FOUND", "用户不存在");
 
     if (input.kind === "credits") {
+      const isDeduct = input.amount < 0;
       if (isSupportOnly(session)) {
+        if (isDeduct) {
+          throw new AdminApiError(403, "FORBIDDEN", "客服角色不可执行积分扣减");
+        }
         if (input.bucket !== SUPPORT_GRANT_BUCKET) {
           throw new AdminApiError(403, "FORBIDDEN", "客服角色仅可向赠送积分账户补偿");
         }
@@ -140,7 +152,7 @@ export async function grantEntitlement(
       }
       const policy = await tx.creditPolicy.findUnique({ where: { id: "platform" } });
       const minimumGrant = policy?.minimumGrant ?? 1;
-      if (input.amount < minimumGrant) {
+      if (!isDeduct && input.amount < minimumGrant) {
         throw new AdminApiError(400, "INVALID_GRANT", `最低发放数量为 ${minimumGrant} 积分`);
       }
 
@@ -150,7 +162,9 @@ export async function grantEntitlement(
       }
 
       const needsApproval =
-        input.amount >= LARGE_GRANT_APPROVAL_THRESHOLD && !session.roles.includes("platform_admin");
+        !isDeduct &&
+        input.amount >= LARGE_GRANT_APPROVAL_THRESHOLD &&
+        !session.roles.includes("platform_admin");
       if (needsApproval) {
         await writeAudit(tx, session, {
           action: "大额积分发放待审批",
@@ -165,7 +179,7 @@ export async function grantEntitlement(
       const { before, after } = await adjustCreditBalance(tx, user.id, input.bucket, input.amount);
       await tx.creditLedger.create({
         data: {
-          entryType: "grant",
+          entryType: isDeduct ? "deduct" : "grant",
           accountType: input.bucket,
           amount: input.amount,
           beforeBalance: before,
@@ -179,11 +193,13 @@ export async function grantEntitlement(
         },
       });
       await writeAudit(tx, session, {
-        action: "定向积分发放",
+        action: isDeduct ? "定向积分扣减" : "定向积分发放",
         targetType: "user",
         targetId: user.id,
         before: { bucket: input.bucket, balance: before },
-        after: { bucket: input.bucket, balance: after, granted: input.amount },
+        after: isDeduct
+          ? { bucket: input.bucket, balance: after, deducted: Math.abs(input.amount) }
+          : { bucket: input.bucket, balance: after, granted: input.amount },
         reason: input.reason,
       }, key);
       return { kind: "credits", approvalStatus: "approved" as const };
@@ -478,5 +494,488 @@ export async function saveCreditPolicy(
       after: mapPolicy(policy),
     }, key);
     return { version: policy.version };
+  });
+}
+
+/** 运营位整位启停 / 改名。 */
+export async function updatePlacement(
+  placementId: string,
+  input: PlacementPatch,
+  session: AdminSession,
+  idempotencyKey: string | null,
+): Promise<MutationResult<{ id: string; enabled: boolean; name: string }>> {
+  if (await isIdempotentReplay(session, idempotencyKey)) {
+    return { id: placementId, enabled: input.enabled ?? true, name: input.name ?? "", replayed: true };
+  }
+  const key = scopedIdempotencyKey(session, idempotencyKey);
+  return getPrisma().$transaction(async (tx) => {
+    const existing = await tx.placement.findUnique({ where: { id: placementId } });
+    if (!existing) throw new AdminApiError(404, "PLACEMENT_NOT_FOUND", "运营位不存在");
+    const placement = await tx.placement.update({
+      where: { id: placementId },
+      data: {
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.enabled !== undefined ? { enabled: input.enabled } : {}),
+      },
+    });
+    await writeAudit(tx, session, {
+      action: input.enabled !== undefined && input.name === undefined ? "运营位启停" : "运营位更新",
+      targetType: "placement",
+      targetId: placementId,
+      before: { name: existing.name, enabled: existing.enabled },
+      after: { name: placement.name, enabled: placement.enabled },
+    }, key);
+    return { id: placement.id, enabled: placement.enabled, name: placement.name };
+  });
+}
+
+function placementItemData(input: PlacementItemInput | PlacementItemPatch) {
+  const data: Record<string, unknown> = {};
+  if (input.title !== undefined) data.title = input.title;
+  if (input.subtitle !== undefined) data.subtitle = input.subtitle || null;
+  if (input.imageUrl !== undefined) data.imageUrl = input.imageUrl;
+  if (input.iconKey !== undefined) data.iconKey = input.iconKey || null;
+  if (input.linkUrl !== undefined) data.linkUrl = input.linkUrl;
+  if (input.badge !== undefined) data.badge = input.badge || null;
+  if (input.sortOrder !== undefined) data.sortOrder = input.sortOrder;
+  if (input.status !== undefined) data.status = input.status;
+  if (input.startAt !== undefined) data.startAt = input.startAt;
+  if (input.endAt !== undefined) data.endAt = input.endAt;
+  if (input.extra !== undefined) data.extra = (input.extra ?? undefined) as Prisma.InputJsonValue | undefined;
+  return data;
+}
+
+/** 运营位素材新增。 */
+export async function createPlacementItem(
+  placementId: string,
+  input: PlacementItemInput,
+  session: AdminSession,
+  idempotencyKey: string | null,
+): Promise<MutationResult<{ id: string }>> {
+  if (await isIdempotentReplay(session, idempotencyKey)) {
+    return { id: "", replayed: true };
+  }
+  const key = scopedIdempotencyKey(session, idempotencyKey);
+  return getPrisma().$transaction(async (tx) => {
+    const placement = await tx.placement.findUnique({ where: { id: placementId } });
+    if (!placement) throw new AdminApiError(404, "PLACEMENT_NOT_FOUND", "运营位不存在");
+    const item = await tx.placementItem.create({
+      data: {
+        placementId,
+        title: input.title,
+        subtitle: input.subtitle || null,
+        imageUrl: input.imageUrl,
+        iconKey: input.iconKey || null,
+        linkUrl: input.linkUrl,
+        badge: input.badge || null,
+        sortOrder: input.sortOrder,
+        status: input.status,
+        startAt: input.startAt,
+        endAt: input.endAt,
+        extra: (input.extra ?? undefined) as Prisma.InputJsonValue | undefined,
+      },
+    });
+    await writeAudit(tx, session, {
+      action: "运营位素材新增",
+      targetType: "placement",
+      targetId: placementId,
+      after: mapPlacementItem(item),
+    }, key);
+    return { id: item.id };
+  });
+}
+
+/** 运营位素材更新（含排序、上下架、定时窗口）。 */
+export async function updatePlacementItem(
+  itemId: string,
+  input: PlacementItemPatch,
+  session: AdminSession,
+  idempotencyKey: string | null,
+): Promise<MutationResult<{ id: string }>> {
+  if (await isIdempotentReplay(session, idempotencyKey)) {
+    return { id: itemId, replayed: true };
+  }
+  const key = scopedIdempotencyKey(session, idempotencyKey);
+  return getPrisma().$transaction(async (tx) => {
+    const existing = await tx.placementItem.findUnique({ where: { id: itemId } });
+    if (!existing) throw new AdminApiError(404, "PLACEMENT_ITEM_NOT_FOUND", "运营位素材不存在");
+    const item = await tx.placementItem.update({
+      where: { id: itemId },
+      data: placementItemData(input),
+    });
+    await writeAudit(tx, session, {
+      action: "运营位素材更新",
+      targetType: "placement",
+      targetId: existing.placementId,
+      before: mapPlacementItem(existing),
+      after: mapPlacementItem(item),
+    }, key);
+    return { id: item.id };
+  });
+}
+
+/** 运营位素材删除。 */
+export async function deletePlacementItem(
+  itemId: string,
+  session: AdminSession,
+  idempotencyKey: string | null,
+): Promise<MutationResult<{ id: string }>> {
+  if (await isIdempotentReplay(session, idempotencyKey)) {
+    return { id: itemId, replayed: true };
+  }
+  const key = scopedIdempotencyKey(session, idempotencyKey);
+  return getPrisma().$transaction(async (tx) => {
+    const existing = await tx.placementItem.findUnique({ where: { id: itemId } });
+    if (!existing) throw new AdminApiError(404, "PLACEMENT_ITEM_NOT_FOUND", "运营位素材不存在");
+    await tx.placementItem.delete({ where: { id: itemId } });
+    await writeAudit(tx, session, {
+      action: "运营位素材删除",
+      targetType: "placement",
+      targetId: existing.placementId,
+      before: mapPlacementItem(existing),
+    }, key);
+    return { id: itemId };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 企业管理：企业配置 / 折扣配置 / 企业订单创建
+// ---------------------------------------------------------------------------
+
+/** 审计快照中的企业字段（不含聚合数据）。 */
+function orgSnapshot(org: DbOrganization) {
+  return {
+    name: org.name,
+    status: org.status,
+    contractNo: org.contractNo ?? null,
+    adminUserId: org.adminUserId ?? null,
+    seats: org.seats,
+    maxConcurrency: org.maxConcurrency,
+    monthlyComputeQuota: org.monthlyComputeQuota,
+    discountPct: org.discountPct,
+    expiresAt: org.expiresAt?.toISOString() ?? null,
+  };
+}
+
+/** 校验企业管理员账号存在；未提供时返回 null。 */
+async function ensureOrgAdmin(tx: Tx, adminUserId: string | null | undefined): Promise<string | null> {
+  if (adminUserId === undefined || adminUserId === null || adminUserId === "") return null;
+  const admin = await tx.user.findUnique({ where: { id: adminUserId }, select: { id: true } });
+  if (!admin) throw new AdminApiError(404, "ORG_ADMIN_NOT_FOUND", "企业管理员账号不存在");
+  return adminUserId;
+}
+
+/** 企业创建。 */
+export async function createOrganization(
+  input: OrganizationInput,
+  session: AdminSession,
+  idempotencyKey: string | null,
+): Promise<MutationResult<{ id: string; created: boolean }>> {
+  if (await isIdempotentReplay(session, idempotencyKey)) {
+    return { id: "", created: false, replayed: true };
+  }
+  const key = scopedIdempotencyKey(session, idempotencyKey);
+  return getPrisma().$transaction(async (tx) => {
+    const adminUserId = await ensureOrgAdmin(tx, input.adminUserId ?? null);
+    const org = await tx.organization.create({
+      data: {
+        name: input.name,
+        contractNo: input.contractNo || null,
+        adminUserId,
+        seats: input.seats,
+        maxConcurrency: input.maxConcurrency,
+        monthlyComputeQuota: input.monthlyComputeQuota,
+        discountPct: input.discountPct,
+        expiresAt: input.expiresAt,
+      },
+    });
+    await writeAudit(tx, session, {
+      action: "企业创建",
+      targetType: "organization",
+      targetId: org.id,
+      after: orgSnapshot(org),
+    }, key);
+    return { id: org.id, created: true };
+  });
+}
+
+/** 企业配置与折扣更新（含状态与主账号变更）。仅更新请求中出现的字段。 */
+export async function updateOrganization(
+  organizationId: string,
+  input: OrganizationPatch,
+  session: AdminSession,
+  idempotencyKey: string | null,
+): Promise<MutationResult<{ id: string }>> {
+  if (await isIdempotentReplay(session, idempotencyKey)) {
+    return { id: organizationId, replayed: true };
+  }
+  const key = scopedIdempotencyKey(session, idempotencyKey);
+  return getPrisma().$transaction(async (tx) => {
+    const existing = await tx.organization.findUnique({ where: { id: organizationId } });
+    if (!existing) throw new AdminApiError(404, "ORG_NOT_FOUND", "企业不存在");
+
+    // 主账号变更：非空时必须从该企业现有成员中选择；留空（null）表示暂由操作人代管
+    let adminUserId: string | null | undefined;
+    if (input.adminUserId !== undefined) {
+      if (input.adminUserId === null) {
+        adminUserId = null;
+      } else {
+        const admin = await tx.user.findUnique({
+          where: { id: input.adminUserId },
+          select: { id: true, organizationId: true },
+        });
+        if (!admin) throw new AdminApiError(404, "ORG_ADMIN_NOT_FOUND", "主账号用户不存在");
+        if (admin.organizationId !== organizationId) {
+          throw new AdminApiError(400, "ADMIN_NOT_MEMBER", "主账号必须从该企业现有成员中选择");
+        }
+        adminUserId = input.adminUserId;
+      }
+    }
+    const org = await tx.organization.update({
+      where: { id: organizationId },
+      data: {
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.status !== undefined ? { status: input.status } : {}),
+        ...(input.contractNo !== undefined ? { contractNo: input.contractNo || null } : {}),
+        ...(adminUserId !== undefined ? { adminUserId } : {}),
+        ...(input.seats !== undefined ? { seats: input.seats } : {}),
+        ...(input.maxConcurrency !== undefined ? { maxConcurrency: input.maxConcurrency } : {}),
+        ...(input.monthlyComputeQuota !== undefined ? { monthlyComputeQuota: input.monthlyComputeQuota } : {}),
+        ...(input.discountPct !== undefined ? { discountPct: input.discountPct } : {}),
+        ...(input.expiresAt !== undefined ? { expiresAt: input.expiresAt } : {}),
+      },
+    });
+    await writeAudit(tx, session, {
+      action: "企业配置更新",
+      targetType: "organization",
+      targetId: org.id,
+      before: orgSnapshot(existing),
+      after: orgSnapshot(org),
+    }, key);
+    return { id: org.id };
+  });
+}
+
+/**
+ * 添加企业成员：事务内校验企业状态、用户状态、归属冲突与席位上限。
+ * 审计 after 快照包含 userId / nickname / memberCount。
+ */
+export async function addOrganizationMember(
+  organizationId: string,
+  input: OrganizationMemberInput,
+  session: AdminSession,
+  idempotencyKey: string | null,
+): Promise<MutationResult<{ memberCount: number }>> {
+  if (await isIdempotentReplay(session, idempotencyKey)) {
+    return { memberCount: 0, replayed: true };
+  }
+  const key = scopedIdempotencyKey(session, idempotencyKey);
+  return getPrisma().$transaction(async (tx) => {
+    const org = await tx.organization.findUnique({ where: { id: organizationId } });
+    if (!org) throw new AdminApiError(404, "ORG_NOT_FOUND", "企业不存在");
+    if (org.status === "closed") {
+      throw new AdminApiError(400, "ORG_CLOSED", "企业已关闭，不可添加成员");
+    }
+    const user = await tx.user.findUnique({ where: { id: input.userId } });
+    if (!user) throw new AdminApiError(404, "USER_NOT_FOUND", "用户不存在");
+    if (user.status !== "active") {
+      throw new AdminApiError(400, "USER_NOT_ACTIVE", "仅可添加状态正常的用户");
+    }
+    if (user.organizationId !== null) {
+      throw new AdminApiError(
+        409,
+        "ENTERPRISE_MEMBERSHIP_CONFLICT",
+        user.organizationId === organizationId
+          ? "该用户已是本企业成员"
+          : "该用户已归属其他企业，请先将其移出原企业",
+      );
+    }
+    const memberCount = await tx.user.count({ where: { organizationId } });
+    if (memberCount + 1 > org.seats) {
+      throw new AdminApiError(400, "SEATS_EXCEEDED", `企业席位已满（${memberCount}/${org.seats}），请先扩充席位`);
+    }
+    await tx.user.update({ where: { id: user.id }, data: { organizationId } });
+    await writeAudit(tx, session, {
+      action: "企业成员添加",
+      targetType: "organization",
+      targetId: organizationId,
+      before: { userId: user.id, nickname: user.nickname, memberCount },
+      after: { userId: user.id, nickname: user.nickname, memberCount: memberCount + 1, seats: org.seats },
+      reason: input.reason,
+    }, key);
+    return { memberCount: memberCount + 1 };
+  });
+}
+
+/**
+ * 移除企业成员：主账号必须先更换（否则 400 ADMIN_MEMBER_REQUIRED）。
+ * 天然幂等：目标不是本企业成员时返回 404 MEMBER_NOT_FOUND，重复调用以 404 表示已完成移除。
+ */
+export async function removeOrganizationMember(
+  organizationId: string,
+  userId: string,
+  session: AdminSession,
+  idempotencyKey: string | null,
+): Promise<MutationResult<{ memberCount: number }>> {
+  const key = scopedIdempotencyKey(session, idempotencyKey);
+  return getPrisma().$transaction(async (tx) => {
+    const org = await tx.organization.findUnique({ where: { id: organizationId } });
+    if (!org) throw new AdminApiError(404, "ORG_NOT_FOUND", "企业不存在");
+    const user = await tx.user.findUnique({ where: { id: userId } });
+    if (!user || user.organizationId !== organizationId) {
+      throw new AdminApiError(404, "MEMBER_NOT_FOUND", "该用户不是本企业成员");
+    }
+    if (org.adminUserId === userId) {
+      throw new AdminApiError(400, "ADMIN_MEMBER_REQUIRED", "主账号不可移除，请先更换企业主账号");
+    }
+    await tx.user.update({ where: { id: userId }, data: { organizationId: null } });
+    const memberCount = await tx.user.count({ where: { organizationId } });
+    await writeAudit(tx, session, {
+      action: "企业成员移除",
+      targetType: "organization",
+      targetId: organizationId,
+      before: { userId: user.id, nickname: user.nickname, memberCount: memberCount + 1 },
+      after: { userId: user.id, nickname: user.nickname, memberCount },
+    }, key);
+    return { memberCount };
+  });
+}
+
+function generateOrderId(): string {
+  const now = new Date();
+  const stamp = `${String(now.getFullYear()).slice(2)}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+  return `ORD${stamp}${now.getTime().toString(36).toUpperCase()}${randomUUID().slice(0, 4).toUpperCase()}`;
+}
+
+export type EnterpriseOrderResult = {
+  orderId: string;
+  organizationId: string;
+  userId: string;
+  credits: number;
+  originalCent: number;
+  amountCent: number;
+  discountPct: number;
+};
+
+/**
+ * 企业订单创建：线下对公收款核销后由管理侧建单并即时发放企业积分。
+ * 事务内完成：建单（含价格快照）→ 乐观锁发放企业积分 → 账本留痕 → 企业余额累加 → 审计。
+ */
+export async function createEnterpriseOrder(
+  input: EnterpriseOrderInput,
+  organizationId: string,
+  session: AdminSession,
+  idempotencyKey: string | null,
+): Promise<MutationResult<EnterpriseOrderResult>> {
+  if (await isIdempotentReplay(session, idempotencyKey)) {
+    return {
+      orderId: "", organizationId, userId: "", credits: input.credits,
+      originalCent: 0, amountCent: 0, discountPct: 0, replayed: true,
+    };
+  }
+  const key = scopedIdempotencyKey(session, idempotencyKey);
+  return getPrisma().$transaction(async (tx) => {
+    const org = await tx.organization.findUnique({ where: { id: organizationId } });
+    if (!org) throw new AdminApiError(404, "ORG_NOT_FOUND", "企业不存在");
+    if (org.status !== "active") {
+      throw new AdminApiError(400, "ORG_NOT_ACTIVE", "企业已停用或关闭，不可创建订单");
+    }
+
+    // 订单归属：优先企业管理员；未配置管理员时落到当前操作人并在审计中注明
+    let orderUserId = org.adminUserId;
+    let fallbackNote = "";
+    if (orderUserId) {
+      const admin = await tx.user.findUnique({ where: { id: orderUserId }, select: { id: true } });
+      if (!admin) throw new AdminApiError(404, "ORG_ADMIN_NOT_FOUND", "企业管理员账号不存在");
+    } else {
+      orderUserId = session.userId;
+      fallbackNote = "（企业未配置管理员，订单归属当前操作人）";
+    }
+
+    const policy = await tx.creditPolicy.findUnique({ where: { id: "platform" } });
+    if (!policy) {
+      throw new AdminApiError(503, "CREDIT_POLICY_NOT_FOUND", "积分策略未初始化，请运行种子脚本");
+    }
+
+    // 整数分定价：原价 = credits×100/creditsPerYuan，折后 = credits×(100-discountPct)/creditsPerYuan
+    const { originalCent, amountCent } = computeEnterpriseOrderPricing(
+      input.credits,
+      policy.creditsPerYuan,
+      org.discountPct,
+    );
+    const now = new Date();
+    const order = await tx.order.create({
+      data: {
+        id: generateOrderId(),
+        userId: orderUserId,
+        category: "enterprise",
+        status: "paid",
+        amountCent,
+        credits: input.credits,
+        channel: "bank",
+        productSnapshot: {
+          name: `企业积分充值 · ${org.name}`,
+          credits: input.credits,
+          discountPct: org.discountPct,
+          originalCent,
+        },
+        priceSnapshot: { perYuan: policy.creditsPerYuan },
+        paidAt: now,
+        organizationId: org.id,
+      },
+    });
+
+    // 发放企业积分（乐观锁）+ 账本留痕；entryType=grant 与管理侧定向发放语义一致
+    const { before, after } = await adjustCreditBalance(tx, orderUserId, "enterprise", input.credits);
+    await tx.creditLedger.create({
+      data: {
+        entryType: "grant",
+        accountType: "enterprise",
+        amount: input.credits,
+        beforeBalance: before,
+        afterBalance: after,
+        userId: orderUserId,
+        orderId: order.id,
+        operatorId: session.userId,
+        approverId: session.userId,
+        approvalStatus: "approved",
+        reason: `企业订单 ${order.id}：${input.reason}`,
+        idempotencyKey: key,
+      },
+    });
+
+    // 企业维度积分余额同步累加（企业订单累计发放口径）
+    await tx.organization.update({
+      where: { id: org.id },
+      data: { creditBalance: { increment: input.credits } },
+    });
+
+    await writeAudit(tx, session, {
+      action: "企业订单创建",
+      targetType: "organization",
+      targetId: org.id,
+      before: { creditBalance: org.creditBalance },
+      after: {
+        orgId: org.id,
+        orderId: order.id,
+        userId: orderUserId,
+        credits: input.credits,
+        amountCent,
+        originalCent,
+        discountPct: org.discountPct,
+        creditBalance: org.creditBalance + input.credits,
+      },
+      reason: `${input.reason}${fallbackNote}`,
+    }, key);
+
+    return {
+      orderId: order.id,
+      organizationId: org.id,
+      userId: orderUserId,
+      credits: input.credits,
+      originalCent,
+      amountCent,
+      discountPct: org.discountPct,
+    };
   });
 }

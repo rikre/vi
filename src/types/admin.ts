@@ -35,6 +35,53 @@ export type AdminOrder = {
   status: "paid" | "refunded" | "pending" | "closed";
   channel: "wechat" | "alipay" | "bank" | "balance";
   paidAt: string;
+  /** 企业订单归属企业名称；null = 普通用户订单 */
+  organization: string | null;
+  /** 企业订单折扣（减免百分比，来自商品快照）；null = 非企业订单 */
+  discountPct: number | null;
+};
+
+export type AdminOrganization = {
+  id: string;
+  name: string;
+  status: "active" | "suspended" | "closed";
+  contractNo: string | null;
+  adminUserId: string | null;
+  adminNickname: string | null;
+  seats: number;
+  creditBalance: number;
+  maxConcurrency: number;
+  monthlyComputeQuota: number;
+  discountPct: number;
+  expiresAt: string | null;
+  createdAt: string;
+  memberCount: number;
+  orderCount: number;
+  /** 企业订单累计实收（分） */
+  orderAmountCent: number;
+};
+
+/** 企业成员（成员管理弹框视图，含主账号标记）。 */
+export type AdminOrganizationMember = {
+  id: string;
+  nickname: string;
+  contact: string;
+  registeredAt: string;
+  status: AdminUserStatus;
+  /** 是否为该企业主账号（企业管理员） */
+  isAdmin: boolean;
+};
+
+/** 企业成员列表聚合：企业概要 + 成员明细。 */
+export type AdminOrganizationMembers = {
+  organizationId: string;
+  organizationName: string;
+  status: AdminOrganization["status"];
+  seats: number;
+  memberCount: number;
+  adminUserId: string | null;
+  adminNickname: string | null;
+  items: AdminOrganizationMember[];
 };
 
 export type UsageLedgerItem = {
@@ -111,6 +158,33 @@ export type AdminAuditLog = {
   target: string;
   detail: string;
   createdAt: string;
+  /** 积分类操作的带符号变动量（发放为正、扣减为负），非积分操作为 null。 */
+  amount: number | null;
+};
+
+export type AdminPlacementType = "carousel" | "single" | "list";
+
+export type AdminPlacementItem = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  imageUrl: string | null;
+  iconKey: string | null;
+  linkUrl: string | null;
+  badge: string | null;
+  sortOrder: number;
+  status: "active" | "hidden";
+  startAt: string | null;
+  endAt: string | null;
+  extra: Record<string, unknown> | null;
+};
+
+export type AdminPlacement = {
+  id: string;
+  name: string;
+  type: AdminPlacementType;
+  enabled: boolean;
+  items: AdminPlacementItem[];
 };
 
 export type AdminState = {
@@ -120,6 +194,8 @@ export type AdminState = {
   plans: AdminPlan[];
   rechargeTiers: AdminRechargeTier[];
   models: AdminModelConfig[];
+  placements: AdminPlacement[];
+  organizations: AdminOrganization[];
   creditPolicy: CreditPolicy;
   auditLogs: AdminAuditLog[];
 };

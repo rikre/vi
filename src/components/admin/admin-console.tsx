@@ -3,12 +3,14 @@
 import { useEffect, useState, useSyncExternalStore, type ComponentType } from "react";
 import { AdminFinance } from "@/components/admin/admin-finance";
 import { AdminModels } from "@/components/admin/admin-models";
+import { AdminOrganizations } from "@/components/admin/admin-organizations";
 import { AdminOverview } from "@/components/admin/admin-overview";
+import { AdminPlacements } from "@/components/admin/admin-placements";
 import { AdminPlans } from "@/components/admin/admin-plans";
 import { AdminSettings } from "@/components/admin/admin-settings";
 import { AdminUsers } from "@/components/admin/admin-users";
 import { AdminBadge } from "@/components/admin/admin-ui";
-import { CoinsIcon, CpuIcon, LayoutGridIcon, RefreshCwIcon, SettingsIcon, UserGroupIcon } from "@/components/icons";
+import { BuildingIcon, CoinsIcon, CpuIcon, LayoutGridIcon, RefreshCwIcon, SettingsIcon, SparkleIcon, UserGroupIcon } from "@/components/icons";
 import {
   getAdminServerState,
   getAdminState,
@@ -19,13 +21,15 @@ import {
 } from "@/lib/admin-store";
 import { cn } from "@/lib/utils";
 
-type View = "overview" | "users" | "finance" | "plans" | "models" | "settings";
+type View = "overview" | "users" | "finance" | "plans" | "models" | "placements" | "organizations" | "settings";
 const NAV: { id: View; label: string; Icon: ComponentType<{ className?: string }> }[] = [
   { id: "overview", label: "经营概览", Icon: LayoutGridIcon },
   { id: "users", label: "用户管理", Icon: UserGroupIcon },
   { id: "finance", label: "订单与消费", Icon: CoinsIcon },
   { id: "plans", label: "套餐权益", Icon: SettingsIcon },
   { id: "models", label: "模型 API", Icon: CpuIcon },
+  { id: "placements", label: "运营位配置", Icon: SparkleIcon },
+  { id: "organizations", label: "企业管理", Icon: BuildingIcon },
   { id: "settings", label: "积分与审计", Icon: SettingsIcon },
 ];
 
@@ -69,7 +73,7 @@ export function AdminConsole() {
           <div className="mt-6 space-y-4"><div className="grid grid-cols-2 gap-3 xl:grid-cols-4">{[0, 1, 2, 3].map((key) => <div key={key} className="h-[104px] animate-pulse rounded-2xl bg-white/[0.04]" />)}</div><div className="h-[300px] animate-pulse rounded-2xl bg-white/[0.03]" /></div>
         ) : (
           <>
-            <div className="mt-6">{view === "overview" ? <AdminOverview state={state} /> : null}{view === "users" ? <AdminUsers state={state} /> : null}{view === "finance" ? <AdminFinance state={state} /> : null}{view === "plans" ? <AdminPlans state={state} /> : null}{view === "models" ? <AdminModels state={state} /> : null}{view === "settings" ? <AdminSettings state={state} /> : null}</div>
+            <div className="mt-6">{view === "overview" ? <AdminOverview state={state} /> : null}{view === "users" ? <AdminUsers state={state} /> : null}{view === "finance" ? <AdminFinance state={state} /> : null}{view === "plans" ? <AdminPlans state={state} /> : null}{view === "models" ? <AdminModels state={state} /> : null}{view === "placements" ? <AdminPlacements state={state} /> : null}{view === "organizations" ? <AdminOrganizations state={state} /> : null}{view === "settings" ? <AdminSettings state={state} /> : null}</div>
           </>
         )}
       </div>

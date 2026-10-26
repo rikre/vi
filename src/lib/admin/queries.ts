@@ -5,7 +5,10 @@ import type { ListQuery } from "@/lib/admin/validation";
 import {
   mapAuditLog,
   mapOrder,
+  mapOrganization,
+  mapOrganizationMember,
   mapPlan,
+  mapPlacement,
   mapPolicy,
   mapModel,
   mapTier,
@@ -16,7 +19,10 @@ import {
 import type {
   AdminModelConfig,
   AdminOrder,
+  AdminOrganization,
+  AdminOrganizationMembers,
   AdminPlan,
+  AdminPlacement,
   AdminRechargeTier,
   AdminUser,
   CreditPolicy,
@@ -121,6 +127,12 @@ export async function listOrders(query: ListQuery): Promise<ListResult<AdminOrde
   if (query.status && ["pending", "paid", "refunded", "closed"].includes(query.status)) {
     where.status = query.status as "pending" | "paid" | "refunded" | "closed";
   }
+  // scope 过滤：enterprise=企业订单（organizationId 非空），personal=普通用户订单
+  if (query.scope === "enterprise") {
+    where.organizationId = { not: null };
+  } else if (query.scope === "personal") {
+    where.organizationId = null;
+  }
   if (query.q) {
     where.OR = [
       { id: { contains: query.q, mode: "insensitive" } },
@@ -136,6 +148,7 @@ export async function listOrders(query: ListQuery): Promise<ListResult<AdminOrde
   const [rows, total] = await Promise.all([
     prisma.order.findMany({
       where,
+      include: { organization: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
       skip: (query.page - 1) * query.pageSize,
       take: query.pageSize,
@@ -143,6 +156,58 @@ export async function listOrders(query: ListQuery): Promise<ListResult<AdminOrde
     prisma.order.count({ where }),
   ]);
   return { items: rows.map(mapOrder), total, page: query.page, pageSize: query.pageSize };
+}
+
+/** 企业列表：含成员数、企业订单数与累计金额、企业管理员昵称。 */
+export async function listOrganizations(query: ListQuery): Promise<ListResult<AdminOrganization>> {
+  const prisma = getPrisma();
+  const where: Prisma.OrganizationWhereInput = {};
+  if (query.status && ["active", "suspended", "closed"].includes(query.status)) {
+    where.status = query.status as "active" | "suspended" | "closed";
+  }
+  if (query.q) {
+    where.OR = [
+      { name: { contains: query.q, mode: "insensitive" } },
+      { contractNo: { contains: query.q, mode: "insensitive" } },
+    ];
+  }
+  const [rows, total] = await Promise.all([
+    prisma.organization.findMany({
+      where,
+      include: {
+        adminUser: { select: { nickname: true } },
+        _count: { select: { users: true, orders: true } },
+        orders: { select: { amountCent: true } },
+      },
+      orderBy: { createdAt: "asc" },
+      skip: (query.page - 1) * query.pageSize,
+      take: query.pageSize,
+    }),
+    prisma.organization.count({ where }),
+  ]);
+  return { items: rows.map(mapOrganization), total, page: query.page, pageSize: query.pageSize };
+}
+
+/** 企业成员列表：含主账号标记、席位占用与企业概要。 */
+export async function getOrganizationMembers(organizationId: string): Promise<AdminOrganizationMembers> {
+  const prisma = getPrisma();
+  const org = await prisma.organization.findUnique({ where: { id: organizationId } });
+  if (!org) throw new AdminApiError(404, "ORG_NOT_FOUND", "企业不存在");
+  const users = await prisma.user.findMany({
+    where: { organizationId },
+    orderBy: { registeredAt: "asc" },
+  });
+  const admin = org.adminUserId ? users.find((user) => user.id === org.adminUserId) ?? null : null;
+  return {
+    organizationId: org.id,
+    organizationName: org.name,
+    status: org.status,
+    seats: org.seats,
+    memberCount: users.length,
+    adminUserId: org.adminUserId,
+    adminNickname: admin?.nickname ?? null,
+    items: users.map((user) => mapOrganizationMember(user, org.adminUserId)),
+  };
 }
 
 export async function listUsage(query: ListQuery): Promise<ListResult<UsageLedgerItem>> {
@@ -196,6 +261,15 @@ export async function listRechargeTiers(): Promise<AdminRechargeTier[]> {
 export async function listModels(): Promise<AdminModelConfig[]> {
   const rows = await getPrisma().modelConfig.findMany({ orderBy: { createdAt: "asc" } });
   return rows.map(mapModel);
+}
+
+/** 全部运营位 + 素材（含隐藏），一个聚合接口供后台使用。 */
+export async function listPlacements(): Promise<AdminPlacement[]> {
+  const rows = await getPrisma().placement.findMany({
+    include: { items: { orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] } },
+    orderBy: { id: "asc" },
+  });
+  return rows.map(mapPlacement);
 }
 
 export async function getCreditPolicy(): Promise<CreditPolicy> {

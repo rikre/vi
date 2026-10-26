@@ -1,6 +1,10 @@
 import type {
   AdminModelConfig,
   AdminOrder,
+  AdminOrganization,
+  AdminOrganizationMembers,
+  AdminPlacement,
+  AdminPlacementItem,
   AdminPlan,
   AdminRechargeTier,
   AdminUser,
@@ -125,6 +129,14 @@ export function fetchModels(): Promise<{ items: AdminModelConfig[] }> {
   return request<{ items: AdminModelConfig[] }>("/models");
 }
 
+export function fetchPlacements(): Promise<AdminPlacement[]> {
+  return request<AdminPlacement[]>("/placements");
+}
+
+export function fetchOrganizations(params?: QueryParams): Promise<ListResult<AdminOrganization>> {
+  return request<ListResult<AdminOrganization>>(`/organizations${buildQuery(params)}`);
+}
+
 export function fetchCreditPolicy(): Promise<CreditPolicy> {
   return request<CreditPolicy>("/credit-policy");
 }
@@ -140,6 +152,7 @@ export type AdminAuditLogView = {
   target: string;
   detail: string;
   createdAt: string;
+  amount: number | null;
 };
 
 // ---------------------------------------------------------------------------
@@ -265,4 +278,171 @@ export function patchCreditPolicy(
     body: JSON.stringify(input),
     idempotencyKey,
   });
+}
+
+// ---------------------------------------------------------------------------
+// 运营位接口（读 + 写，写全部携带 Idempotency-Key）
+// ---------------------------------------------------------------------------
+
+export type PlacementItemPayload = {
+  title: string;
+  subtitle?: string | null;
+  imageUrl?: string | null;
+  iconKey?: string | null;
+  linkUrl?: string | null;
+  badge?: string | null;
+  sortOrder?: number;
+  status?: AdminPlacementItem["status"];
+  startAt?: string | null;
+  endAt?: string | null;
+};
+
+export function patchPlacement(
+  id: string,
+  input: { name?: string; enabled?: boolean },
+  idempotencyKey: string,
+): Promise<unknown> {
+  return request<unknown>(`/placements/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+    idempotencyKey,
+  });
+}
+
+export function postPlacementItem(
+  placementId: string,
+  input: PlacementItemPayload,
+  idempotencyKey: string,
+): Promise<{ id: string }> {
+  return request<{ id: string }>(`/placements/${encodeURIComponent(placementId)}/items`, {
+    method: "POST",
+    body: JSON.stringify(input),
+    idempotencyKey,
+  });
+}
+
+export function patchPlacementItem(
+  itemId: string,
+  input: PlacementItemPayload,
+  idempotencyKey: string,
+): Promise<unknown> {
+  return request<unknown>(`/items/${encodeURIComponent(itemId)}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+    idempotencyKey,
+  });
+}
+
+export function deletePlacementItem(itemId: string, idempotencyKey: string): Promise<unknown> {
+  return request<unknown>(`/items/${encodeURIComponent(itemId)}`, {
+    method: "DELETE",
+    idempotencyKey,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 企业管理接口（读 + 写，写全部携带 Idempotency-Key）
+// ---------------------------------------------------------------------------
+
+export type OrganizationPayload = {
+  name: string;
+  contractNo?: string | null;
+  adminUserId?: string | null;
+  seats: number;
+  maxConcurrency: number;
+  monthlyComputeQuota: number;
+  discountPct: number;
+  expiresAt?: string | null;
+};
+
+export type EnterpriseOrderPayload = {
+  credits: number;
+  reason: string;
+};
+
+export type EnterpriseOrderResult = {
+  orderId: string;
+  organizationId: string;
+  userId: string;
+  credits: number;
+  originalCent: number;
+  amountCent: number;
+  discountPct: number;
+  replayed?: boolean;
+};
+
+export function postOrganization(
+  input: OrganizationPayload,
+  idempotencyKey: string,
+): Promise<{ id: string; created: boolean }> {
+  return request<{ id: string; created: boolean }>("/organizations", {
+    method: "POST",
+    body: JSON.stringify(input),
+    idempotencyKey,
+  });
+}
+
+export function patchOrganization(
+  id: string,
+  input: Partial<OrganizationPayload> & { status?: AdminOrganization["status"] },
+  idempotencyKey: string,
+): Promise<unknown> {
+  return request<unknown>(`/organizations/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+    idempotencyKey,
+  });
+}
+
+export function postEnterpriseOrder(
+  organizationId: string,
+  input: EnterpriseOrderPayload,
+  idempotencyKey: string,
+): Promise<EnterpriseOrderResult> {
+  return request<EnterpriseOrderResult>(`/organizations/${encodeURIComponent(organizationId)}/orders`, {
+    method: "POST",
+    body: JSON.stringify(input),
+    idempotencyKey,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 企业成员管理接口（读 + 写，POST 携带 Idempotency-Key，DELETE 天然幂等）
+// ---------------------------------------------------------------------------
+
+export type OrganizationMemberPayload = {
+  userId: string;
+  reason: string;
+};
+
+/** 企业成员列表（含主账号标记与席位占用）。 */
+export function fetchOrganizationMembers(
+  organizationId: string,
+): Promise<AdminOrganizationMembers> {
+  return request<AdminOrganizationMembers>(
+    `/organizations/${encodeURIComponent(organizationId)}/members`,
+  );
+}
+
+/** 添加企业成员。 */
+export function postOrganizationMember(
+  organizationId: string,
+  input: OrganizationMemberPayload,
+  idempotencyKey: string,
+): Promise<{ memberCount: number }> {
+  return request<{ memberCount: number }>(
+    `/organizations/${encodeURIComponent(organizationId)}/members`,
+    { method: "POST", body: JSON.stringify(input), idempotencyKey },
+  );
+}
+
+/** 移除企业成员（主账号须先更换）。 */
+export function deleteOrganizationMember(
+  organizationId: string,
+  userId: string,
+): Promise<{ memberCount: number }> {
+  return request<{ memberCount: number }>(
+    `/organizations/${encodeURIComponent(organizationId)}/members/${encodeURIComponent(userId)}`,
+    { method: "DELETE" },
+  );
 }

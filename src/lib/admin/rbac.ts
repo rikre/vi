@@ -23,6 +23,10 @@ export const ADMIN_PERMISSIONS = [
   "models:read",
   "models:write",
   "models:secret",
+  "placements:read",
+  "placements:manage",
+  "organizations:read",
+  "organizations:manage",
   "credit-policy:read",
   "credit-policy:write",
   "audit-logs:read",
@@ -30,7 +34,7 @@ export const ADMIN_PERMISSIONS = [
 
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 
-const READ_ONLY_PREFIXES = ["dashboard:view", "users:read", "orders:read", "usage:read", "plans:read", "recharge-tiers:read", "models:read", "credit-policy:read", "audit-logs:read"];
+const READ_ONLY_PREFIXES = ["dashboard:view", "users:read", "orders:read", "usage:read", "plans:read", "recharge-tiers:read", "models:read", "placements:read", "organizations:read", "credit-policy:read", "audit-logs:read"];
 
 const ALL_PERMISSIONS: readonly AdminPermission[] = ADMIN_PERMISSIONS;
 
@@ -48,6 +52,8 @@ const ROLE_MATRIX: Record<AdminRoleName, readonly AdminPermission[]> = {
     "recharge-tiers:read",
     "models:read",
     "models:write",
+    "organizations:read",
+    "organizations:manage",
     "credit-policy:read",
     "audit-logs:read",
   ],
@@ -61,6 +67,10 @@ const ROLE_MATRIX: Record<AdminRoleName, readonly AdminPermission[]> = {
     "recharge-tiers:read",
     "recharge-tiers:write",
     "models:read",
+    "placements:read",
+    "placements:manage",
+    "organizations:read",
+    "organizations:manage",
     "credit-policy:read",
     "audit-logs:read",
   ],

@@ -41,6 +41,7 @@ enum CreditAccountType {
 
 enum CreditLedgerEntryType {
   grant
+  deduct
   consume
   refund
   expire
@@ -172,12 +173,15 @@ model Organization {
   creditBalance      Int                @default(0)
   maxConcurrency     Int                @default(10)
   monthlyComputeQuota Int               @default(0)
+  /// 企业订单折扣：减免百分比 0-90（0=无折扣，30=七折优惠）
+  discountPct        Int                @default(0)
   expiresAt          DateTime?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
   users     User[]  @relation("OrgMembers")
   adminUser User?   @relation("OrgAdmin", fields: [adminUserId], references: [id])
+  orders    Order[]
 
   @@index([status])
 }
@@ -240,12 +244,16 @@ model Order {
   paidAt         DateTime?
   refundedAt     DateTime?
   createdAt      DateTime       @default(now())
+  /// 企业订单归属企业；空表示普通用户订单
+  organizationId String?
+  organization   Organization?  @relation(fields: [organizationId], references: [id])
 
   user User @relation(fields: [userId], references: [id])
 
   @@index([status, createdAt])
   @@index([userId, createdAt])
   @@index([category, createdAt])
+  @@index([organizationId, createdAt])
 }
 
 model UsageLedger {
@@ -358,6 +366,40 @@ model CreditPolicy {
   negativeBalanceAllowed Boolean  @default(false)
   version                Int      @default(1)
   updatedAt              DateTime @updatedAt
+}
+
+/// 首页运营位（平台预置，id 为 home_carousel 等固定 key，由 seed 写入）。
+model Placement {
+  id        String          @id
+  name      String
+  type      String          // carousel | single | list
+  enabled   Boolean         @default(true)
+  items     PlacementItem[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+/// 运营位素材：status 控制上下架，startAt/endAt 控制定时生效窗口（空值不限）。
+/// extra 保存静态数据中的富字段（TrendCard 统计、TheaterItem 标签等），前台原样还原。
+model PlacementItem {
+  id          String    @id @default(cuid())
+  placementId String
+  placement   Placement @relation(fields: [placementId], references: [id], onDelete: Cascade)
+  title       String
+  subtitle    String?
+  imageUrl    String?
+  iconKey     String?
+  linkUrl     String?
+  badge       String?
+  sortOrder   Int       @default(0)
+  status      String    @default("active") // active | hidden
+  startAt     DateTime?
+  endAt       DateTime?
+  extra       Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([placementId, status, sortOrder])
 }
 
 /// 审计日志：只允许追加。每个写操作必须落一行，idempotencyKey 唯一以支撑幂等重放。
