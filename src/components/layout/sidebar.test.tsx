@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Sidebar } from "./sidebar";
 
@@ -102,5 +103,23 @@ describe("Sidebar reference navigation", () => {
       "aria-current",
       "page",
     );
+  });
+
+  it("keeps the existing feedback dialog by default", async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    await user.click(screen.getByRole("button", { name: "帮助与反馈" }));
+    expect(screen.getByRole("dialog", { name: "帮助与反馈" })).toBeInTheDocument();
+  });
+
+  it("lets the tools shell override the feedback entry", async () => {
+    const user = userEvent.setup();
+    const onOpenFeedback = vi.fn();
+    render(<Sidebar onOpenMessages={vi.fn()} onOpenFeedback={onOpenFeedback} />);
+
+    await user.click(screen.getByRole("button", { name: "帮助与反馈" }));
+    expect(onOpenFeedback).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

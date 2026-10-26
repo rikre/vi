@@ -78,3 +78,6 @@ test-results/
 .continue/
 .clinerules
 .workbuddy/
+
+# Local development logs and resource guard status
+.dev-runtime/

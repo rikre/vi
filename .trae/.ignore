@@ -1,0 +1,23 @@
+# Supplement .gitignore: keep generated files and reference projects out of AI indexing.
+**/node_modules/
+**/.next/
+**/.git/
+.dev-runtime/
+.agent-browser/
+temp-template/
+.vibe-video-ref/
+.workbuddy/
+coverage/
+test-results/
+playwright-report/
+screenshots/
+docs/design-references/
+**/*.log
+**/*.tsbuildinfo
+**/*.zip
+**/*.mp4
+**/*.mov
+**/*.webm
+.env
+.env.*
+!.env.example

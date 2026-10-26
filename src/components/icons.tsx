@@ -450,6 +450,30 @@ export function CrownIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+/** Building (企业) - 16x16, currentColor */
+export function BuildingIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <rect height="16" width="9" x="3" y="7" rx="1" />
+      <path d="M12 21V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v16" />
+      <path d="M6 11h3M6 15h3M16 9h1M16 13h1M16 17h1" />
+      <path d="M2 21h20" />
+    </svg>
+  );
+}
+
 /** ChevronDown - 14x14, currentColor */
 export function ChevronDownIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -1800,6 +1824,96 @@ export function TrayIcon(props: SVGProps<SVGSVGElement>) {
       <path d="M3 14l3-8a2 2 0 0 1 1.9-1.3h8.2A2 2 0 0 1 18 6l3 8" />
       <path d="M3 14h5a2 2 0 0 1 2 1 2 2 0 0 0 4 0 2 2 0 0 1 2-1h5" />
       <path d="M3 14v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" />
+    </svg>
+  );
+}
+
+/** Palette - 24x24, currentColor（风格选择） */
+export function PaletteIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="24"
+      viewBox="0 0 24 24"
+      width="24"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <circle cx="13.5" cy="6.5" r="1.2" />
+      <circle cx="17.5" cy="10.5" r="1.2" />
+      <circle cx="8.5" cy="7.5" r="1.2" />
+      <circle cx="6.5" cy="12.5" r="1.2" />
+      <path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.4-.3-.4-.5-.9-.5-1.4 0-1.1.9-2 2-2h2.4a4.6 4.6 0 0 0 4.6-4.6C22 5.9 17.5 2 12 2Z" />
+    </svg>
+  );
+}
+
+/** TrendFlat - 24x24, currentColor（持平箭头） */
+export function TrendFlatIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="24"
+      viewBox="0 0 24 24"
+      width="24"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M4 12h14" />
+      <path d="m13 7 5 5-5 5" />
+    </svg>
+  );
+}
+
+/** TrendDown - 24x24, currentColor（下行箭头） */
+export function TrendDownIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="24"
+      viewBox="0 0 24 24"
+      width="24"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M4 7l7 8h9" />
+      <path d="m16 11 4 4-4 4" />
+    </svg>
+  );
+}
+
+/** Wrench - 24x24, currentColor（工具入口） */
+export function ToolsIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="24"
+      viewBox="0 0 24 24"
+      width="24"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
     </svg>
   );
 }

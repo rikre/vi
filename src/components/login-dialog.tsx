@@ -41,13 +41,13 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
   const { completeLogin } = useAuth();
   const { toast } = useToast();
   const [tab, setTab] = useState<LoginTab>("phone");
-  const [mode, setMode] = useState<LoginMode>("code");
+  const [mode, setMode] = useState<LoginMode>(process.env.NODE_ENV === "development" ? "password" : "code");
   const [countryCode] = useState("+86");
   const [phone, setPhone] = useState(process.env.NODE_ENV === "development" ? "13800138000" : "");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState(process.env.NODE_ENV === "development" ? "123456" : "");
   const [password, setPassword] = useState(process.env.NODE_ENV === "development" ? "bollo123" : "");
-  const [agreed, setAgreed] = useState(false);
+  const [agreed, setAgreed] = useState(process.env.NODE_ENV === "development");
   const [countdown, setCountdown] = useState(0);
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
@@ -188,7 +188,7 @@ export function LoginDialog({ open, onClose, onLogin }: LoginDialogProps) {
           <p className="mt-2 text-[13px] text-muted-foreground">保存项目，继续创作</p>
           {process.env.NODE_ENV === "development" && (
             <p className="mt-3 rounded-xl bg-brand/10 px-3 py-2 text-center text-xs text-brand">
-              本地测试账号已预填，验证码 123456，密码 bollo123
+              本地测试账号已预填并预勾协议，密码 bollo123，直接点击登录即可
             </p>
           )}
         </div>

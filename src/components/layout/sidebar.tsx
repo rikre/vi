@@ -43,12 +43,13 @@ const NAV_ITEMS: NavItem[] = [
 
 type SidebarProps = {
   onOpenMessages: () => void;
+  onOpenFeedback?: () => void;
 };
 
 const ICON_BTN =
   "flex size-9 items-center justify-center rounded-[10px] text-white/60 transition-colors hover:bg-white/[0.05] hover:text-white";
 
-export function Sidebar({ onOpenMessages }: SidebarProps) {
+export function Sidebar({ onOpenMessages, onOpenFeedback }: SidebarProps) {
   const pathname = usePathname();
   const { status, user, showLogin } = useAuth();
   const isAdmin = normalizeAdminRoles(user?.roles ?? []).length > 0;
@@ -134,7 +135,11 @@ export function Sidebar({ onOpenMessages }: SidebarProps) {
           <button
             type="button"
             onClick={() => {
-              setFeedbackOpen(true);
+              if (onOpenFeedback) {
+                onOpenFeedback();
+              } else {
+                setFeedbackOpen(true);
+              }
               setMenuOpen(false);
             }}
             aria-label="帮助与反馈"
