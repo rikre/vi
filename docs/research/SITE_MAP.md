@@ -8,7 +8,7 @@
 
 | # | 侧栏项 | 线上路由 | 本地路由 | 状态 | 审计截图 |
 |---|--------|---------|---------|------|---------|
-| 1 | 创作 | `/zh/home` | `/home` | ✅ 已复刻（2026-10-25 R2；7 区块结构对齐，残差源于 AppShell 全局差异，见遗留） | home.png / home-logged-in.png |
+| 1 | 创作 | `/zh/home` | `/home` | ✅ 已复刻（2026-10-25 R2；R4 完成外壳对齐，侧栏/顶栏/内容宽度残差已消除） | home.png / home-logged-in.png |
 | 2 | 项目 | `/zh/project` | `/project` | ⚠️ 小改 | project.png |
 | 3 | 剧本 | `/zh/script/market` | `/script/market` | 🚧 占位页已建（2026-10-25），完整页排队 | script-market.png |
 | 4 | 资产 | `/zh/library` | `/library` | ⚠️ 需改版 | library.png |
@@ -18,6 +18,8 @@
 | 8 | 登录/头像 | `/zh/login` + 用户菜单 | login-dialog（弹窗） | ✅ 形态不同，保留 | login.png |
 
 **侧栏本身**：✅ 已对齐线上 6 项（2026-10-25，Round 1 完成；QA 截图 docs/qa-screenshots/sidebar-round1-*.png）。头像菜单项：编辑名称、复制ID、个人工作区/新建团队/切换、免费套餐/查看计划、积分、邀请好友、账号安全、AI水印、登出。
+
+**外壳几何（R4，2026-10-26）**：桌面侧栏 64px（原 108px）、底色 `#1d201e`（新增 DESIGN token `colors.sidebar`）、条目 50×49/图标 18–21.6/标签 11px、导航区在 logo 与底部区之间垂直居中；移动端 <768px 侧栏改为 112px 抽屉（遮罩 `bg-black/30`、汉堡按钮 42×42@16,16）不再常驻；全局 56px TopBar 移除（线上无顶栏，各页自管右上入口）；`/home` 活动条上移为外壳 banner 跨侧栏整宽 43px；首页内容容器 x=72 / w=1360 与线上一致。QA 截图 `docs/qa-screenshots/shell-round4-{home,tools,drawer}-390.png`、`shell-round4-{home,pricing,script-market}-1440.png`。遗留：侧栏底部的订阅会员/帮助/登录入口与线上「文档/备案」不同；移动端活动条为单行 43px（线上两行 59px）。
 
 ## 二、逐页区块清单（元素不缺的对照基线）
 
@@ -71,7 +73,7 @@
 
 | 序号 | 任务 | 类型 | 规模 |
 |------|------|------|------|
-| 0 | 🚧 侧栏改版（菜单对齐线上 1–6 项） | 改造 | S |
+| 0 | ✅ 外壳对齐（侧栏 64px + 移动抽屉 + 去顶栏 + 活动条上移 + 内容 1360） | 改造 | S |
 | 1 | ✅ `/tools` 工具工作台（页面实现与三档 QA 完成，全站门槛未闭环） | 新建 | L |
 | 2 | `/script/market` 剧本超市（原生重建） | 新建 | M |
 | 3 | `/skill` → `/skills` 改版（4 tab + 8 分类 + 输入栏 + 对话） | 改造 | L |

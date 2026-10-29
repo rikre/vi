@@ -18,12 +18,11 @@ export function proxy(request: NextRequest): NextResponse {
 export const config = {
   matcher: [
     "/comic/:path*",
+    "/watch/:path*",
     "/project/:path*",
     "/library/:path*",
     "/create/:path*",
     "/skill/:path*",
-    "/publish/:path*",
-    "/team/:path*",
     "/admin/:path*",
   ],
 };

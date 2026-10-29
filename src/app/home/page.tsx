@@ -56,10 +56,9 @@ export default async function HomePage() {
   const banner = bannerItems ? toWideBanner(bannerItems) ?? WIDE_BANNER : WIDE_BANNER;
 
   return (
-    <AppShell>
-      <div className="h-full overflow-y-auto">
-        <CampaignCarousel slides={slides} />
-        <div className="mx-auto max-w-[1360px] px-6 pb-16 lg:px-10">
+    <AppShell banner={<CampaignCarousel slides={slides} />}>
+      <div className="workspace-background h-full overflow-y-auto">
+        <div className="mx-auto max-w-[1360px] px-4 pb-16 md:px-6 xl:px-0">
           <HomeHero />
           <QuickActions items={quickActionItems ? toQuickActions(quickActionItems) : QUICK_ACTIONS} />
           <InsightSection

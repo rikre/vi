@@ -9,14 +9,29 @@ colors:
   background: "oklch(0.18 0 0)"
   surface: "oklch(0.23 0 0)"
   surface-elevated: "oklch(0.27 0 0)"
+  sidebar: "#1d201e"
   foreground: "#ffffff"
   muted-foreground: "oklch(1 0 0 / 0.58)"
   border: "oklch(1 0 0 / 0.1)"
   success: "oklch(0.72 0.15 145)"
   warning: "oklch(0.80 0.15 85)"
-  danger: "oklch(0.65 0.22 25)"
+  danger: "oklch(0.80 0.16 25)"
   info: "oklch(0.78 0.10 220)"
   cyan: "oklch(0.93 0.1 200deg)"
+
+# 亮色主题（/tools 路由专用，通过容器加 data-theme="light" 启用）
+light-theme:
+  background: "#f6f7f5"
+  surface: "#ffffff"
+  surface-elevated: "#ffffff"
+  sidebar: "#ffffff"
+  foreground: "#171a16"
+  muted-foreground: "oklch(0 0 0 / 0.58)"
+  border: "oklch(0 0 0 / 0.1)"
+  card: "#ffffff"
+  card-foreground: "#171a16"
+  primary: "#86c92e"
+  primary-foreground: "#ffffff"
 typography:
   h1:
     fontFamily: MiSansVF
@@ -98,7 +113,7 @@ components:
     rounded: "{rounded.full}"
     padding: 2px 10px
   badge-danger:
-    backgroundColor: "oklch(0.65 0.22 25 / 0.15)"
+    backgroundColor: "oklch(0.80 0.16 25 / 0.15)"
     textColor: "{colors.danger}"
     rounded: "{rounded.full}"
     padding: 2px 10px
@@ -126,6 +141,38 @@ components:
     textColor: "{colors.foreground}"
     rounded: "{rounded.xl}"
     padding: 8px
+  workspace:
+    backgroundColor: "{colors.background}"
+  hero-panel:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.foreground}"
+    rounded: "{rounded.2xl}"
+  quick-card:
+    backgroundColor: "#141414"
+    textColor: "{colors.foreground}"
+    rounded: "{rounded.2xl}"
+  arco-button:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.primary-foreground}"
+    rounded: "6px"
+    height: "32px"
+    padding: "0 12px"
+  arco-input:
+    backgroundColor: "oklch(1 0 0 / 0.05)"
+    textColor: "{colors.foreground}"
+    rounded: "6px"
+    height: "32px"
+    padding: "0 10px"
+  arco-table:
+    backgroundColor: "oklch(1 0 0 / 0.02)"
+    textColor: "{colors.foreground}"
+    rounded: "8px"
+  account-menu:
+    backgroundColor: "{colors.surface-elevated}"
+    textColor: "{colors.foreground}"
+    rounded: "{rounded.xl}"
+    padding: "8px"
+    height: "40px"
 ---
 
 ## Overview
@@ -133,9 +180,11 @@ components:
 bollo 是一个 dark-first 的 AI 短剧/漫剧创作工作台。视觉语言：**深灰层级表面 + 荧光柠檬品牌色 + 极简信息密度**。
 
 核心原则：
-- 深色为默认且唯一主题（无 light mode）
+- 深色为默认主题；`/tools` 沿用已定义的专用亮色容器，不扩展其他亮色页面
 - 品牌色 `#c8ff71` 是页面中唯一的高饱和交互色，仅用于主操作、激活态、进度
-- 表面通过明度层级区分（background → surface → surface-elevated），而非边框
+- 表面通过明度层级区分（background → surface → surface-elevated），辅以 1px 低透明边框
+- 商业体验强调单一主任务：每屏只有一个最强操作，促销入口不得与创建任务争夺注意力
+- 环境光只允许 4–6% 品牌/信息色径向渐变，不降低文字对比度
 - 所有状态色必须使用语义 token，禁止 Tailwind 默认色板
 
 ## Colors
@@ -149,7 +198,7 @@ bollo 是一个 dark-first 的 AI 短剧/漫剧创作工作台。视觉语言：
 | `surface-elevated` | `oklch(0.27 0 0)` | 弹层、浮起卡片 |
 | `success` | `oklch(0.72 0.15 145)` | 已完成、已生成、已绑定 |
 | `warning` | `oklch(0.80 0.15 85)` | 生成中、上传中、进行中 |
-| `danger` | `oklch(0.65 0.22 25)` | 失败、删除、错误 |
+| `danger` | `oklch(0.80 0.16 25)` | 失败、删除、错误 |
 | `info` | `oklch(0.78 0.10 220)` | 场景/道具标签、信息提示 |
 
 **禁止**：`text-red-400`、`bg-green-500` 等 Tailwind 默认色板。ESLint 已配置 `no-restricted-syntax` 规则拦截。
@@ -174,7 +223,9 @@ bollo 是一个 dark-first 的 AI 短剧/漫剧创作工作台。视觉语言：
 - 层级通过背景明度表达，**不使用 box-shadow**（除品牌按钮的 `shadow-brand/20` 光晕）
 - 卡片边框：`ring-1 ring-white/[0.08]`（1px 白色 8% 透明度）
 - 弹层遮罩：`bg-black/80 backdrop-blur-sm`
-- hover 升起：`hover:-translate-y-0.5` + `hover:ring-white/20`
+- hover 升起：`translateY(-2px)` + `hover:ring-white/20`，160–300ms；不得因 hover 改变布局尺寸
+- 键盘焦点：2px 品牌色焦点环，不能只依赖 hover 反馈
+- 隐藏弹层：同时退出点击、Tab 顺序与无障碍树
 
 ## Shapes
 
@@ -211,7 +262,23 @@ bollo 是一个 dark-first 的 AI 短剧/漫剧创作工作台。视觉语言：
 
 ### Input
 
-- `bg-white/[0.06] border-0 rounded-xl h-12 pl-12 text-[15px] focus:ring-2 focus:ring-brand/30`
+- 通用创作输入：`bg-white/[0.06] border-0 rounded-xl h-12 pl-12 text-[15px] focus:ring-2 focus:ring-brand/30`
+- 个人设置控件：遵循 Arco 尺寸体系，默认 32px、小型 28px、主操作 36px，6px 圆角，12–14px 文字
+- 标签尽量不超过 6 个汉字；标签与输入间距 4–8px；错误文字紧邻对应控件
+- 表格在自身容器横向滚动，不允许挤宽账户页面或压缩到不可读
+
+### 中文文案
+
+- 不添加装饰性英文标签、全大写 eyebrow 或无意义英文计数
+- 用户动作使用明确中文动词；技术模型名、品牌名和文件格式可保留原文
+
+### 个人菜单
+
+- 不使用分隔线；通过 8px 基础间距和分组留白建立层级
+- 功能行统一 40px 高，图标 16px、24 视图框、线性描边，图标与文字间距 12px
+- 不为每行重复添加右箭头；只有明确跳转入口保留方向提示
+- 主按钮使用中性弱表面，品牌色只保留给签到等当前关键操作
+- 图标本体使用 `currentColor`，不混用填充图标与线性图标
 
 ## Do's and Don'ts
 

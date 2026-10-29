@@ -5,6 +5,14 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth-provider";
 import { UserAvatar } from "@/components/user-avatar";
 import {
+  ArcoButton,
+  ArcoInput,
+  ArcoSelect,
+  ArcoSwitch,
+  ArcoTable,
+  ArcoTag,
+} from "@/components/ui/arco";
+import {
   CameraIcon,
   CheckIcon,
   CoinsIcon,
@@ -96,38 +104,29 @@ const TASK_ROWS = [
 
 function StatusPill({ status }: { status: string }) {
   const ok = status === "已完成" || status === "成功";
-  return (
-    <span
-      className={cn(
-        "rounded px-1.5 py-0.5 text-[11px] font-medium",
-        ok ? "bg-success/10 text-success" : "bg-danger/10 text-danger",
-      )}
-    >
-      {status}
-    </span>
-  );
+  return <ArcoTag tone={ok ? "success" : "danger"}>{status}</ArcoTag>;
 }
 
 function Pager({ from, to, total, pages = 1 }: { from: number; to: number; total: number; pages?: number }) {
   return (
-    <div className="flex items-center justify-end gap-2 pt-3 text-[12px] text-white/45">
+    <div className="flex flex-wrap items-center justify-between gap-2 pt-3 text-[12px] text-muted-foreground sm:justify-end">
       <span>
-        第 {from}-{to} 条/总共 {total} 条
+        第 {from}-{to} 条，共 {total} 条
       </span>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" role="group" aria-label="分页">
         {Array.from({ length: Math.min(pages, 5) }, (_, i) => i + 1).map((p) => (
-          <button
+          <ArcoButton
             key={p}
-            type="button"
-            className={cn(
-              "size-6 rounded-md text-[11px] transition-colors",
-              p === 1 ? "bg-brand font-bold text-black" : "bg-white/[0.05] text-white/60 hover:bg-white/[0.1]",
-            )}
+            size="small"
+            variant={p === 1 ? "primary" : "secondary"}
+            aria-label={`第 ${p} 页`}
+            aria-current={p === 1 ? "page" : undefined}
+            className="size-7 px-0 text-[11px]"
           >
             {p}
-          </button>
+          </ArcoButton>
         ))}
-        {pages > 5 && <span className="text-white/40">… {pages}</span>}
+        {pages > 5 && <span>… {pages}</span>}
       </div>
     </div>
   );
@@ -139,15 +138,11 @@ const TD = "px-4 py-3 text-[13px] text-white/80";
 /* ---------- 子页：个人资料 ---------- */
 
 function BoundBadge({ bound }: { bound: boolean }) {
-  return bound ? (
-    <span className="flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-[11px] font-bold text-black">
-      <CheckIcon className="size-3" />
-      已绑定
-    </span>
-  ) : (
-    <span className="rounded-full bg-white/[0.08] px-2.5 py-1 text-[11px] font-medium text-white/50">
-      未绑定
-    </span>
+  return (
+    <ArcoTag tone={bound ? "brand" : "neutral"}>
+      {bound ? <CheckIcon className="size-3" /> : null}
+      {bound ? "已绑定" : "未绑定"}
+    </ArcoTag>
   );
 }
 
@@ -184,46 +179,37 @@ function BindForm({
     onDone(target.trim());
   };
 
-  const inputCls =
-    "h-9 min-w-0 flex-1 rounded-lg bg-white/[0.06] px-3 text-[13px] text-white placeholder:text-white/30 ring-1 ring-white/10 focus:outline-none focus:ring-brand/50";
-
   return (
     <div className="mt-3 space-y-2.5">
-      <div className="flex gap-2">
-        <input
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <ArcoInput
           value={target}
           onChange={(e) => setTarget(e.target.value)}
           placeholder={placeholder}
           aria-label={placeholder}
-          className={inputCls}
+          aria-invalid={!!error}
+          className="flex-1"
         />
-        <button
-          type="button"
-          onClick={send}
-          className="shrink-0 rounded-lg bg-brand px-4 py-2 text-[12px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
-        >
+        <ArcoButton variant="primary" onClick={send}>
           {sent ? "重新发送" : "发送验证码"}
-        </button>
+        </ArcoButton>
       </div>
       {sent && (
-        <div className="flex gap-2">
-          <input
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <ArcoInput
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="验证码（演示：123456）"
             aria-label="验证码"
-            className={inputCls}
+            aria-invalid={!!error}
+            className="flex-1"
           />
-          <button
-            type="button"
-            onClick={confirm}
-            className="shrink-0 rounded-lg bg-brand px-4 py-2 text-[12px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
-          >
+          <ArcoButton variant="primary" onClick={confirm}>
             {submitLabel}
-          </button>
+          </ArcoButton>
         </div>
       )}
-      {error && <p className="text-[12px] text-danger">{error}</p>}
+      {error && <p role="alert" className="text-[12px] text-danger">{error}</p>}
     </div>
   );
 }
@@ -288,7 +274,7 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
         <div className="min-w-0 flex-1">
           {editing ? (
             <div className="flex items-center gap-2">
-              <input
+              <ArcoInput
                 autoFocus
                 value={draft}
                 maxLength={20}
@@ -296,22 +282,14 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
                 onKeyDown={(e) => e.key === "Enter" && saveName()}
                 placeholder="输入昵称"
                 aria-label="昵称"
-                className="h-9 w-full max-w-[240px] rounded-lg bg-white/[0.06] px-3 text-[14px] text-white ring-1 ring-white/10 focus:outline-none focus:ring-brand/50"
+                className="w-full max-w-[240px]"
               />
-              <button
-                type="button"
-                onClick={saveName}
-                className="shrink-0 rounded-lg bg-brand px-3.5 py-2 text-[13px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
-              >
+              <ArcoButton variant="primary" onClick={saveName}>
                 保存
-              </button>
-              <button
-                type="button"
-                onClick={() => setEditing(false)}
-                className="shrink-0 rounded-lg px-3 py-2 text-[13px] text-white/50 transition-colors hover:text-white"
-              >
+              </ArcoButton>
+              <ArcoButton variant="text" onClick={() => setEditing(false)}>
                 取消
-              </button>
+              </ArcoButton>
             </div>
           ) : (
             <div className="flex items-center gap-2">
@@ -323,13 +301,13 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
                   setDraft(nickname);
                   setEditing(true);
                 }}
-                className="text-white/40 transition-colors hover:text-white"
+                className="text-muted-foreground transition-colors hover:text-white"
               >
                 <EditIcon className="size-4" />
               </button>
             </div>
           )}
-          <p className="mt-1 text-[12px] text-white/40">ID: {user?.id ?? "-"}</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">用户编号：{user?.id ?? "-"}</p>
         </div>
       </div>
 
@@ -349,15 +327,15 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
             <>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <p className="text-[12px] text-white/45">已验证手机号</p>
+                  <p className="text-[12px] text-muted-foreground">已验证手机号</p>
                   <p className="mt-1 text-[13px] text-white/85">{phone}</p>
                 </div>
                 <div>
-                  <p className="text-[12px] text-white/45">验证时间</p>
+                  <p className="text-[12px] text-muted-foreground">验证时间</p>
                   <p className="mt-1 text-[13px] text-white/85">2026年9月10日 05:23</p>
                 </div>
               </div>
-              <p className="mt-3 flex items-center gap-1.5 text-[12px] text-white/40">
+              <p className="mt-3 flex items-center gap-1.5 text-[12px] text-muted-foreground">
                 <ShieldCheckIcon className="size-3.5" />
                 更换手机号时，需要先验证当前手机号收到的短信验证码。
               </p>
@@ -371,18 +349,14 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
                   }}
                 />
               ) : (
-                <button
-                  type="button"
-                  onClick={() => setPhoneFormOpen(true)}
-                  className="mt-3 rounded-lg bg-brand px-4 py-2 text-[13px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
-                >
+                <ArcoButton variant="primary" onClick={() => setPhoneFormOpen(true)} className="mt-3">
                   更换手机号
-                </button>
+                </ArcoButton>
               )}
             </>
           ) : (
             <>
-              <p className="mt-2 text-[12px] text-white/40">尚未绑定手机号，可添加为可选登录方式。</p>
+              <p className="mt-2 text-[12px] text-muted-foreground">尚未绑定手机号，可添加为可选登录方式。</p>
               <BindForm placeholder="手机号" submitLabel="确认绑定" onDone={(t) => setPhone(t)} />
             </>
           )}
@@ -401,7 +375,7 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
             <p className="mt-3 text-[13px] text-white/85">{email}</p>
           ) : (
             <>
-              <p className="mt-2 text-[12px] text-white/40">尚未绑定邮箱，可添加为可选登录方式。</p>
+              <p className="mt-2 text-[12px] text-muted-foreground">尚未绑定邮箱，可添加为可选登录方式。</p>
               <BindForm placeholder="邮箱地址" submitLabel="确认绑定" onDone={(t) => setEmail(t)} />
             </>
           )}
@@ -419,24 +393,16 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
           {wechatBound ? (
             <div className="mt-3 flex items-center justify-between gap-3">
               <p className="text-[13px] text-white/85">已绑定微信：bollo 微信用户</p>
-              <button
-                type="button"
-                onClick={() => setWechatBound(false)}
-                className="shrink-0 rounded-lg border border-white/15 px-4 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white"
-              >
+              <ArcoButton onClick={() => setWechatBound(false)}>
                 解绑
-              </button>
+              </ArcoButton>
             </div>
           ) : (
             <>
-              <p className="mt-2 text-[12px] text-white/40">尚未绑定微信，绑定后可扫码快捷登录。</p>
-              <button
-                type="button"
-                onClick={() => setWechatBound(true)}
-                className="mt-3 rounded-lg bg-brand px-4 py-2 text-[13px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
-              >
+              <p className="mt-2 text-[12px] text-muted-foreground">尚未绑定微信，绑定后可扫码快捷登录。</p>
+              <ArcoButton variant="primary" onClick={() => setWechatBound(true)} className="mt-3">
                 绑定微信
-              </button>
+              </ArcoButton>
             </>
           )}
         </div>
@@ -446,16 +412,12 @@ function ProfileTab({ onLogout }: { onLogout: () => void }) {
       <div className="flex items-center justify-between py-5">
         <div>
           <p className="text-[14px] font-medium text-white">退出登录</p>
-          <p className="mt-1 text-[13px] text-white/45">退出后返回登录页，账号数据不受影响</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">退出后返回登录页，账号数据不受影响</p>
         </div>
-        <button
-          type="button"
-          onClick={() => { onLogout(); void logout(); }}
-          className="flex items-center gap-1.5 rounded-lg border border-danger/40 px-4 py-2 text-[13px] text-danger transition-colors hover:bg-danger/10"
-        >
+        <ArcoButton variant="danger" onClick={() => { onLogout(); void logout(); }}>
           <LogoutIcon className="size-3.5" />
           退出登录
-        </button>
+        </ArcoButton>
       </div>
     </div>
   );
@@ -483,8 +445,7 @@ function ChargeTab() {
         onApply={setFilter}
       />
 
-      <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-white/[0.08]">
-        <table className="w-full border-collapse bg-white/[0.02]">
+      <ArcoTable label="充值记录" minWidth={1100}>
           <thead>
             <tr className="border-b border-white/[0.08] bg-white/[0.03]">
               <th className={TH}>订单号</th>
@@ -519,8 +480,7 @@ function ChargeTab() {
               ))
             )}
           </tbody>
-        </table>
-      </div>
+      </ArcoTable>
       <Pager from={rows.length ? 1 : 0} to={rows.length} total={rows.length} />
     </div>
   );
@@ -555,50 +515,51 @@ function RecordFilterBar({
   const [type, setType] = useState("全部");
   const [q, setQ] = useState("");
 
-  const inputCls =
-    "rounded-md bg-white/[0.05] px-2.5 py-1.5 text-[12px] text-white/70 ring-1 ring-white/[0.08] focus:outline-none focus:ring-brand/40";
-
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3 ring-1 ring-white/[0.08]">
-      <span className="text-[12px] text-white/50">单号：</span>
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder={numberPlaceholder}
-        aria-label="单号查询"
-        className={cn(inputCls, "w-[140px]")}
-      />
-      <span className="text-[12px] text-white/50">时间&日期：</span>
-      <input
-        type="date"
-        value={from}
-        onChange={(e) => setFrom(e.target.value)}
-        aria-label="开始日期"
-        className={inputCls}
-      />
-      <span className="text-white/30">→</span>
-      <input
-        type="date"
-        value={to}
-        onChange={(e) => setTo(e.target.value)}
-        aria-label="结束日期"
-        className={inputCls}
-      />
-      <span className="ml-2 text-[12px] text-white/50">类型：</span>
-      <select
-        value={type}
-        onChange={(e) => setType(e.target.value)}
-        aria-label="类型筛选"
-        className={inputCls}
-      >
-        <option>全部</option>
-        {types.map((t) => (
-          <option key={t}>{t}</option>
-        ))}
-      </select>
-      <div className="ml-auto flex gap-2">
-        <button
-          type="button"
+    <div className="mt-4 grid grid-cols-1 gap-3 rounded-lg bg-white/[0.03] p-4 ring-1 ring-white/[0.08] sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-end">
+      <label className="flex flex-col gap-1 text-[12px] text-muted-foreground">
+        单号
+        <ArcoInput
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder={numberPlaceholder}
+          aria-label="单号查询"
+          className="w-full xl:w-[150px]"
+        />
+      </label>
+      <div className="flex flex-col gap-1 text-[12px] text-muted-foreground sm:col-span-2">
+        日期范围
+        <div className="flex flex-wrap items-center gap-2">
+          <ArcoInput
+            type="date"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+            aria-label="开始日期"
+          />
+          <span aria-hidden="true">至</span>
+          <ArcoInput
+            type="date"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+            aria-label="结束日期"
+          />
+        </div>
+      </div>
+      <label className="flex flex-col gap-1 text-[12px] text-muted-foreground">
+        类型
+        <ArcoSelect
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          aria-label="类型筛选"
+        >
+          <option>全部</option>
+          {types.map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </ArcoSelect>
+      </label>
+      <div className="flex gap-2 sm:col-span-2 xl:ml-auto">
+        <ArcoButton
           onClick={() => {
             setFrom(daysAgoIso(30));
             setTo(daysAgoIso(0));
@@ -606,17 +567,12 @@ function RecordFilterBar({
             setQ("");
             onApply(defaultFilter());
           }}
-          className="rounded-lg border border-white/15 px-3.5 py-1.5 text-[12px] text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white"
         >
           重置
-        </button>
-        <button
-          type="button"
-          onClick={() => onApply({ from, to, type, q: q.trim() })}
-          className="rounded-lg bg-brand px-4 py-1.5 text-[12px] font-bold text-black transition-transform hover:brightness-105 active:scale-95"
-        >
+        </ArcoButton>
+        <ArcoButton variant="primary" onClick={() => onApply({ from, to, type, q: q.trim() })}>
           查询
-        </button>
+        </ArcoButton>
       </div>
     </div>
   );
@@ -644,8 +600,7 @@ function PointsTab() {
         onApply={setFilter}
       />
 
-      <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-white/[0.08]">
-        <table className="w-full border-collapse bg-white/[0.02]">
+      <ArcoTable label="积分明细" minWidth={1050}>
           <thead>
             <tr className="border-b border-white/[0.08] bg-white/[0.03]">
               <th className={TH}>时间&日期</th>
@@ -676,8 +631,7 @@ function PointsTab() {
               ))
             )}
           </tbody>
-        </table>
-      </div>
+      </ArcoTable>
       <Pager from={rows.length ? 1 : 0} to={rows.length} total={rows.length} />
     </div>
   );
@@ -705,8 +659,7 @@ function TaskTab() {
         onApply={setFilter}
       />
 
-      <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-white/[0.08]">
-        <table className="w-full border-collapse bg-white/[0.02]">
+      <ArcoTable label="任务明细" minWidth={900}>
           <thead>
             <tr className="border-b border-white/[0.08] bg-white/[0.03]">
               <th className={TH}>时间</th>
@@ -732,15 +685,14 @@ function TaskTab() {
                   <td className={TD}>
                     <StatusPill status={r.status} />
                   </td>
-                  <td className={cn(TD, r.credits < 0 ? "text-danger" : "text-white/40")}>
+                  <td className={cn(TD, r.credits < 0 ? "text-danger" : "text-muted-foreground")}>
                     {r.credits < 0 ? r.credits : "不扣费（失败返还）"}
                   </td>
                 </tr>
               ))
             )}
           </tbody>
-        </table>
-      </div>
+      </ArcoTable>
       <Pager from={rows.length ? 1 : 0} to={rows.length} total={rows.length} />
     </div>
   );
@@ -760,7 +712,7 @@ function InviteTab() {
   return (
     <div className="max-w-[760px]">
       <h3 className="text-[16px] font-bold text-white">邀请好友</h3>
-      <p className="mt-1.5 text-[12px] text-white/45">
+      <p className="mt-1.5 text-[12px] text-muted-foreground">
         好友注册可得 100 积分，你按邀请阶段获得 60 / 120 / 150 积分，活动累计最高 3,000 积分。
       </p>
 
@@ -787,13 +739,9 @@ function InviteTab() {
               <p className="text-[12px] text-white/50">邀请码</p>
               <p className="mt-1.5 font-mono text-[20px] font-bold tracking-wide text-white">{code}</p>
             </div>
-            <button
-              type="button"
-              onClick={copy}
-              className="rounded-full bg-white px-4 py-1.5 text-[12px] font-bold text-black transition-transform hover:brightness-95 active:scale-95"
-            >
-              {copied ? "已复制" : "复制"}
-            </button>
+            <ArcoButton variant="primary" size="small" onClick={copy}>
+              {copied ? "已复制" : "复制邀请码"}
+            </ArcoButton>
           </div>
           <p className="mt-2.5 text-[11px] text-white/35">被邀请用户超过 30 天未订阅会员则邀请失效</p>
         </div>
@@ -801,8 +749,7 @@ function InviteTab() {
 
       {/* 记录 */}
       <h4 className="mt-6 text-[14px] font-semibold text-white">邀请好友记录</h4>
-      <div className="mt-3 overflow-hidden rounded-xl ring-1 ring-white/[0.08]">
-        <table className="w-full border-collapse bg-white/[0.02]">
+      <ArcoTable label="邀请好友记录" minWidth={480}>
           <thead>
             <tr className="border-b border-white/[0.08] bg-white/[0.03]">
               <th className={TH}>好友</th>
@@ -817,8 +764,7 @@ function InviteTab() {
               </td>
             </tr>
           </tbody>
-        </table>
-      </div>
+      </ArcoTable>
     </div>
   );
 }
@@ -841,9 +787,9 @@ export function AiWatermarkDialog({ onClose }: { onClose: () => void }) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="AI 生成水印设置"
+      aria-label="生成内容水印设置"
       onClick={onClose}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -858,7 +804,7 @@ export function AiWatermarkDialog({ onClose }: { onClose: () => void }) {
           <CloseIcon className="size-4" />
         </button>
 
-        <h3 className="text-center text-[16px] font-bold text-white">AI 生成水印设置</h3>
+        <h3 className="text-center text-[16px] font-bold text-white">生成内容水印设置</h3>
 
         <div className="mt-4 space-y-4 text-[13px] leading-relaxed text-white/70">
           <p>
@@ -873,40 +819,23 @@ export function AiWatermarkDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="mt-5 flex items-center gap-3">
-          <span className="text-[14px] font-semibold text-white">去 AI 水印</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={removeWatermark}
-            aria-label="去 AI 水印"
-            onClick={() => setRemoveWatermark((v) => !v)}
-            className={cn(
-              "relative h-6 w-11 rounded-full transition-colors",
-              removeWatermark ? "bg-brand" : "bg-white/[0.15]",
-            )}
-          >
-            <span
-              className={cn(
-                "absolute top-0.5 size-5 rounded-full bg-white shadow transition-all",
-                removeWatermark ? "left-[22px]" : "left-0.5",
-              )}
-            />
-          </button>
+          <span className="text-[14px] font-semibold text-white">去除生成水印</span>
+          <ArcoSwitch
+            checked={removeWatermark}
+            onChange={setRemoveWatermark}
+            label="去除生成水印"
+          />
         </div>
 
-        <p className="mt-3 text-[12px] leading-relaxed text-white/40">
+        <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground">
           去除水印打开开关并点击保存设置，代表您已确认充分了解了上述情况并同意
           <br />
-          可以在头像 -&gt; AI 生成水印设置 里面修改水印设置
+          可以在头像 → 生成内容水印设置中修改
         </p>
 
-        <button
-          type="button"
-          onClick={() => setSaved(true)}
-          className="mt-5 w-full rounded-lg bg-brand py-2.5 text-[14px] font-bold text-black transition-transform hover:brightness-105 active:scale-[0.99]"
-        >
-          {saved ? "已保存" : "保存"}
-        </button>
+        <ArcoButton variant="primary" size="large" onClick={() => setSaved(true)} className="mt-5 w-full">
+          {saved ? "已保存" : "保存设置"}
+        </ArcoButton>
       </div>
     </div>
   );
@@ -940,7 +869,10 @@ export function AccountDialog({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key !== "Escape") return;
+      // 子弹框打开时，Esc 只关闭最上层，保留账户详情。
+      if (document.querySelector('[aria-label="生成内容水印设置"]')) return;
+      onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -953,7 +885,7 @@ export function AccountDialog({
       role="dialog"
       aria-modal="true"
       aria-label="账户管理"
-      className="fixed inset-0 z-50 flex flex-col bg-[#0d0d0d]"
+      className="fixed inset-0 z-[70] flex flex-col bg-[#0d0d0d]"
     >
       {/* 顶栏 */}
       <div className="flex items-center justify-between px-5 py-4">
@@ -968,9 +900,9 @@ export function AccountDialog({
         </button>
       </div>
 
-      <div className="flex min-h-0 flex-1">
-        {/* 左侧菜单 */}
-        <aside className="w-[168px] shrink-0 space-y-1 border-r border-white/[0.06] px-3 pt-2">
+      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+        {/* 账户导航：窄屏横向滚动，桌面保持左侧分组 */}
+        <aside aria-label="账户导航" className="flex shrink-0 gap-1 overflow-x-auto border-b border-white/[0.06] px-3 py-2 md:w-[168px] md:flex-col md:gap-1 md:overflow-visible md:border-b-0 md:border-r md:px-3 md:pt-2">
           {ACCOUNT_TABS.map(({ id, label, Icon }) => (
             <button
               key={id}
@@ -978,7 +910,7 @@ export function AccountDialog({
               onClick={() => setTab(id)}
               aria-current={tab === id}
               className={cn(
-                "flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] transition-colors",
+                "flex h-8 shrink-0 items-center gap-2 rounded-[6px] px-3 text-[13px] transition-colors md:w-full",
                 tab === id ? "bg-white/[0.08] font-medium text-white" : "text-white/55 hover:bg-white/[0.04] hover:text-white",
               )}
             >
@@ -989,21 +921,21 @@ export function AccountDialog({
           <button
             type="button"
             onClick={onOpenWatermark}
-            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] text-white/55 transition-colors hover:bg-white/[0.04] hover:text-white"
+            className="flex h-8 shrink-0 items-center gap-2 rounded-[6px] px-3 text-[13px] text-white/55 transition-colors hover:bg-white/[0.04] hover:text-white md:w-full"
           >
             <EditIcon className="size-4" />
-            AI 水印
+            生成水印
           </button>
         </aside>
 
         {/* 右侧内容 */}
-        <main className="min-w-0 flex-1 overflow-y-auto px-8 py-6">
+        <section aria-label="账户内容" className="min-w-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 md:px-8 md:py-6">
           {tab === "profile" && <ProfileTab onLogout={onClose} />}
           {tab === "charge" && <ChargeTab />}
           {tab === "points" && <PointsTab />}
           {tab === "task" && <TaskTab />}
           {tab === "invite" && <InviteTab />}
-        </main>
+        </section>
       </div>
     </div>
   );

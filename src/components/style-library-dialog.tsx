@@ -199,10 +199,10 @@ export function StyleLibraryDialog({ open, onClose }: StyleLibraryDialogProps) {
                   <span
                     className={cn(
                       "absolute left-2 top-2 rounded-md px-2 py-0.5 text-[10px] font-bold leading-none text-white",
-                      item.badge === "Hot" ? "bg-[#ff2d92]" : "bg-[#a855f7]"
+                      item.badge === "Hot" ? "bg-danger" : "bg-info"
                     )}
                   >
-                    {item.badge}
+                    {item.badge === "Hot" ? "热门" : "最新"}
                   </span>
                 )}
                 {/* 收藏 */}

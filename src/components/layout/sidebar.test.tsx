@@ -75,9 +75,10 @@ describe("Sidebar reference navigation", () => {
 
     expect(active).toHaveClass("gap-1", "duration-[160ms]", "md:w-[56px]", "md:scale-90");
     expect(within(active).getByText("创作")).toHaveClass(
-      "text-[11px]",
+      "text-[13px]",
       "font-bold",
-      "leading-3",
+      "md:text-[11px]",
+      "md:leading-3",
     );
     expect(inactive).toHaveClass(
       "text-white/[0.54]",

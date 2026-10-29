@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  BolloLogo,
+  BolloMark,
   SparkleIcon,
   ScriptIcon,
   FolderOpenIcon,
@@ -13,16 +13,13 @@ import {
   LayoutGridIcon,
   SkillIcon,
   HelpIcon,
-  CrownIcon,
-  SettingsIcon,
+  UserIcon,
 } from "@/components/icons";
 import { TeamDialog } from "@/components/team-dialog";
 import { InviteCampaignDialog } from "@/components/invite-campaign-dialog";
 import { AccountDropdown } from "@/components/account-dropdown";
 import { AccountDialog, AiWatermarkDialog, type AccountTab } from "@/components/account-dialog";
-import { UserAvatar } from "@/components/user-avatar";
 import { useAuth } from "@/components/auth-provider";
-import { normalizeAdminRoles } from "@/lib/admin/rbac";
 import { FeedbackDialog } from "@/components/feedback-dialog";
 
 type NavItem = {
@@ -44,15 +41,17 @@ const NAV_ITEMS: NavItem[] = [
 type SidebarProps = {
   onOpenMessages: () => void;
   onOpenFeedback?: () => void;
+  /** 移动端抽屉展开态（受控） */
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
 };
 
 const ICON_BTN =
-  "flex size-9 items-center justify-center rounded-[10px] text-white/60 transition-colors hover:bg-white/[0.05] hover:text-white";
+  "flex size-9 items-center justify-center rounded-[10px] bg-surface/35 text-white/60 ring-1 ring-white/[0.06] transition-all hover:bg-surface hover:text-white hover:ring-white/15";
 
-export function Sidebar({ onOpenMessages, onOpenFeedback }: SidebarProps) {
+export function Sidebar({ onOpenMessages, onOpenFeedback, mobileOpen = false, onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
-  const { status, user, showLogin } = useAuth();
-  const isAdmin = normalizeAdminRoles(user?.roles ?? []).length > 0;
+  const { status, showLogin } = useAuth();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountTab, setAccountTab] = useState<AccountTab | null>(null);
@@ -60,11 +59,35 @@ export function Sidebar({ onOpenMessages, onOpenFeedback }: SidebarProps) {
   const [teamOpen, setTeamOpen] = useState(false);
   const [inviteCampaignOpen, setInviteCampaignOpen] = useState(false);
 
+  const closeMobile = () => {
+    setMenuOpen(false);
+    onCloseMobile?.();
+  };
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const media = window.matchMedia("(max-width: 767px)");
+    const onBreakpointChange = () => setMenuOpen(false);
+    media.addEventListener("change", onBreakpointChange);
+    return () => media.removeEventListener("change", onBreakpointChange);
+  }, []);
+
   return (
     <>
+      {mobileOpen && (
+        <button
+          type="button"
+          aria-label="关闭菜单"
+          onClick={closeMobile}
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden"
+        />
+      )}
       <nav
         aria-label="Home v2 side navigation"
-        className="relative flex h-full w-[64px] shrink-0 flex-col items-stretch bg-black md:w-[108px]"
+        className={cn(
+          "relative flex h-full w-[64px] shrink-0 flex-col items-stretch bg-sidebar md:w-[108px] max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-40 max-md:w-[112px] max-md:pt-4 max-md:shadow-xl max-md:transition-transform max-md:duration-200",
+          mobileOpen ? "max-md:translate-x-0" : "max-md:-translate-x-full"
+        )}
       >
         {/* Logo（顶部固定） */}
         <div className="flex shrink-0 justify-center px-2 pt-[20px] md:px-3">
@@ -74,7 +97,7 @@ export function Sidebar({ onOpenMessages, onOpenFeedback }: SidebarProps) {
             title="回到首页"
             className="inline-flex w-full items-center justify-center text-foreground"
           >
-            <BolloLogo className="w-[36px] h-auto md:w-full md:h-auto" />
+            <BolloMark className="h-[36px] w-[36px]" />
           </Link>
         </div>
 
@@ -90,7 +113,7 @@ export function Sidebar({ onOpenMessages, onOpenFeedback }: SidebarProps) {
                 <span className="flex shrink-0 items-center justify-center text-current">
                   <Icon className={iconClassName} />
                 </span>
-                <span className="hidden text-[11px] font-bold leading-3 md:inline">{item.label}</span>
+                <span className="text-[13px] font-bold md:text-[11px] md:leading-3">{item.label}</span>
               </>
             );
             const cls = cn(
@@ -107,6 +130,7 @@ export function Sidebar({ onOpenMessages, onOpenFeedback }: SidebarProps) {
                 aria-current={active ? "page" : undefined}
                 title={item.label}
                 className={cls}
+                onClick={closeMobile}
               >
                 {content}
               </Link>
@@ -114,23 +138,8 @@ export function Sidebar({ onOpenMessages, onOpenFeedback }: SidebarProps) {
           })}
         </div>
 
-        {/* 底部用户区（mt-auto 固定贴底：订阅会员 + 帮助 + 头像） */}
+        {/* 底部用户区（mt-auto 固定贴底：帮助 + 个人中心） */}
         <div className="flex shrink-0 flex-col items-center gap-1 px-2 pb-[20px] pt-3 md:px-[12px]">
-          {isAdmin && (
-            <Link href="/admin" aria-label="企业管理后台" title="企业管理后台" className={ICON_BTN}>
-              <SettingsIcon className="size-[18px]" />
-            </Link>
-          )}
-          {/* 订阅会员入口（参考站左下角「订阅会员」常驻位） */}
-          <Link
-            href="/pricing#membership"
-            aria-label="订阅会员"
-            title="订阅会员"
-            className="group relative flex size-9 items-center justify-center rounded-[10px] text-brand ring-1 ring-brand/25 transition-all duration-150 hover:bg-brand/10 hover:ring-brand/50 active:scale-90"
-          >
-            <CrownIcon className="size-[18px] transition-transform duration-200 group-hover:scale-110" />
-          </Link>
-
           {/* 帮助与反馈（反馈中心 + 站内公告） */}
           <button
             type="button"
@@ -158,10 +167,10 @@ export function Sidebar({ onOpenMessages, onOpenFeedback }: SidebarProps) {
               }}
               aria-label="个人中心"
               aria-expanded={menuOpen}
-              aria-haspopup="menu"
-              className="flex size-9 items-center justify-center rounded-[10px] overflow-hidden ring-1 ring-white/10 transition-all duration-150 hover:ring-white/25 active:scale-90"
+              aria-haspopup="dialog"
+              className="flex size-9 items-center justify-center rounded-[10px] bg-surface/35 text-white/[0.54] ring-1 ring-white/[0.06] transition-all duration-150 hover:bg-surface hover:text-white hover:ring-white/15 active:scale-90"
             >
-              <UserAvatar />
+              <UserIcon className="size-[18px]" />
             </button>
             {/* 在线状态点 */}
             <span

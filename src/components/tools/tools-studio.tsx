@@ -2,18 +2,31 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import type { ComponentType } from "react";
 import {
+  CameraIcon,
   CheckIcon,
   ChevronDownIcon,
+  CloseIcon,
   CoinsIcon,
+  CpuIcon,
+  EditIcon,
+  FilmIcon,
   ImageIcon,
+  LayersIcon,
   LayoutGridIcon,
   MicrophoneIcon,
+  PaletteIcon,
+  PlayIcon,
+  SceneIcon,
+  ScissorsIcon,
   SearchIcon,
   SparkleIcon,
+  StarIcon,
   TrashIcon,
   UploadIcon,
   VideoCameraIcon,
+  ZoomInIcon,
 } from "@/components/icons";
 import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/utils";
@@ -27,6 +40,8 @@ type MenuOption = {
   value: string;
   label: string;
   description?: string;
+  /** 下拉项图标：不同模型用不同图标概括 */
+  icon?: ComponentType<{ className?: string }>;
 };
 
 type ReferenceItem = {
@@ -48,7 +63,32 @@ type ToolRecord = {
   owner: string;
   createdAt: string;
   src?: string;
+  cost: string;
+  spec?: { ratio: string; resolutionLabel: string; duration: number };
+  upscaled?: boolean;
+  /** 模型来源（列表页必展示字段） */
+  modelSource: string;
+  favorite?: boolean;
 };
+
+const MEDIA_TABS = [
+  { value: "all", label: "全部" },
+  { value: "图片", label: "图片" },
+  { value: "视频", label: "视频" },
+  { value: "音频", label: "音频" },
+];
+
+const TIME_OPTIONS: MenuOption[] = [
+  { value: "all", label: "全部时间" },
+  { value: "today", label: "今天" },
+  { value: "7d", label: "近 7 天" },
+  { value: "30d", label: "近 30 天" },
+];
+
+const SORT_OPTIONS: MenuOption[] = [
+  { value: "newest", label: "最新" },
+  { value: "oldest", label: "最早" },
+];
 
 const MODE_OPTIONS: MenuOption[] = [
   { value: "video", label: "多参视频生成" },
@@ -57,6 +97,40 @@ const MODE_OPTIONS: MenuOption[] = [
   { value: "subtitle", label: "去字幕" },
   { value: "upscale", label: "视频超分" },
 ];
+
+/** 不同模型家族的图标概括，避免每个模型都堆一长串文字 */
+function modelIcon(name: string): ComponentType<{ className?: string }> {
+  if (name.includes("Seedance 2.5")) return SparkleIcon;
+  if (name.includes("Mini")) return CpuIcon;
+  if (name.includes("Seedance")) return PlayIcon;
+  if (name.includes("海螺")) return LayersIcon;
+  if (name.includes("Seedream")) return SparkleIcon;
+  if (name.includes("Nano Banana")) return PaletteIcon;
+  if (name.includes("GPT Image")) return CpuIcon;
+  if (name.includes("混元")) return SceneIcon;
+  if (name.includes("Midjourney")) return CameraIcon;
+  if (name.includes("超分")) return ZoomInIcon;
+  if (name.includes("音乐")) return MicrophoneIcon;
+  return FilmIcon;
+}
+
+/** 列表/详情里展示的短模型名（去掉「多参」「（特惠版）」等缀词） */
+function shortModelName(name: string) {
+  const isSpecial = name.includes("特惠版");
+  const base = name
+    .replace("（特惠版）", "")
+    .replace(/\s*多参/g, "")
+    .replace(/\s*\(.*?\)/g, "")
+    .trim();
+  return isSpecial ? `${base} 特惠` : base;
+}
+
+/** 按画幅给出卡片尺寸：竖版窄高、横版宽扁、方形正方 */
+function tileSize(ratio?: string) {
+  if (ratio === "9:16" || ratio === "3:4") return "h-[188px] w-[106px]";
+  if (ratio === "16:9" || ratio === "21:9" || ratio === "4:3") return "h-[117px] w-[208px]";
+  return "size-[156px]";
+}
 
 const VIDEO_MODELS = [
   "Seedance 2.0 多参（特惠版）",
@@ -101,6 +175,84 @@ const ASSETS: Array<{
   { id: "prop-bracelet", name: "素镯&玉镯", category: "道具", image: "/images/tools/prop-bracelet.png" },
 ];
 
+/** 预置不同类型的历史记录，让列表首屏就有内容（纯本地演示数据） */
+const SEED_RECORDS: ToolRecord[] = [
+  {
+    id: "seed-video-1",
+    title: "上海弄堂喜剧｜第 1 段",
+    prompt: "盛夏午后的上海老弄堂，秋秋靠在冰柜边拆棒冰，大叔走过来自称老上海人；写实电影感，9:16 竖屏，口型同步。",
+    tag: "短剧",
+    mode: "video",
+    kind: "视频",
+    model: "Seedance 2.0 多参（特惠版）",
+    modelSource: "Seedance 2.0 多参（特惠版）",
+    owner: "Phone User 7767",
+    createdAt: "2026-10-26T09:20:00.000Z",
+    src: "/images/tools/shen-qingci-chang.png",
+    cost: "42",
+    spec: { ratio: "9:16", resolutionLabel: "720p", duration: 5 },
+    favorite: true,
+  },
+  {
+    id: "seed-image-1",
+    title: "园林厅堂 · 清晨薄雾",
+    prompt: "东方园林厅堂，晨雾与侧逆光，木质结构与青砖细节，电影感构图，画面干净通透。",
+    tag: "场景",
+    mode: "image",
+    kind: "图片",
+    model: "Seedream 4.5",
+    modelSource: "Seedream 4.5",
+    owner: "Phone User 7767",
+    createdAt: "2026-10-25T14:05:00.000Z",
+    src: "/images/tools/scene-garden.jpg",
+    cost: "3",
+    spec: { ratio: "16:9", resolutionLabel: "2K", duration: 0 },
+  },
+  {
+    id: "seed-image-2",
+    title: "夜行装人物三视图",
+    prompt: "男性角色三视图，正面、侧面、背面，深色夜行装，写实摄影，浅灰背景，结构清晰。",
+    tag: "角色",
+    mode: "image",
+    kind: "图片",
+    model: "Seedream 5.0 Pro",
+    modelSource: "Seedream 5.0 Pro",
+    owner: "Phone User 7767",
+    createdAt: "2026-10-23T11:40:00.000Z",
+    src: "/images/tools/zhao-heng.png",
+    cost: "8",
+    spec: { ratio: "3:4", resolutionLabel: "2K", duration: 0 },
+  },
+  {
+    id: "seed-video-2",
+    title: "儒生夜读｜运镜测试",
+    prompt: "烛光下的儒生夜读，缓慢推镜，纸张与衣料质感清晰，暖调低照度，浅景深。",
+    tag: "运镜",
+    mode: "video",
+    kind: "视频",
+    model: "Seedance 2.5 多参",
+    modelSource: "Seedance 2.5 多参",
+    owner: "Phone User 7767",
+    createdAt: "2026-10-22T19:10:00.000Z",
+    src: "/images/tools/xie-changan.jpg",
+    cost: "48",
+    spec: { ratio: "16:9", resolutionLabel: "1080p", duration: 10 },
+  },
+  {
+    id: "seed-audio-1",
+    title: "弄堂环境音",
+    prompt: "夏日弄堂环境音，蝉鸣、远处叫卖、自行车铃，轻快俏皮的喜剧氛围，音量克制。",
+    tag: "音效",
+    mode: "music",
+    kind: "音频",
+    model: "音乐生成",
+    modelSource: "音乐生成",
+    owner: "Phone User 7767",
+    createdAt: "2026-10-21T08:30:00.000Z",
+    cost: "10",
+  },
+];
+
 const PROMPT_PLACEHOLDERS: Partial<Record<CreationMode, string>> = {
   video: "在此描述视频内容，包括情节、运镜、对白、音效或者背景音乐等，上方可选择参考的视频（最多3个）、图片（最多9张）、音频（最多3个），也可直接@参考内容",
   image: "在此描述图片内容，包括主体、场景和风格等；上方可添加参考图片。",
@@ -115,6 +267,19 @@ function localDateKey(value: string) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/** 列表分组标题：8月25日 / 2025年8月25日（跨年时带年份） */
+function groupDateLabel(value: string) {
+  const date = new Date(value);
+  const base = `${date.getMonth() + 1}月${date.getDate()}日`;
+  return date.getFullYear() === new Date().getFullYear() ? base : `${date.getFullYear()}年${base}`;
+}
+
+/** 卡片角标时长：mm:ss */
+function durationLabel(seconds?: number) {
+  const total = seconds ?? 11;
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 }
 
 function Dropdown({
@@ -171,7 +336,10 @@ function Dropdown({
         onClick={() => setOpen((current) => !current)}
         className={cn(CONTROL_CLASS, "flex items-center justify-between gap-2 text-left", buttonClassName)}
       >
-        <span className="truncate">{displayLabel ?? selected?.label ?? value}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          {selected?.icon ? <selected.icon className="size-3.5 shrink-0 text-brand" /> : null}
+          <span className="truncate">{displayLabel ?? selected?.label ?? value}</span>
+        </span>
         <ChevronDownIcon className={cn("size-3.5 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")} />
       </button>
       {open ? (
@@ -198,9 +366,16 @@ function Dropdown({
                 option.value === value ? "text-brand" : "text-foreground",
               )}
             >
-              <span>
-                <span className="block">{option.label}</span>
-                {option.description ? <span className="mt-1 block text-[11px] text-muted-foreground">{option.description}</span> : null}
+              <span className="flex min-w-0 items-start gap-2">
+                {option.icon ? (
+                  <span className={cn("mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-white/[0.06]", option.value === value && "bg-brand/15")}>
+                    <option.icon className="size-3.5" />
+                  </span>
+                ) : null}
+                <span className="min-w-0">
+                  <span className="block">{option.label}</span>
+                  {option.description ? <span className="mt-1 block text-[11px] text-muted-foreground">{option.description}</span> : null}
+                </span>
               </span>
               {option.value === value ? <CheckIcon className="mt-0.5 size-3.5 shrink-0" /> : null}
             </button>
@@ -309,7 +484,7 @@ function UploadBlock({
   onFiles: (files: File[]) => void;
 }) {
   return (
-    <label className="flex size-[68px] shrink-0 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl bg-white/20 text-[11px] text-white/75 transition-colors hover:bg-white/25 focus-within:ring-2 focus-within:ring-brand motion-reduce:transition-none">
+    <label className="flex size-[56px] shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl bg-white/20 text-[11px] text-white/75 transition-colors hover:bg-white/25 focus-within:ring-2 focus-within:ring-brand motion-reduce:transition-none sm:size-[68px] sm:gap-1.5">
       <UploadIcon className="size-5" />
       <span>{label.replace("上传", "")}</span>
       <input
@@ -328,9 +503,16 @@ function UploadBlock({
 }
 
 export function ToolsStudio() {
+  return (
+    <div className="min-h-full bg-black text-foreground">
+      <ToolsStudioInner />
+    </div>
+  );
+}
+
+function ToolsStudioInner() {
   const [mode, setMode] = useState<CreationMode>("video");
   const [prompt, setPrompt] = useState("");
-  const [tag, setTag] = useState("");
   const [videoModel, setVideoModel] = useState(VIDEO_MODELS[0]);
   const [imageModel, setImageModel] = useState(IMAGE_MODELS[0].name);
   const [upscaleModel, setUpscaleModel] = useState(UPSCALE_MODELS[0]);
@@ -344,13 +526,19 @@ export function ToolsStudio() {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [assetQuery, setAssetQuery] = useState("");
   const [assetCategory, setAssetCategory] = useState<"全部" | AssetCategory>("全部");
-  const [records, setRecords] = useState<ToolRecord[]>([]);
+  const [records, setRecords] = useState<ToolRecord[]>(SEED_RECORDS);
   const [search, setSearch] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
-  const [userFilter, setUserFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [timeFilter, setTimeFilter] = useState("all");
+  const [modelSourceFilter, setModelSourceFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [promptEditing, setPromptEditing] = useState(false);
+  const [promptDraft, setPromptDraft] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  // 渲染期读取"当前时间"会违反纯度规则，挂载时固定一次即可满足时间筛选
+  const [mountedAt] = useState(() => Date.now());
   const nextRecordId = useRef(0);
   const nextReferenceId = useRef(0);
   const localUrls = useRef<Set<string>>(new Set());
@@ -371,14 +559,108 @@ export function ToolsStudio() {
     const matchesCategory = assetCategory === "全部" || asset.category === assetCategory;
     return matchesCategory && asset.name.toLowerCase().includes(assetQuery.trim().toLowerCase());
   });
-  const filteredRecords = records.filter((record) => {
-    const query = search.trim().toLowerCase();
-    const matchesSearch = !query || `${record.title} ${record.prompt} ${record.tag}`.toLowerCase().includes(query);
-    const matchesDate = !dateFilter || localDateKey(record.createdAt) === dateFilter;
-    const matchesUser = userFilter === "all" || record.owner === userFilter;
-    const matchesType = typeFilter === "all" || record.kind === typeFilter;
-    return matchesSearch && matchesDate && matchesUser && matchesType;
-  });
+  const filteredRecords = records
+    .filter((record) => {
+      const query = search.trim().toLowerCase();
+      const matchesSearch = !query || `${record.title} ${record.prompt} ${record.tag} ${record.modelSource}`.toLowerCase().includes(query);
+      const matchesType = typeFilter === "all" || record.kind === typeFilter;
+      const matchesModel = modelSourceFilter === "all" || record.modelSource === modelSourceFilter;
+      const ageDays = (mountedAt - new Date(record.createdAt).getTime()) / 86400000;
+      const matchesTime =
+        timeFilter === "all" ||
+        (timeFilter === "today" && ageDays < 1) ||
+        (timeFilter === "7d" && ageDays < 7) ||
+        (timeFilter === "30d" && ageDays < 30);
+      return matchesSearch && matchesType && matchesTime && matchesModel;
+    })
+    .sort((a, b) =>
+      sortOrder === "oldest"
+        ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+  const groupedRecords = filteredRecords.reduce<{ key: string; label: string; items: ToolRecord[] }[]>((groups, record) => {
+    const key = localDateKey(record.createdAt);
+    const existing = groups.find((group) => group.key === key);
+    if (existing) {
+      existing.items.push(record);
+      return groups;
+    }
+    groups.push({ key, label: groupDateLabel(record.createdAt), items: [record] });
+    return groups;
+  }, []);
+
+  const modelSourceOptions: MenuOption[] = [
+    { value: "all", label: "全部来源" },
+    ...Array.from(new Set(records.map((record) => record.modelSource))).map((source) => ({
+      value: source,
+      label: shortModelName(source),
+      icon: modelIcon(source),
+    })),
+  ];
+
+  const detailRecord = detailId ? records.find((record) => record.id === detailId) ?? null : null;
+  const detailModel = detailRecord
+    ? { icon: modelIcon(detailRecord.modelSource), name: shortModelName(detailRecord.modelSource) }
+    : null;
+
+  const deleteRecord = (id: string) => {
+    setRecords((current) => current.filter((item) => item.id !== id));
+    if (detailId === id) setDetailId(null);
+    setNotice("已删除该生成记录");
+  };
+
+  const toggleFavorite = (id: string) => {
+    setRecords((current) => current.map((item) => (item.id === id ? { ...item, favorite: !item.favorite } : item)));
+  };
+
+  const copyPrompt = async (record: ToolRecord) => {
+    try {
+      await navigator.clipboard.writeText(record.prompt);
+      setNotice("提示词已复制到剪贴板");
+    } catch {
+      setError("复制失败，请手动选择文本复制");
+    }
+  };
+
+  const quoteAsReference = (record: ToolRecord) => {
+    if (!record.src) {
+      setError("该记录没有可引用的素材");
+      return;
+    }
+    setMode(record.kind === "视频" ? "video" : "image");
+    addReferences([{ id: `ref-${record.id}`, name: record.title.slice(0, 20), kind: record.kind === "视频" ? "video" : "image", src: record.src }]);
+    setNotice("已加入参考素材");
+  };
+
+  const applyPromptEdit = (record: ToolRecord, nextPrompt: string) => {
+    setRecords((current) => current.map((item) => (item.id === record.id ? { ...item, prompt: nextPrompt, title: nextPrompt.slice(0, 32) || item.title } : item)));
+    setPromptEditing(false);
+    setNotice("提示词已更新");
+  };
+
+  const updateTag = (record: ToolRecord, nextTag: string) => {
+    setRecords((current) => current.map((item) => (item.id === record.id ? { ...item, tag: nextTag.trim() } : item)));
+    setNotice(nextTag.trim() ? "标签已更新" : "已清空标签");
+  };
+
+  /** 图片编辑（消除物体 / 局部重绘）：回填到图片模式并带入指令（本地模拟） */
+  const startImageEdit = (record: ToolRecord, instruction: string) => {
+    setMode("image");
+    setPrompt(`${record.prompt}\n\n【编辑指令】${instruction}`);
+    if (record.src) {
+      addReferences([{ id: `ref-${record.id}`, name: record.title.slice(0, 20), kind: "image", src: record.src }]);
+    }
+    setDetailId(null);
+    setNotice(`已带入图片编辑：${instruction}（本地模拟）`);
+  };
+
+  const stepDetail = (offset: number) => {
+    if (!detailRecord) return;
+    const index = filteredRecords.findIndex((item) => item.id === detailRecord.id);
+    const next = filteredRecords[index + offset];
+    if (next) setDetailId(next.id);
+  };
 
   const releaseReference = (reference: ReferenceItem) => {
     if (!reference.isLocal || !reference.src) return;
@@ -446,17 +728,30 @@ export function ToolsStudio() {
       id: `tool-record-${nextRecordId.current}`,
       title: prompt.trim().slice(0, 32) || `${modeLabel} ${nextRecordId.current}`,
       prompt: prompt.trim(),
-      tag: tag.trim(),
+      tag: "",
       mode,
       kind: mode === "image" ? "图片" : mode === "music" ? "音频" : "视频",
       model,
       owner: "Phone User 7767",
       createdAt: new Date().toISOString(),
       src: referenceImage,
+      cost,
+      spec:
+        mode === "video"
+          ? { ratio: videoRatio, resolutionLabel: videoResolution, duration: durationIndex + 4 }
+          : mode === "image"
+            ? { ratio: imageRatio, resolutionLabel: imageResolution, duration: 0 }
+            : undefined,
+      modelSource: model,
     };
     setRecords((current) => [record, ...current]);
     setError("");
     setNotice("已创建本地模拟记录，不会消耗积分");
+  };
+
+  const applyUpscale = (id: string) => {
+    setRecords((current) => current.map((item) => (item.id === id ? { ...item, upscaled: true, model: "腾讯 1080P 超分" } : item)));
+    setNotice("超分任务已提交（本地模拟），完成后面板会以「腾讯 1080P 超分」显示");
   };
 
   const changeMode = (value: string) => {
@@ -468,52 +763,113 @@ export function ToolsStudio() {
   const cost = mode === "video" ? "42" : mode === "image" ? String(currentImageModel.credits) : mode === "music" ? "10" : mode === "subtitle" ? "0.5 积分/秒" : "1 积分/秒";
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-surface px-[18px] pb-5 pt-[33px] [font-family:HarmonyOS_Sans_SC_Regular,sans-serif] xl:px-6">
+    <div className="flex h-full flex-col overflow-y-auto bg-black px-[18px] pb-5 pt-[66px] [font-family:HarmonyOS_Sans_SC_Regular,sans-serif] md:pt-[33px] xl:px-6">
       <div className="mx-auto flex w-full max-w-[1500px] flex-1 flex-col">
-        <section aria-label="历史记录筛选" className="flex flex-col items-stretch justify-end gap-2 min-[901px]:flex-row min-[901px]:items-center">
-          <label className="relative block w-full min-[901px]:w-[240px]">
-            <span className="sr-only">搜索历史记录</span>
-            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索标题、提示词或标签" className={cn(CONTROL_CLASS, "w-full pl-9 pr-3 placeholder:text-muted-foreground")} />
-          </label>
-          <div className="flex flex-wrap items-center gap-2 max-[900px]:w-full">
-            <input aria-label="按日期筛选" type="date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} className={cn(CONTROL_CLASS, "w-[115px] [color-scheme:dark] max-[390px]:flex-1")} />
-            <Dropdown ariaLabel="按用户筛选" value={userFilter} onChange={setUserFilter} options={[{ value: "all", label: "全部" }, { value: "Phone User 7767", label: "Phone User 7767" }]} buttonClassName="w-[128px] max-[390px]:flex-1" className="max-[390px]:flex-1" />
-            <Dropdown ariaLabel="按类型筛选" value={typeFilter} onChange={setTypeFilter} options={[{ value: "all", label: "全部" }, { value: "视频", label: "视频" }, { value: "图片", label: "图片" }, { value: "音频", label: "音频" }]} buttonClassName="w-[128px] max-[390px]:flex-1" className="max-[390px]:flex-1" />
-            <a href="https://bollo.video/zh/tools?legacy=1&tab=multi-reference" target="_blank" rel="noreferrer" className={cn(CONTROL_CLASS, "flex w-[74px] items-center justify-center whitespace-nowrap")}>切换旧版</a>
+        <section aria-label="历史记录筛选" className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
+          <div role="tablist" aria-label="媒体类型" className="flex shrink-0 items-center gap-0.5">
+            {MEDIA_TABS.map((tab) => {
+              const active = typeFilter === tab.value;
+              return (
+                <button
+                  key={tab.value}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setTypeFilter(tab.value)}
+                  className={cn(
+                    "shrink-0 rounded-md px-2 py-1.5 text-[13px] whitespace-nowrap transition-colors sm:px-2.5",
+                    active ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
+          <Dropdown ariaLabel="按模型来源筛选" value={modelSourceFilter} onChange={setModelSourceFilter} options={modelSourceOptions} displayLabel={modelSourceFilter === "all" ? "筛选" : modelSourceFilter} className="hidden shrink-0 md:block" buttonClassName="w-auto min-w-0 whitespace-nowrap border-transparent bg-transparent px-1.5 text-muted-foreground sm:px-2" />
+          <Dropdown ariaLabel="按时间筛选" value={timeFilter} onChange={setTimeFilter} options={TIME_OPTIONS} displayLabel={timeFilter === "all" ? "时间" : TIME_OPTIONS.find((option) => option.value === timeFilter)?.label} className="shrink-0" buttonClassName="w-auto min-w-0 whitespace-nowrap border-transparent bg-transparent px-1.5 text-muted-foreground sm:px-2" />
+          <Dropdown ariaLabel="排序方式" value={sortOrder} onChange={setSortOrder} options={SORT_OPTIONS} displayLabel={SORT_OPTIONS.find((option) => option.value === sortOrder)?.label} className="shrink-0" buttonClassName="w-auto min-w-0 whitespace-nowrap border-transparent bg-transparent px-1.5 text-muted-foreground sm:px-2" />
+          <label className="relative ml-auto block w-full md:w-[320px]">
+            <span className="sr-only">搜索历史记录</span>
+            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="搜索"
+              className="h-10 w-full rounded-lg border border-white/[0.08] bg-white/[0.03] pl-9 pr-10 text-[13px] text-foreground outline-none transition-colors placeholder:text-muted-foreground hover:bg-white/[0.05] focus:border-white/20"
+            />
+            <LayoutGridIcon className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          </label>
         </section>
 
-        <section aria-label="创作记录" className="flex min-h-[180px] flex-1 flex-col py-6">
+        <section aria-label="创作记录" className="flex min-h-[180px] flex-1 flex-col pb-[340px] pt-2 md:pb-[230px]">
           {filteredRecords.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center text-center">
+            <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
               <SparkleIcon className="size-9 text-brand" />
               <h1 className="mt-4 text-base font-medium text-foreground">暂时没有内容</h1>
               <p className="mt-2 text-sm text-muted-foreground">在下方工具模块中开始创作</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredRecords.map((record) => (
-                <article key={record.id} className="overflow-hidden rounded-xl border border-white/10 bg-background/50">
-                  <div className="relative flex aspect-video items-center justify-center bg-white/[0.04]">
-                    {record.src ? <Image src={record.src} alt={record.title} fill sizes="(max-width: 768px) 100vw, 320px" className="object-cover" loading="lazy" /> : record.kind === "图片" ? <ImageIcon className="size-9 text-brand" /> : record.kind === "音频" ? <MicrophoneIcon className="size-9 text-brand" /> : <VideoCameraIcon className="size-9 text-brand" />}
-                    <span className="absolute left-2 top-2 rounded-md bg-black/60 px-2 py-1 text-[10px] text-white">本地模拟 · {record.kind}</span>
+            <div className="flex flex-col gap-7">
+              {groupedRecords.map((group) => (
+                <section key={group.key} aria-label={group.label}>
+                  <h2 className="mb-3 text-[15px] font-medium text-foreground">{group.label}</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((record) => {
+                      const isVideo = record.kind === "视频";
+                      const ModelIcon = modelIcon(record.modelSource);
+                      const ratio = record.spec?.ratio ?? (isVideo ? "16:9" : "1:1");
+                      const aspect = ratio.replace(":", "/");
+                      const isPortrait = ratio === "9:16" || ratio === "3:4";
+                      return (
+                        <article key={record.id} className="group relative">
+                          <button
+                            type="button"
+                            onClick={() => setDetailId(record.id)}
+                            aria-label={`查看 ${record.title}`}
+                            className={cn(
+                              "relative block overflow-hidden rounded-lg bg-black ring-1 ring-white/[0.06] transition-all hover:ring-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+                              tileSize(record.spec?.ratio),
+                            )}
+                          >
+                            {/* 背景铺底：同一素材模糊放大，避免竖版/横版留黑边 */}
+                            {record.src ? <Image src={record.src} alt="" aria-hidden fill sizes="240px" className="scale-125 object-cover opacity-30 blur-lg" loading="lazy" /> : null}
+                            {/* 前景卡片：按画幅比例显示 */}
+                            <span className="absolute inset-0 flex items-center justify-center p-1.5">
+                              {record.src ? (
+                                <span className="relative block h-full overflow-hidden rounded-md ring-1 ring-white/10" style={{ aspectRatio: aspect }}>
+                                  <Image src={record.src} alt={record.title} fill sizes="208px" className="object-cover transition-transform duration-200 group-hover:scale-[1.02]" loading="lazy" />
+                                </span>
+                              ) : (
+                                <span className="text-[11px] text-white/40">{record.kind}</span>
+                              )}
+                            </span>
+                            {isVideo ? (
+                              <span className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+                                <span className="flex size-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm"><PlayIcon className="size-4" /></span>
+                              </span>
+                            ) : null}
+                            {/* 底部轻量信息：时长 + 模型图标与短名 */}
+                            <span className="absolute inset-x-0 bottom-0 flex items-center gap-1 bg-gradient-to-t from-black/70 to-transparent px-1.5 pb-1 pt-4 text-[10px] text-white/75">
+                              {isVideo ? <span className="shrink-0 tabular-nums text-white/85">{durationLabel(record.spec?.duration)}</span> : null}
+                              <span className="ml-auto flex min-w-0 items-center gap-0.5 text-white/55">
+                                <ModelIcon className="size-2.5 shrink-0" />
+                                {isPortrait ? null : <span className="truncate">{shortModelName(record.modelSource)}</span>}
+                              </span>
+                            </span>
+                            {record.favorite ? <StarIcon className="absolute right-1.5 top-1.5 size-3.5 fill-brand text-brand" /> : null}
+                          </button>
+                        </article>
+                      );
+                    })}
                   </div>
-                  <div className="p-3">
-                    <h2 className="truncate text-sm font-medium text-foreground">{record.title}</h2>
-                    <p className="mt-1 truncate text-xs text-muted-foreground">{record.model}</p>
-                    <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-                      <span>{localDateKey(record.createdAt)}</span>
-                      {record.tag ? <span className="truncate rounded bg-white/[0.07] px-2 py-0.5">{record.tag}</span> : <span>{record.owner}</span>}
-                    </div>
-                  </div>
-                </article>
+                </section>
               ))}
             </div>
           )}
         </section>
 
-        <section aria-label="创作工具" className="sticky bottom-0 z-20 mx-auto w-full max-w-[896px] shrink-0 rounded-2xl border border-white/20 bg-surface-elevated/80 p-3 shadow-2xl backdrop-blur-lg">
+        <section aria-label="创作工具" className="fixed bottom-3 left-[64px] right-2 z-20 mx-auto max-w-4xl rounded-2xl border border-white/20 bg-[rgba(61,61,61,0.76)] p-3 shadow-2xl backdrop-blur-sm sm:p-4 md:left-[108px] md:right-4">
           <div className="flex flex-wrap items-center gap-2">
             {mode === "video" ? (
               <>
@@ -545,7 +901,7 @@ export function ToolsStudio() {
 
           {PROMPT_PLACEHOLDERS[mode] ? (
             <div className="relative mt-3">
-              <textarea aria-label="提示词" value={prompt} maxLength={8000} onChange={(event) => setPrompt(event.target.value)} placeholder={PROMPT_PLACEHOLDERS[mode]} className="h-[133px] w-full resize-none rounded-xl border border-white/10 bg-black/10 p-3 pb-7 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground focus:border-brand/60" />
+              <textarea aria-label="提示词" value={prompt} maxLength={8000} onChange={(event) => setPrompt(event.target.value)} placeholder={PROMPT_PLACEHOLDERS[mode]} className="h-[76px] w-full resize-none rounded-xl border border-white/10 bg-black/10 p-3 pb-8 text-[13px] leading-6 text-foreground outline-none placeholder:text-muted-foreground focus:border-brand/60 sm:h-[133px] sm:pb-7 sm:text-sm" />
               <span className="pointer-events-none absolute bottom-2.5 right-3 text-[11px] text-muted-foreground">{prompt.length}/8000</span>
             </div>
           ) : null}
@@ -573,10 +929,38 @@ export function ToolsStudio() {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Dropdown ariaLabel="创作模式" value={mode} onChange={changeMode} options={MODE_OPTIONS} direction="up" buttonClassName="w-[112px] min-w-0 px-2" />
             {mode === "video" || mode === "image" ? <SpecificationMenu mode={mode} ratio={mode === "video" ? videoRatio : imageRatio} resolution={mode === "video" ? videoResolution : imageResolution} durationIndex={durationIndex} onRatioChange={mode === "video" ? setVideoRatio : setImageRatio} onResolutionChange={mode === "video" ? setVideoResolution : setImageResolution} onDurationChange={setDurationIndex} /> : null}
-            {mode === "video" ? <Dropdown ariaLabel="视频模型" value={videoModel} onChange={setVideoModel} options={VIDEO_MODELS.map((model) => ({ value: model, label: model }))} direction="up" buttonClassName="w-[160px] min-w-0 px-2" /> : null}
-            {mode === "image" ? <Dropdown ariaLabel="图片模型" value={imageModel} onChange={setImageModel} options={IMAGE_MODELS.map((model) => ({ value: model.name, label: model.label, description: model.description }))} direction="up" displayLabel="模型 (1)" buttonClassName="min-w-[100px]" className="[&_[role=menu]]:w-[360px] [&_[role=menu]]:max-w-[calc(100vw-112px)]" /> : null}
-            {mode === "upscale" ? <Dropdown ariaLabel="超分模型" value={upscaleModel} onChange={setUpscaleModel} options={UPSCALE_MODELS.map((model) => ({ value: model, label: model }))} direction="up" /> : null}
-            {mode !== "subtitle" && mode !== "upscale" ? <input aria-label="历史标签" value={tag} maxLength={64} onChange={(event) => setTag(event.target.value)} placeholder="可选，用于筛选历史" className={cn(CONTROL_CLASS, "w-[88px] min-w-0 flex-none px-2 placeholder:text-muted-foreground")} /> : null}
+            {mode === "video" ? (
+              <Dropdown
+                ariaLabel="视频模型"
+                value={videoModel}
+                onChange={setVideoModel}
+                options={VIDEO_MODELS.map((model) => ({ value: model, label: shortModelName(model), icon: modelIcon(model) }))}
+                direction="up"
+                buttonClassName="w-[160px] min-w-0 px-2"
+                className="[&_[role=menu]]:w-[300px]"
+              />
+            ) : null}
+            {mode === "image" ? (
+              <Dropdown
+                ariaLabel="图片模型"
+                value={imageModel}
+                onChange={setImageModel}
+                options={IMAGE_MODELS.map((model) => ({ value: model.name, label: model.label, description: model.description, icon: modelIcon(model.name) }))}
+                direction="up"
+                displayLabel="模型 (1)"
+                buttonClassName="min-w-[100px]"
+                className="[&_[role=menu]]:w-[360px] [&_[role=menu]]:max-w-[calc(100vw-112px)]"
+              />
+            ) : null}
+            {mode === "upscale" ? (
+              <Dropdown
+                ariaLabel="超分模型"
+                value={upscaleModel}
+                onChange={setUpscaleModel}
+                options={UPSCALE_MODELS.map((model) => ({ value: model, label: model, icon: modelIcon(model) }))}
+                direction="up"
+              />
+            ) : null}
             <button type="button" onClick={handleGenerate} title="创建本地模拟记录，不消耗积分" className="ml-auto flex h-[38px] min-w-[72px] items-center justify-center gap-1.5 rounded-xl bg-brand px-3 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none">
               {mode === "subtitle" || mode === "upscale" ? <span>{cost}</span> : <><CoinsIcon className="size-4" /><span>{cost}</span></>}
             </button>
@@ -584,7 +968,155 @@ export function ToolsStudio() {
         </section>
       </div>
 
-      <button type="button" aria-label="打开素材库" onClick={() => setLibraryOpen(true)} className="fixed right-6 top-[136px] z-30 flex size-14 items-center justify-center rounded-full bg-brand max-[900px]:top-[190px] text-brand-foreground shadow-xl transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none">
+      {detailRecord ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${detailRecord.kind}详情`}
+          className="fixed inset-0 z-50 flex flex-col bg-black text-foreground lg:flex-row"
+        >
+          <div className="relative flex min-h-0 flex-1 items-center justify-center bg-white/[0.04] p-4 lg:p-8">
+            <button
+              type="button"
+              aria-label="关闭详情"
+              onClick={() => { setDetailId(null); setPromptEditing(false); }}
+              className="absolute left-4 top-4 z-10 flex size-9 items-center justify-center rounded-full bg-white/[0.08] text-foreground/80 transition-colors hover:bg-white/[0.14] hover:text-foreground"
+            >
+              <CloseIcon className="size-4" />
+            </button>
+            <div className="flex max-h-full w-full items-center justify-center">
+              {detailRecord.kind === "视频" ? (
+                detailRecord.src && /\.(mp4|mov|webm)(\?|$)/i.test(detailRecord.src) ? (
+                  <video src={detailRecord.src} controls className="max-h-[76vh] w-auto max-w-full rounded-xl bg-black" />
+                ) : detailRecord.src ? (
+                  <div className="relative h-[76vh] w-full">
+                    <Image src={detailRecord.src} alt={detailRecord.title} fill sizes="80vw" className="object-contain" />
+                  </div>
+                ) : (
+                  <div className="flex aspect-video w-full max-w-3xl items-center justify-center rounded-xl bg-white/[0.04] text-foreground/40">
+                    <VideoCameraIcon className="size-10" />
+                  </div>
+                )
+              ) : detailRecord.src ? (
+                <div className="relative h-[76vh] w-full">
+                  <Image src={detailRecord.src} alt={detailRecord.title} fill sizes="80vw" className="object-contain" />
+                </div>
+              ) : (
+                <div className="flex aspect-square w-full max-w-xl items-center justify-center rounded-xl bg-white/[0.04] text-foreground/40">
+                  <ImageIcon className="size-10" />
+                </div>
+              )}
+            </div>
+            <div className="absolute right-4 top-1/2 flex -translate-y-1/2 flex-col gap-2 lg:right-6">
+              <button type="button" aria-label="上一条" onClick={() => stepDetail(-1)} className="flex size-8 items-center justify-center rounded-full bg-white/[0.08] text-foreground/80 transition-colors hover:bg-white/[0.14] disabled:opacity-30" disabled={filteredRecords.findIndex((item) => item.id === detailRecord.id) <= 0}>
+                <ChevronDownIcon className="size-4 rotate-180" />
+              </button>
+              <button type="button" aria-label="下一条" onClick={() => stepDetail(1)} className="flex size-8 items-center justify-center rounded-full bg-white/[0.08] text-foreground/80 transition-colors hover:bg-white/[0.14] disabled:opacity-30" disabled={filteredRecords.findIndex((item) => item.id === detailRecord.id) >= filteredRecords.length - 1}>
+                <ChevronDownIcon className="size-4" />
+              </button>
+            </div>
+            {detailRecord.kind === "视频" && detailRecord.spec ? (
+              <span className="absolute bottom-4 left-4 rounded bg-white/[0.08] px-2 py-1 text-[11px] tabular-nums text-foreground/80">{detailRecord.spec.ratio} · {detailRecord.spec.resolutionLabel}</span>
+            ) : null}
+          </div>
+
+          <aside className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t border-white/[0.08] bg-black p-5 lg:w-[340px] lg:border-l lg:border-t-0">
+            <div className="flex items-center gap-2">
+              <button type="button" aria-label={detailRecord.favorite ? "取消收藏" : "收藏"} onClick={() => toggleFavorite(detailRecord.id)} className="flex size-8 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-white/[0.08] hover:text-foreground">
+                <StarIcon className={cn("size-4", detailRecord.favorite && "fill-brand text-brand")} />
+              </button>
+            </div>
+
+            <div>
+              <p className="mb-2 text-[11px] text-muted-foreground">{detailRecord.kind === "视频" ? "视频提示词" : "图片提示词"}</p>
+              {promptEditing ? (
+                <div className="flex flex-col gap-2">
+                  <textarea
+                    aria-label="编辑提示词"
+                    value={promptDraft}
+                    onChange={(event) => setPromptDraft(event.target.value)}
+                    className="h-[180px] w-full resize-none rounded-lg border border-white/10 bg-white/[0.04] p-3 text-[13px] leading-6 text-foreground outline-none focus:border-white/25"
+                  />
+                  <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => applyPromptEdit(detailRecord, promptDraft)} className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-brand-foreground">保存</button>
+                    <button type="button" onClick={() => setPromptEditing(false)} className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:bg-white/[0.08] hover:text-foreground">取消</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="line-clamp-6 whitespace-pre-wrap text-[13px] leading-6 text-foreground/85">{detailRecord.prompt || "（无提示词）"}</p>
+                  <div className="mt-2 flex items-center gap-1.5">
+                    <button type="button" onClick={() => copyPrompt(detailRecord)} className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2.5 py-1.5 text-[11px] text-foreground/75 transition-colors hover:bg-white/[0.12] hover:text-foreground">
+                      <LayersIcon className="size-3.5" />复制
+                    </button>
+                    <button type="button" onClick={() => { setPromptDraft(detailRecord.prompt); setPromptEditing(true); }} className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2.5 py-1.5 text-[11px] text-foreground/75 transition-colors hover:bg-white/[0.12] hover:text-foreground">
+                      <EditIcon className="size-3.5" />修改
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5 text-[11px] text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="flex items-center gap-1 rounded bg-white/[0.08] px-1.5 py-0.5 text-foreground/75">
+                  {detailModel ? <detailModel.icon className="size-3" /> : null}
+                  {detailModel?.name}
+                </span>
+                {detailRecord.spec ? (
+                  <span>
+                    {detailRecord.spec.duration ? `${detailRecord.spec.duration}s | ` : ""}{detailRecord.spec.ratio} | {detailRecord.spec.resolutionLabel}
+                  </span>
+                ) : null}
+                <span>{detailRecord.cost} 积分</span>
+              </div>
+              <span>{groupDateLabel(detailRecord.createdAt)}</span>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-[11px] text-muted-foreground" htmlFor="detail-tag">标签</label>
+              <input
+                id="detail-tag"
+                defaultValue={detailRecord.tag}
+                onBlur={(event) => updateTag(detailRecord, event.target.value)}
+                onKeyDown={(event) => { if (event.key === "Enter") (event.target as HTMLInputElement).blur(); }}
+                placeholder="加标签"
+                className="h-9 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[12px] text-foreground outline-none placeholder:text-muted-foreground focus:border-white/25"
+              />
+            </div>
+
+            <div className="mt-auto flex flex-col gap-1.5">
+              {detailRecord.kind === "视频" ? (
+                <>
+                  <button type="button" onClick={() => quoteAsReference(detailRecord)} className="flex h-10 items-center gap-2 rounded-lg bg-white/[0.06] px-3 text-[13px] text-foreground/85 transition-colors hover:bg-white/[0.12] hover:text-foreground">
+                    <VideoCameraIcon className="size-4" />视频引用
+                  </button>
+                  <button type="button" disabled={detailRecord.upscaled} onClick={() => applyUpscale(detailRecord.id)} className="flex h-10 items-center gap-2 rounded-lg bg-white/[0.06] px-3 text-[13px] text-foreground/85 transition-colors hover:bg-white/[0.12] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50">
+                    <ZoomInIcon className="size-4" />{detailRecord.upscaled ? "已超分" : "视频超分"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button type="button" onClick={() => quoteAsReference(detailRecord)} className="flex h-10 items-center gap-2 rounded-lg bg-white/[0.06] px-3 text-[13px] text-foreground/85 transition-colors hover:bg-white/[0.12] hover:text-foreground">
+                    <ImageIcon className="size-4" />图片引用
+                  </button>
+                  <button type="button" onClick={() => startImageEdit(detailRecord, "消除画面中的指定物体，并自然补全背景")} className="flex h-10 items-center gap-2 rounded-lg bg-white/[0.06] px-3 text-[13px] text-foreground/85 transition-colors hover:bg-white/[0.12] hover:text-foreground">
+                    <ScissorsIcon className="size-4" />消除物体
+                  </button>
+                  <button type="button" onClick={() => startImageEdit(detailRecord, "仅重绘选定区域，保持其他区域与人物一致性")} className="flex h-10 items-center gap-2 rounded-lg bg-white/[0.06] px-3 text-[13px] text-foreground/85 transition-colors hover:bg-white/[0.12] hover:text-foreground">
+                    <PaletteIcon className="size-4" />局部重绘
+                  </button>
+                </>
+              )}
+              <button type="button" onClick={() => deleteRecord(detailRecord.id)} className="flex h-10 items-center gap-2 rounded-lg px-3 text-[13px] text-danger/85 transition-colors hover:bg-danger/15 hover:text-danger">
+                <TrashIcon className="size-4" />删除
+              </button>
+            </div>
+          </aside>
+        </div>
+      ) : null}
+
+      <button type="button" aria-label="打开素材库" onClick={() => setLibraryOpen(true)} className="fixed right-6 top-[136px] z-30 hidden size-14 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-xl transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none md:flex">
         <LayoutGridIcon className="size-5" />
       </button>
 

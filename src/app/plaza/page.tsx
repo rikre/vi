@@ -128,9 +128,6 @@ function ScriptCard({ script }: { script: Script }) {
   );
 }
 
-/* ─── 榜单卡片（爆款榜/网文/热点）已迁移至 ranking-drawer.tsx ─────────── */
-
-
 /* ─── 项目接单（保留原逻辑） ────────────────────────────────────────────── */
 
 type Order = {
@@ -487,8 +484,6 @@ function PlazaPageInner() {
             className="h-12 w-full rounded-xl border-0 bg-white/[0.06] pl-12 pr-4 text-[15px] text-white placeholder:text-white/40 transition-all focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
         </div>
-
-        {/* 二级筛选（爆款榜/网文/热点的筛选已迁移到 ranking-drawer） */}
 
         {/* Content — tabpanel */}
         <div

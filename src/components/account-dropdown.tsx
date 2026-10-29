@@ -5,16 +5,14 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   EditIcon,
-  CameraIcon,
-  UserIcon,
-  CoinsIcon,
+  CreditsIcon,
   ChevronRightIcon,
   BellIcon,
   GiftIcon,
-  CrownIcon,
   UsersIcon,
+  StarIcon,
   LogoutIcon,
-  SettingsIcon,
+  BuildingIcon,
 } from "@/components/icons";
 import { useAuth } from "@/components/auth-provider";
 import { UserAvatar } from "@/components/user-avatar";
@@ -87,28 +85,36 @@ function Row({
   right,
   badge,
   onClick,
+  danger = false,
 }: {
-  Icon: React.ComponentType<{ className?: string }>;
+  Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   title: string;
   right?: React.ReactNode;
   badge?: React.ReactNode;
   onClick?: () => void;
+  danger?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.07]"
+      className={cn(
+        "group flex h-10 w-full items-center gap-3 rounded-[10px] px-3 text-left transition-colors hover:bg-white/[0.05] active:bg-white/[0.07]",
+        danger ? "text-danger" : "text-foreground/85"
+      )}
     >
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-white/70 ring-1 ring-white/[0.06] transition-colors group-hover:text-white">
-        <Icon className="size-[18px]" />
-      </span>
+      <Icon
+        strokeWidth={1.8}
+        className={cn(
+          "size-4 shrink-0",
+          danger ? "text-danger" : "text-muted-foreground transition-colors group-hover:text-foreground"
+        )}
+      />
       <span className="flex min-w-0 flex-1 items-center gap-2">
-        <span className="text-[13.5px] font-semibold text-white/90">{title}</span>
+        <span className="truncate text-[13px] font-medium">{title}</span>
         {badge}
       </span>
       {right}
-      <ChevronRightIcon className="size-4 shrink-0 text-white/25 transition-transform group-hover:translate-x-0.5 group-hover:text-white/50" />
     </button>
   );
 }
@@ -184,6 +190,8 @@ export function AccountDropdown({
       <div
         role="dialog"
         aria-label="账户菜单"
+        aria-hidden={!open}
+        inert={!open}
         className={cn(
           // 宽度上限 320px，窄屏（<336px）按视口收缩，防止右侧溢出
           "absolute z-50 w-[min(320px,calc(100vw-16px))] transition duration-200",
@@ -194,185 +202,169 @@ export function AccountDropdown({
             : "pointer-events-none scale-[0.98] opacity-0"
         )}
       >
-        <div className="max-h-[calc(100vh-96px)] overflow-y-auto overflow-x-hidden rounded-2xl bg-background ring-1 ring-border">
-          {/* 身份头部：头像 + 昵称 + 等级 */}
-          <div className="relative overflow-hidden px-4 pb-3 pt-4">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -right-10 -top-12 size-40 rounded-full bg-brand/[0.07] blur-2xl"
-            />
-            <div className="relative flex items-center gap-3">
-              <div className="relative size-11 shrink-0">
-                <div className="size-11 overflow-hidden rounded-xl bg-white/10 ring-1 ring-white/10">
-                  <UserAvatar />
-                </div>
-                <button
-                  type="button"
-                  aria-label="更换头像"
-                  onClick={() => console.log("更换头像")}
-                  className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-[#1c1c1c] text-white/70 ring-1 ring-white/15 transition-colors hover:text-white"
-                >
-                  <CameraIcon className="size-3" />
-                </button>
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="truncate text-[15px] font-bold text-white">{USER.name}</span>
-                  <button
-                    type="button"
-                    aria-label="编辑资料"
-                    onClick={() => openAccount("profile")}
-                    className="flex size-5 shrink-0 items-center justify-center rounded-md text-white/35 transition-colors hover:bg-white/[0.06] hover:text-white/70"
-                  >
-                    <EditIcon className="size-3.5" />
-                  </button>
-                </div>
-                <div className="mt-1 flex items-center gap-1.5">
-                  <span
-                    className={cn(
-                      "rounded-md px-2 py-0.5 text-[11px] font-medium",
-                      isMember ? "bg-brand/15 text-brand" : "bg-white/[0.07] text-white/65"
-                    )}
-                  >
-                    {USER.tier}
-                  </span>
-                </div>
-              </div>
+        <div className="max-h-[calc(100vh-96px)] overflow-y-auto overflow-x-hidden rounded-2xl bg-surface-elevated p-2 ring-1 ring-white/10">
+          {/* 身份头部：头像 + 昵称 + 个人主页入口 */}
+          <div className="flex items-center gap-3 px-2 py-2">
+            <div className="size-10 shrink-0 overflow-hidden rounded-full bg-white/10">
+              <UserAvatar />
             </div>
-          </div>
-
-          {/* 积分余额：单行紧凑展示（点击进积分明细） */}
-          <div className="px-3">
-            <div className="flex items-center gap-2 rounded-xl bg-white/[0.03] ring-1 ring-white/[0.08]">
-              <button
-                type="button"
-                onClick={() => openAccount("points")}
-                className="flex min-w-0 flex-1 items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-white/[0.04]"
-              >
-                <CoinsIcon className="size-4 shrink-0 text-brand" />
-                <span className="flex-1 truncate text-[13px] font-semibold text-white">
-                  {USER.points.toLocaleString()} 积分
-                </span>
-                <ChevronRightIcon className="size-4 shrink-0 text-white/30" />
-              </button>
-              {/* 每日签到：紧凑按钮 */}
-              <button
-                type="button"
-                onClick={handleSign}
-                disabled={signedToday}
+            <div className="min-w-0 flex-1">
+              <span className="block truncate text-[15px] font-semibold text-white">
+                {USER.name}
+              </span>
+              <span
                 className={cn(
-                  "mr-2 flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold transition-transform active:scale-95",
-                  signedToday
-                    ? "cursor-default bg-white/[0.08] text-white/40"
-                    : "bg-brand text-black hover:brightness-105"
+                  "mt-1 inline-block rounded px-1.5 py-px text-[11px] font-medium",
+                  isMember ? "bg-brand/15 text-brand" : "bg-white/[0.07] text-white/60"
                 )}
               >
-                <CoinsIcon className="size-3" />
-                {signedToday ? "已签到" : "+20"}
-              </button>
+                {USER.tier}
+              </span>
             </div>
+            <button
+              type="button"
+              onClick={() => openAccount("profile")}
+              className="flex shrink-0 items-center gap-0.5 text-[12px] text-foreground/75 transition-colors hover:text-foreground"
+            >
+              个人主页
+              <ChevronRightIcon className="size-3.5" />
+            </button>
           </div>
 
-          {user?.pointsBreakdown && (
-            <div className="mx-3 mt-2 grid grid-cols-3 gap-2 text-center text-xs text-muted-foreground">
-              <span>充值 {user.pointsBreakdown.recharge.toLocaleString()}</span>
-              <span>会员 {user.pointsBreakdown.member.toLocaleString()}</span>
-              <span>赠送 {user.pointsBreakdown.gift.toLocaleString()}</span>
-            </div>
-          )}
-
-          {/* 邀请活动：品牌渐变胶囊入口 */}
-          <div className="px-3 pt-3">
+          {/* 主操作：创建团队 */}
+          <div className="px-1 pb-2 pt-1">
             <button
               type="button"
               onClick={() => {
                 onClose();
-                onOpenInviteCampaign?.();
+                onOpenTeam?.();
               }}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-surface py-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-surface-elevated"
+              className="flex h-9 w-full items-center justify-center rounded-[10px] bg-white/[0.055] text-[13px] font-medium text-foreground transition-colors hover:bg-white/[0.09]"
             >
-              <GiftIcon className="size-4" />
-              邀请好友
+              创建团队
             </button>
           </div>
 
-          {/* 核心菜单 */}
-          <div className="px-3 pt-3">
-            <div className="overflow-hidden rounded-xl bg-white/[0.02] ring-1 ring-white/[0.06]">
-              <div className="divide-y divide-white/[0.05]">
-                {isAdmin && (
-                  <Row Icon={SettingsIcon} title="商业化控制台" onClick={() => { onClose(); router.push("/admin"); }} />
-                )}
-                <Row Icon={UsersIcon} title="团队管理" right={user?.team ? <span className="text-xs text-muted-foreground">{user.team.name}</span> : undefined} onClick={() => { onClose(); router.push("/team"); }} />
+          {/* 积分余额 + 每日签到 */}
+          <div className="mx-1 flex items-center rounded-[10px] bg-white/[0.035] py-1">
+            <button
+              type="button"
+              onClick={() => openAccount("points")}
+              className="group flex h-10 min-w-0 flex-1 items-center gap-3 rounded-[10px] px-3 text-left transition-colors hover:bg-white/[0.04]"
+            >
+              <CreditsIcon className="size-4 shrink-0 text-brand" />
+              <span className="flex-1 truncate text-[13px] font-medium text-foreground/85">
+                {USER.points.toLocaleString()} 积分
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={handleSign}
+              disabled={signedToday}
+              className={cn(
+                "mr-2 flex h-7 shrink-0 items-center rounded-full px-2.5 text-[11px] font-semibold transition-colors",
+                signedToday
+                  ? "cursor-default bg-white/[0.08] text-muted-foreground"
+                  : "bg-brand text-brand-foreground hover:bg-brand-hover"
+              )}
+            >
+              {signedToday ? "已签到" : "+20"}
+            </button>
+          </div>
+
+          {user?.pointsBreakdown && (
+            <div className="mx-3 pb-2 pl-7 pr-3 pt-0.5 text-[11px] text-muted-foreground">
+              <span>充值 {user.pointsBreakdown.recharge.toLocaleString()}</span>
+              <span className="mx-1.5">·</span>
+              <span>会员 {user.pointsBreakdown.member.toLocaleString()}</span>
+              <span className="mx-1.5">·</span>
+              <span>赠送 {user.pointsBreakdown.gift.toLocaleString()}</span>
+            </div>
+          )}
+
+          {/* 功能列表 */}
+          <div className="px-1 py-1">
+            <div>
+              <Row
+                Icon={GiftIcon}
+                title="邀请好友"
+                onClick={() => {
+                  onClose();
+                  onOpenInviteCampaign?.();
+                }}
+              />
+              {isAdmin && (
                 <Row
-                  Icon={UserIcon}
-                  title="个人资料"
-                  onClick={() => openAccount("profile")}
-                />
-                <Row
-                  Icon={BellIcon}
-                  title="消息中心"
+                  Icon={BuildingIcon}
+                  title="商业化控制台"
                   onClick={() => {
                     onClose();
-                    onOpenMessages?.();
+                    router.push("/admin");
                   }}
                 />
-                <Row
-                  Icon={CrownIcon}
-                  title="创建团队"
-                  right={
-                    <span className="rounded bg-brand/15 px-1.5 py-px text-[10px] font-bold text-brand">
-                      开通解锁
-                    </span>
-                  }
-                  onClick={() => {
-                    onClose();
-                    onOpenTeam?.();
-                  }}
-                />
-                <Row
-                  Icon={UsersIcon}
-                  title="超创合伙人"
-                  right={
-                    <span className="rounded bg-[#d8a8ff]/15 px-1.5 py-px text-[10px] font-bold text-[#e0b7ff]">
-                      合作计划
-                    </span>
-                  }
-                  onClick={() => {
-                    onClose();
-                    router.push("/partner");
-                  }}
-                />
-                <Row
-                  Icon={EditIcon}
-                  title="AI 水印"
-                  onClick={() => {
-                    onClose();
-                    onOpenWatermark?.();
-                  }}
-                />
-              </div>
+              )}
+              <Row
+                Icon={UsersIcon}
+                title="团队管理"
+                right={
+                  user?.team ? (
+                    <span className="max-w-[112px] truncate text-[12px] text-muted-foreground">{user.team.name}</span>
+                  ) : undefined
+                }
+                onClick={() => {
+                  onClose();
+                  onOpenTeam?.();
+                }}
+              />
+              <Row
+                Icon={BellIcon}
+                title="消息中心"
+                onClick={() => {
+                  onClose();
+                  onOpenMessages?.();
+                }}
+              />
+              <Row
+                Icon={StarIcon}
+                title="超创合伙人"
+                badge={
+                  <span className="rounded bg-white/[0.06] px-1.5 py-px text-[10px] font-medium text-muted-foreground">
+                    合作计划
+                  </span>
+                }
+                onClick={() => {
+                  onClose();
+                  router.push("/partner");
+                }}
+              />
+              <Row
+                Icon={EditIcon}
+                title="生成水印"
+                onClick={() => {
+                  onClose();
+                  onOpenWatermark?.();
+                }}
+              />
             </div>
           </div>
 
           {/* 退出登录 */}
-          <div className="px-3 pb-3 pt-3">
-            <div className="overflow-hidden rounded-xl bg-white/[0.02] ring-1 ring-white/[0.06]">
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  logout();
-                }}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.07]"
-              >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-danger/80 ring-1 ring-white/[0.06]">
-                  <LogoutIcon className="size-[18px]" />
-                </span>
-                <span className="text-[13.5px] font-semibold text-danger/90">退出登录</span>
-              </button>
-            </div>
+          <div className="mt-1 px-1">
+            <Row
+              Icon={LogoutIcon}
+              title="退出登录"
+              danger
+              onClick={() => {
+                onClose();
+                logout();
+              }}
+            />
+          </div>
+
+          {/* 备案信息 */}
+          <div className="px-4 pb-3 pt-1 text-center text-[10px] leading-4 text-muted-foreground">
+            <p>© 2026 菠萝视频 · 京ICP备2025031794号-3</p>
+            <p>京公网安备 11010502041287号</p>
           </div>
 
         </div>

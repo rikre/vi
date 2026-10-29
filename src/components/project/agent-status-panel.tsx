@@ -8,7 +8,7 @@ const STATUS_META: Record<AgentStepStatus, { label: string; color: string; dot: 
   pending: { label: "待处理", color: "text-white/40 bg-white/[0.06]", dot: "bg-white/30" },
   running: { label: "进行中", color: "text-brand bg-brand/15", dot: "bg-brand animate-pulse" },
   done: { label: "已完成", color: "text-[#7dffe6] bg-[#7dffe6]/15", dot: "bg-[#7dffe6]" },
-  failed: { label: "失败", color: "text-red-400 bg-red-500/15", dot: "bg-red-500" },
+  failed: { label: "失败", color: "text-danger bg-danger/15", dot: "bg-danger" },
 };
 
 // ─── 时间格式化 ────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ function StepRow({ step }: { step: AgentStep }) {
               step.status === "done" && "text-white/70",
               step.status === "running" && "text-white font-medium",
               step.status === "pending" && "text-white/50",
-              step.status === "failed" && "text-red-400"
+              step.status === "failed" && "text-danger"
             )}
           >
             {step.label}
@@ -61,7 +61,7 @@ function StepRow({ step }: { step: AgentStep }) {
           {step.finishedAt && <span>· 完成 {fmtTime(step.finishedAt)}</span>}
         </div>
         {step.note && (
-          <p className={cn("mt-1 text-[11px]", step.status === "failed" ? "text-red-400" : "text-white/50")}>
+          <p className={cn("mt-1 text-[11px]", step.status === "failed" ? "text-danger" : "text-white/50")}>
             {step.status === "failed" ? "⚠ " : "💡 "}{step.note}
           </p>
         )}
@@ -94,7 +94,7 @@ export function AgentStatusPanel({
           <span
             className={cn(
               "flex size-8 items-center justify-center rounded-lg",
-              isFailed ? "bg-red-500/15 text-red-400" : isRunning ? "bg-brand/15 text-brand" : "bg-[#7dffe6]/15 text-[#7dffe6]"
+              isFailed ? "bg-danger/15 text-danger" : isRunning ? "bg-brand/15 text-brand" : "bg-[#7dffe6]/15 text-[#7dffe6]"
             )}
             aria-hidden="true"
           >
@@ -122,7 +122,7 @@ export function AgentStatusPanel({
         <span
           className={cn(
             "shrink-0 rounded-md px-2 py-1 text-[11px] font-medium",
-            isFailed ? "bg-red-500/15 text-red-400" : isRunning ? "bg-brand/15 text-brand" : "bg-[#7dffe6]/15 text-[#7dffe6]"
+            isFailed ? "bg-danger/15 text-danger" : isRunning ? "bg-brand/15 text-brand" : "bg-[#7dffe6]/15 text-[#7dffe6]"
           )}
         >
           {isFailed ? "失败" : isRunning ? "运行中" : "已完成"}
@@ -145,7 +145,7 @@ export function AgentStatusPanel({
           <div
             className={cn(
               "h-full rounded-full transition-all",
-              isFailed ? "bg-red-500" : "bg-brand"
+              isFailed ? "bg-danger" : "bg-brand"
             )}
             style={{ width: `${agent.progress}%` }}
           />
@@ -184,9 +184,9 @@ export function AgentStatusPanel({
 
       {/* 失败原因 + 重试 */}
       {isFailed && agent.failedReason && (
-        <div className="mt-4 rounded-lg bg-red-500/10 p-3 ring-1 ring-red-500/20">
-          <p className="text-[12px] font-medium text-red-400">失败原因</p>
-          <p className="mt-1 text-[12px] text-red-300/80">{agent.failedReason}</p>
+        <div className="mt-4 rounded-lg bg-danger/10 p-3 ring-1 ring-danger/20">
+          <p className="text-[12px] font-medium text-danger">失败原因</p>
+          <p className="mt-1 text-[12px] text-danger/80">{agent.failedReason}</p>
         </div>
       )}
       {isFailed && onRetry && (

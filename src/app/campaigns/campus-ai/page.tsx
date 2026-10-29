@@ -26,13 +26,13 @@ const TRACKS = [
   {
     Icon: VideoCameraIcon,
     name: "校园短剧赛道",
-    mode: "bollo 剧本模式",
+    mode: "bollo Agent 模式",
     desc: "以校园生活为母题的 AI 短剧：社团故事、毕业季、宿舍日常、青春群像，3 集以上连载优先",
   },
   {
     Icon: MicrophoneIcon,
     name: "AI 音乐影像赛道",
-    mode: "bollo 自由模式",
+    mode: "bollo 人工模式",
     desc: "自由创作 MV、视觉短片、实验影像，鼓励风格化探索与视听语言创新",
   },
   {
@@ -44,7 +44,7 @@ const TRACKS = [
 ];
 
 const RULES = [
-  "参赛作品必须全程使用 bollo 平台创作（剧本模式 / 自由模式 / AI 重绘任一模式），提交时需关联 bollo 项目 ID",
+  "参赛作品必须全程使用 bollo 平台创作（Agent 模式 / 人工模式 / AI 重绘任一模式），提交时需关联 bollo 项目 ID",
   "作品时长 30 秒 – 5 分钟，分辨率 ≥ 720P，横竖屏不限",
   "每人/每团队限投 3 部，团队参赛不超过 5 人（可绑定 bollo 团队版协作）",
   "作品须为原创，AI 生成内容需符合平台规范；使用 AI 重绘赛道须确保原素材版权合规",

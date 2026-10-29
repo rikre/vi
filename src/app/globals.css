@@ -101,14 +101,14 @@
   /* Cyan tertiary */
   --cyan: oklch(0.93 0.1 200deg);
 
-  --destructive: oklch(0.65 0.22 25);
+  --destructive: oklch(0.80 0.16 25);
 
   /* Semantic status colors */
   --success: oklch(0.72 0.15 145);
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.80 0.15 85);
   --warning-foreground: oklch(0.20 0 0);
-  --danger: oklch(0.65 0.22 25);
+  --danger: oklch(0.80 0.16 25);
   --danger-foreground: oklch(1 0 0);
   --info: oklch(0.78 0.10 220);
   --info-foreground: oklch(0.15 0 0);
@@ -125,7 +125,7 @@
   --chart-5: oklch(0.85 0.15 60deg);
 
   --radius: 0.75rem;
-  --sidebar: oklch(0.18 0 0);
+  --sidebar: #1d201e;
   --sidebar-foreground: oklch(1 0 0);
   --sidebar-primary: #c8ff71;
   --sidebar-primary-foreground: #11130f;
@@ -133,6 +133,47 @@
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(1 0 0 / 0.06);
   --sidebar-ring: #c8ff71;
+}
+
+/* bollo light theme — /tools 路由明亮版（挂载方式：给路由根容器加 data-theme="light"） */
+[data-theme="light"] {
+  --background: #f6f7f5;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --foreground: #171a16;
+
+  --card: #ffffff;
+  --card-foreground: #171a16;
+  --popover: #ffffff;
+  --popover-foreground: #171a16;
+
+  --secondary: oklch(0 0 0 / 0.05);
+  --secondary-foreground: #171a16;
+
+  --muted: oklch(0 0 0 / 0.05);
+  --muted-foreground: oklch(0 0 0 / 0.58);
+
+  --border: oklch(0 0 0 / 0.1);
+  --input: oklch(0 0 0 / 0.08);
+  --ring: #86c92e;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #171a16;
+  --sidebar-accent: oklch(0 0 0 / 0.05);
+  --sidebar-accent-foreground: #171a16;
+  --sidebar-border: oklch(0 0 0 / 0.08);
+  --sidebar-ring: #86c92e;
+
+  /* 亮底下调深品牌色，保持对比度 */
+  --brand: #86c92e;
+  --brand-hover: color-mix(in srgb, #86c92e 88%, #fff);
+  --brand-lush: #9fdc4d;
+  --brand-foreground: #ffffff;
+  --brand-rgb: 134 201 46;
+
+  --accent: #86c92e;
+  --accent-foreground: #ffffff;
+  color-scheme: light;
 }
 
 @layer base {
@@ -168,10 +209,26 @@
 }
 
 @layer components {
+  /* 工作台环境光：只建立空间层级，不干扰内容对比度 */
+  .workspace-background {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(ellipse 62% 42% at 48% -8%, rgb(var(--brand-rgb) / 0.055), transparent 72%),
+      radial-gradient(ellipse 38% 34% at 100% 22%, color-mix(in oklch, var(--info) 4%, transparent), transparent 76%);
+  }
+
+  .hero-panel {
+    @apply rounded-2xl ring-1 ring-border;
+    background: linear-gradient(145deg, color-mix(in oklch, var(--surface) 88%, transparent), color-mix(in oklch, var(--background) 96%, transparent));
+  }
+
   /* 统一卡片基底 — 所有列表卡片复用 */
   .card-base {
-    @apply rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] transition-all duration-300
-           hover:-translate-y-0.5 hover:ring-white/20 hover:shadow-lg hover:shadow-black/20;
+    @apply rounded-2xl bg-[#141414] ring-1 ring-white/[0.08] transition-all duration-300 hover:ring-white/20;
+  }
+
+  .card-base:hover {
+    transform: translateY(-2px);
   }
 }
 

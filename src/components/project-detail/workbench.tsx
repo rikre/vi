@@ -13,7 +13,7 @@ import {
   CheckIcon,
 } from "@/components/icons";
 import type { ShortDramaProject } from "@/lib/mock-projects";
-import { getSubTabs } from "@/lib/mock-projects";
+import { getSubTabs, shortDramaModeLabel } from "@/lib/mock-projects";
 import type { ProjectSubTab } from "@/types/project";
 import OverviewTab from "./overview-tab";
 import ScriptTab from "./script-tab";
@@ -27,8 +27,8 @@ const MODE_META: Record<
   ShortDramaProject["mode"],
   { label: string; Icon: React.ComponentType<{ className?: string }>; accent: string }
 > = {
-  剧本模式: { label: "剧本模式", Icon: ScriptIcon, accent: "text-brand" },
-  自由模式: { label: "自由模式", Icon: LayersIcon, accent: "text-info" },
+  剧本模式: { label: shortDramaModeLabel("剧本模式"), Icon: ScriptIcon, accent: "text-brand" },
+  自由模式: { label: shortDramaModeLabel("自由模式"), Icon: LayersIcon, accent: "text-info" },
   AI重绘: { label: "AI重绘", Icon: RefreshCwIcon, accent: "text-info" },
 };
 

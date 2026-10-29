@@ -85,7 +85,7 @@ const SLIDES: Slide[] = [
     title: "会员权益全面升级",
     desc: "专属模型 + 3 倍积分 + 优先生成队列",
     cta: "查看权益",
-    href: "/team",
+    href: "/pricing#membership",
   },
 ];
 

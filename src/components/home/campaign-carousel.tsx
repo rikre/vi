@@ -109,7 +109,7 @@ export function CampaignCarousel({ slides = CAMPAIGN_SLIDES }: { slides?: Campai
     <div
       role="region"
       aria-label="限时活动轮播"
-      className="sticky top-0 z-40 flex h-11 shrink-0 items-center justify-center bg-background/95 px-10 backdrop-blur-sm"
+      className="sticky top-0 z-40 flex h-[43px] shrink-0 items-center justify-center bg-background/95 px-10 backdrop-blur-sm"
     >
       <button
         type="button"

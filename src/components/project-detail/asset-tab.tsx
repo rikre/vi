@@ -83,7 +83,7 @@ export default function AssetTab({ project }: { project: ShortDramaProject }) {
           <h3 className="text-[18px] font-semibold text-white">项目资产</h3>
           <p className="mt-1 text-[13px] text-white/50">
             {isFreeMode
-              ? "自由模式下请手动创建角色、场景、道具和音色，用于后续分镜生成。"
+              ? "人工模式下请手动创建角色、场景、道具和音色，用于后续分镜生成。"
               : isScriptMode
                 ? extracted
                   ? "已从剧本中提取角色、场景和道具，可继续生成视觉资产。"

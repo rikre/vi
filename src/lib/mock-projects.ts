@@ -14,6 +14,17 @@ import type {
 
 export type ShortDramaMode = "剧本模式" | "自由模式" | "AI重绘";
 
+/** 用户界面命名；内部存储值保持不变，兼容既有 Mock 与本地项目。 */
+export const SHORT_DRAMA_MODE_LABELS: Record<ShortDramaMode, string> = {
+  剧本模式: "Agent 模式",
+  自由模式: "人工模式",
+  AI重绘: "AI重绘",
+};
+
+export function shortDramaModeLabel(mode: ShortDramaMode): string {
+  return SHORT_DRAMA_MODE_LABELS[mode];
+}
+
 export type ShortDramaProject = {
   creationSettings?: CreationSettings;
   scriptWorkspace?: ScriptWorkspace;
@@ -302,7 +313,7 @@ export const SHORT_DRAMA_PROJECTS: ShortDramaProject[] = [
     updatedAt: "4天前",
     coverPrompt: "elegant dinner party scene, formal attire, dramatic lighting",
     description:
-      "民国背景的家宴题材，一场宴席揭开三代人的恩怨情仇。自由模式从零搭建。",
+      "民国背景的家宴题材，一场宴席揭开三代人的恩怨情仇。人工模式从零搭建。",
     plannedEpisodes: 24,
     characters: [
       { id: "c1", name: "沈清白", role: "主角", description: "沈家二少爷，留洋归来" },

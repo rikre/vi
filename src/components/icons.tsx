@@ -12,35 +12,6 @@ export function BolloLogo(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** 发现 (Discover) - 16x16, currentColor */
-export function DiscoverIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      fill="none"
-      height="16"
-      viewBox="0 0 24 24"
-      width="16"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <path
-        d="M13.9999 15.8364C13.9998 15.2842 13.5521 14.8364 12.9999 14.8364H10.9999C10.4477 14.8364 9.99991 15.2842 9.99991 15.8364V19.8364H13.9999V15.8364ZM15.9999 19.8364H16.7997C17.3763 19.8364 17.7488 19.8361 18.0321 19.8129C18.3036 19.7908 18.4045 19.7535 18.4616 19.7237C18.6274 19.6389 18.7637 19.5026 18.8485 19.3368C18.8783 19.2797 18.9156 19.1788 18.9377 18.9073C18.9609 18.624 18.9612 18.2515 18.9612 17.6749V13.8364C18.9612 13.2841 18.5135 12.8364 17.9612 12.8364H15.9999V19.8364Z"
-        fill="currentColor"
-      />
-      <path
-        clipRule="evenodd"
-        d="M9.99967 7.66683C10.2649 7.66683 10.5192 7.77226 10.7067 7.9598C10.8942 8.14733 10.9997 8.40162 10.9997 8.66683V10.6668C10.9997 10.9227 10.898 11.1681 10.7169 11.3495C10.5359 11.5308 10.2907 11.6328 10.0348 11.6335L5.36634 11.6335C5.11051 11.6328 4.86523 11.5308 4.6842 11.3495C4.50317 11.1681 4.40142 10.9227 4.40142 10.6668V8.66683C4.40142 8.40162 4.50685 8.14733 4.69439 7.9598C4.88192 7.77226 5.13621 7.66683 5.40142 7.66683H9.99967Z"
-        fill="currentColor"
-      />
-      <path
-        clipRule="evenodd"
-        d="M7.99967 1.3335C11.6816 1.3335 14.6663 4.31826 14.6663 8.00016C14.6663 11.6821 11.6816 14.6668 7.99967 14.6668C4.31778 14.6668 1.33301 11.6821 1.33301 8.00016C1.33301 4.31826 4.31778 1.3335 7.99967 1.3335ZM7.05957 5.19287C6.69076 5.50396 6.25521 5.82478 5.78288 6.118C4.9015 6.66514 3.83078 7.16162 2.7679 7.32568L2.70866 7.33415C2.68147 7.55238 2.66634 7.77457 2.66634 8.00016C2.66634 10.9457 5.05416 13.3335 7.99967 13.3335C10.9452 13.3335 13.333 10.9457 13.333 8.00016C13.333 7.46663 13.2536 6.95172 13.1059 6.46663L13.0854 6.47554C12.0634 6.8652 10.9407 6.84883 10.0082 6.41659C9.0758 5.98436 8.39934 5.17996 8.25228 4.23328L8.23806 4.13786C7.81934 4.41492 7.42837 4.74891 7.05957 5.19287Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 /** 新建 (Plus) - 16x16, currentColor */
 export function PlusIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -168,28 +139,6 @@ export function PublishIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** 广场 (Plaza/Market) - 16x16, currentColor */
-export function PlazaIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      fill="none"
-      height="16"
-      viewBox="0 0 24 24"
-      width="16"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <path
-        d="M4 21h16M6 21V10l6-4 6 4v11M9 21v-5h6v5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 /** 技能 (Skill/Book) - 16x16, currentColor */
 export function SkillIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -227,25 +176,6 @@ export function WeChatIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** Discord - 16x16, currentColor */
-export function DiscordIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      fill="none"
-      height="16"
-      viewBox="0 0 16 16"
-      width="16"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <path
-        d="M13.5447 2.77046C12.5249 2.30254 11.4313 1.9578 10.2879 1.76035C10.2671 1.75654 10.2463 1.76606 10.2356 1.78511C10.0949 2.03525 9.93915 2.36158 9.83006 2.61808C8.60027 2.43397 7.37679 2.43397 6.17221 2.61808C6.0631 2.35588 5.90166 2.03525 5.76038 1.78511C5.74966 1.7667 5.72886 1.75717 5.70803 1.76035C4.56527 1.95717 3.47171 2.30191 2.45129 2.77046C2.44246 2.77427 2.43488 2.78063 2.42986 2.78887C0.355594 5.88778 -0.212633 8.91052 0.0661201 11.8958C0.0673814 11.9104 0.0755799 11.9244 0.086932 11.9332C1.45547 12.9383 2.78114 13.5484 4.08219 13.9528C4.10301 13.9592 4.12507 13.9516 4.13832 13.9344C4.44608 13.5141 4.72043 13.071 4.95565 12.6049C4.96953 12.5777 4.95628 12.5453 4.92791 12.5345C4.49275 12.3694 4.0784 12.1681 3.67982 11.9396C3.64829 11.9212 3.64577 11.8761 3.67477 11.8545C3.75865 11.7916 3.84255 11.7263 3.92264 11.6602C3.93713 11.6482 3.95732 11.6456 3.97435 11.6532C6.59286 12.4524 9.4088 12.4524 12.0266 11.6532C12.0436 11.6451 12.0638 11.6477 12.0789 11.6597C12.1589 11.7258 12.2428 11.7916 12.3274 11.8545C12.3564 11.8761 12.3545 11.9212 12.323 11.9396C11.9244 12.1737 11.5101 12.3694 11.0743 12.5339C11.0459 12.5446 11.0333 12.5777 11.0472 12.6049C11.2881 13.0704 11.5624 13.5135 11.8639 13.9338C11.8765 13.9516 11.8992 13.9592 11.92 13.9528C13.2274 13.5484 14.5531 12.9383 15.9216 11.9332C15.9336 11.9244 15.9412 11.911 15.9425 11.8964C16.2723 8.45686 15.3775 5.45763 13.5659 2.7895C13.5615 2.78063 13.5539 2.77427 13.5447 2.77046Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 /** 帮助 (Help/QuestionMark) - 16x16, currentColor */
 export function HelpIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -277,31 +207,11 @@ export function HelpIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** Hand-wave icon used in greeting — 60x60, brand lime fill #D4FF3F */
-export function WaveHand(props: SVGProps<SVGSVGElement>) {
+/** 纯图标品牌标记（不含 "bollo" 文字），用于窄侧栏 */
+export function BolloMark(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg
-      width="60"
-      height="60"
-      viewBox="0 0 60 60"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      focusable="false"
-      {...props}
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M49.8207 31.7336C53.8068 38.384 50.9581 49.6876 41.2643 49.6876H17.7985C8.34042 49.6876 5.39951 38.9416 8.96549 32.2405C9.80576 30.6692 10.3591 29.7568 10.9227 28.0131C11.3121 26.7965 11.6502 25.7017 12.6749 24.3229C13.8739 22.711 16.1282 23.0152 15.5646 25.0224C15.4826 25.3164 15.3699 25.7219 15.2982 26.0565C15.083 27.1007 15.6773 27.638 16.3741 27.6684C17.0505 27.6887 17.8395 27.2426 17.8395 26.0159C17.8395 22.4981 18.7617 19.3859 21.2313 17.6219C22.8913 16.4256 24.4693 16.9933 23.6701 19.2743C23.5369 19.6494 23.2602 20.278 23.168 20.866C22.8708 22.7414 25.576 22.9848 25.9244 21.4033C25.9962 21.0687 26.0167 20.6734 26.0372 20.2983C26.0986 18.1592 27.1643 17.0947 28.4862 16.0201C30.2282 14.6211 29.7364 13.8405 29.9003 11.9245C30.0643 9.90706 31.8063 10.0287 32.8105 10.9918C35.6182 13.6682 35.9973 17.186 35.6079 19.7711C34.9521 24.1506 40.0449 23.9884 39.5633 20.5314C39.4813 19.9536 39.3481 19.2338 39.2764 18.3924C39.0919 16.0708 41.1926 16.2026 42.576 17.5712C43.9798 18.9499 45.1172 20.9673 45.5989 22.8834C46.6441 27.0905 47.6893 28.1956 49.8207 31.7438V31.7336Z"
-        fill="#D4FF3F"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M19.3559 33.082C19.6121 34.2782 21.2414 34.6229 21.7332 32.7271C22.1124 31.2673 23.383 28.7633 25.043 30.071C26.3444 31.095 26.9524 32.9593 26.6245 34.8238C26.4006 36.0967 26.1757 37.4249 26.9524 38.0914C27.6953 38.7301 28.8196 38.3365 29.0664 37.1289C29.3146 35.9148 29.1504 34.5685 29.1504 33.3313C29.1504 32.1199 30.2457 31.4815 31.0967 32.2389C31.8561 32.9127 31.7276 34.2782 31.7276 35.5234C31.7276 36.7687 31.6656 37.954 31.9647 38.5824C32.2639 39.2107 33.2683 39.1444 33.5553 38.4747C33.8424 37.805 33.7223 36.578 33.7223 35.5234C33.7223 34.4689 33.5857 33.3324 33.9167 32.4936C34.2476 31.6548 35.2895 31.6139 35.7229 32.3976C36.1562 33.1813 35.9119 34.6842 35.9119 35.8137C35.9119 36.9433 35.7713 37.9274 36.0694 38.4083C36.3675 38.8892 37.1563 38.8514 37.477 38.3152C37.7977 37.7791 37.7014 36.6834 37.7014 35.7679C37.7014 34.8525 37.5901 33.9537 37.9281 33.3161C38.2661 32.6786 39.1529 32.7106 39.5159 33.3383C39.8788 33.9661 39.8162 35.0841 39.8162 36.0931C39.8162 37.1022 39.8015 38.0124 39.4955 38.4985C39.1895 38.9846 38.3575 38.9325 37.9915 38.4083C37.6255 37.8842 37.7014 36.8611 37.7014 35.7679C37.7014 34.6748 37.5353 33.5661 37.2054 33.1912C36.8756 32.8162 36.2242 32.7337 35.6343 32.8614C35.0445 32.9891 34.5579 33.3671 34.2736 33.9731C33.9893 34.579 33.9287 35.4327 33.9167 36.2517C33.9046 37.0708 33.9406 37.8426 33.5553 38.4747C33.17 39.1069 32.1793 39.0902 31.7276 38.4083C31.2758 37.7264 31.3863 36.4998 31.3863 35.412C31.3863 34.3242 31.3157 33.2372 30.8603 32.6932C30.4049 32.1492 29.5194 32.1732 29.0503 32.7561C28.5812 33.339 28.5738 34.4494 28.5664 35.4759C28.559 36.5025 28.5515 37.5453 28.1401 38.0914C27.7287 38.6376 26.7948 38.5569 26.398 37.9439C26.0011 37.3309 26.0413 36.1426 26.0413 35.0767C26.0413 34.0109 25.9797 32.9711 25.4741 32.4936C24.9686 32.016 24.0695 32.1356 23.5918 32.7561C23.1142 33.3766 22.9594 34.4941 22.6217 35.4759C22.2841 36.4578 21.7655 37.3309 20.8444 37.4984C19.9233 37.6659 19.0696 37.0979 19.0536 36.0931C19.0377 35.0883 19.5355 33.9537 19.3559 33.082Z"
-        fill="#E6F06B"
-      />
+    <svg width="32" height="32" viewBox="0 0 32 32" role="img" aria-label="菠萝视频" {...props}>
+      <image href="https://bollo.video/images/home-v2/BOLLO%20icon.png" width="32" height="32" />
     </svg>
   );
 }
@@ -727,6 +637,29 @@ export function CoinsIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+/** Credits - 16x16, currentColor，线性硬币 */
+export function CreditsIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M15 8.7c-.8-.6-1.8-.9-2.9-.9-1.7 0-2.8.8-2.8 2 0 3.1 5.7 1.5 5.7 4.6 0 1.3-1.1 2.2-2.9 2.2-1.2 0-2.3-.4-3.1-1.1" />
+      <path d="M12 5.8v12.4" />
+    </svg>
+  );
+}
+
 /** Edit/Pencil - 16x16, currentColor */
 export function EditIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -936,21 +869,6 @@ export function UserGroupIcon(props: SVGProps<SVGSVGElement>) {
       <circle cx="9" cy="7" r="4" />
       <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  );
-}
-
-/** Play Circle - 24x24, currentColor */
-export function PlayCircleIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      fill="currentColor"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      {...props}
-    >
-      <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm14.024-.983a1.125 1.125 0 0 1 0 1.966l-5.603 3.113A1.125 1.125 0 0 1 9 15.113V8.887c0-.857.921-1.4 1.671-.983l5.603 3.113Z" clipRule="evenodd" />
     </svg>
   );
 }
@@ -1216,49 +1134,6 @@ export function VolumeIcon(props: SVGProps<SVGSVGElement>) {
     >
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-    </svg>
-  );
-}
-
-/** Maximize/Fullscreen - 16x16, currentColor */
-export function MaximizeIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      fill="none"
-      height="16"
-      viewBox="0 0 24 24"
-      width="16"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      {...props}
-    >
-      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-    </svg>
-  );
-}
-
-/** Eye/Views - 16x16, currentColor */
-export function EyeIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      fill="none"
-      height="16"
-      viewBox="0 0 24 24"
-      width="16"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      {...props}
-    >
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }
@@ -1691,6 +1566,28 @@ export function VolumeXIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function MenuIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      {...props}
+    >
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="4" y1="12" x2="20" y2="12" />
+      <line x1="4" y1="18" x2="20" y2="18" />
+    </svg>
+  );
+}
+
 export function LayoutGridIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -1893,27 +1790,6 @@ export function TrendDownIcon(props: SVGProps<SVGSVGElement>) {
     >
       <path d="M4 7l7 8h9" />
       <path d="m16 11 4 4-4 4" />
-    </svg>
-  );
-}
-
-/** Wrench - 24x24, currentColor（工具入口） */
-export function ToolsIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      fill="none"
-      height="24"
-      viewBox="0 0 24 24"
-      width="24"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      {...props}
-    >
-      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
     </svg>
   );
 }

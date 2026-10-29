@@ -379,8 +379,8 @@ function ShortPanel({
         <p className="mb-2 text-[12px] text-white/40">创作模式</p>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { id: "agent" as const, label: "全剧智能体", desc: "从剧本开始，逐步确认创作" },
-            { id: "manual" as const, label: "自主创作", desc: "自由编辑每一步" },
+            { id: "agent" as const, label: "Agent 模式", desc: "从剧本开始，逐步确认创作" },
+            { id: "manual" as const, label: "人工模式", desc: "自由编辑每一步" },
           ].map((m) => (
             <button
               key={m.id}

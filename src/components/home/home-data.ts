@@ -39,28 +39,40 @@ export type QuickAction = {
 
 export const QUICK_ACTIONS: QuickAction[] = [
   {
-    title: "生图片",
-    desc: "文字成图，参考生图",
-    img: "/images/home/quick-imagegen.webp",
-    href: "/tools",
-  },
-  {
-    title: "生视频",
+    title: "视频生成",
     desc: "多参生视频，多模型任选",
     img: "/images/home/quick-videogen.webp",
     href: "/tools",
   },
   {
-    title: "资产广场",
+    title: "图片生成",
+    desc: "文生图与参考生图",
+    img: "/images/home/quick-imagegen.webp",
+    href: "/tools",
+  },
+  {
+    title: "音乐生成",
+    desc: "配乐、配音与音效",
+    img: "/images/home/artist-hero.png",
+    href: "/tools",
+  },
+  {
+    title: "视频超分",
+    desc: "一键提升画质细节",
+    img: "/images/tools/prop-bracelet.png",
+    href: "/tools",
+  },
+  {
+    title: "去字幕",
+    desc: "智能擦除原片字幕",
+    img: "/images/tools/scene-garden.jpg",
+    href: "/tools",
+  },
+  {
+    title: "数字人",
     desc: "挑选演员，锁定形象",
     img: "/images/home/quick-asset.png",
     href: "/library",
-  },
-  {
-    title: "重制工坊",
-    desc: "上传原片，重制本土化版本",
-    img: "/images/home/quick-remake.png",
-    href: "/project/new?action=remake",
   },
 ];
 

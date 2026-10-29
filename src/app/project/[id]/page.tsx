@@ -332,7 +332,7 @@ function EvaluationTab({
                     className="mt-0.5 size-4 accent-brand"
                     aria-label={`勾选问题：${issue.text}`}
                   />
-                  <span className="mt-0.5 shrink-0 rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-400">
+                  <span className="mt-0.5 shrink-0 rounded-md bg-warning/15 px-1.5 py-0.5 text-[10px] font-medium text-warning">
                     {issue.dimension}
                   </span>
                   <span className="text-[13px] text-white/70">{issue.text}</span>
@@ -403,7 +403,7 @@ function RewriteTab({
             <ul className="mt-3 space-y-1.5">
               {drivenIssues.map((issue, i) => (
                 <li key={i} className="flex items-start gap-2 text-[12px]">
-                  <span className="mt-0.5 shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-400">
+                  <span className="mt-0.5 shrink-0 rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-medium text-warning">
                     {issue.dimension}
                   </span>
                   <span className="text-white/70">{issue.text}</span>
@@ -483,7 +483,7 @@ function RewriteTab({
           <ul className="mt-3 space-y-1.5">
             {drivenIssues.map((issue, i) => (
               <li key={i} className="flex items-start gap-2 text-[12px]">
-                <span className="mt-0.5 shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-400">
+                <span className="mt-0.5 shrink-0 rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-medium text-warning">
                   {issue.dimension}
                 </span>
                 <span className="text-white/70">{issue.text}</span>
@@ -595,7 +595,7 @@ function RewriteTab({
                   const target = versions.find((v) => v.id === ids[0]) || versions.find((v) => v.id === ids[1]);
                   if (target) handleRollback(target);
                 }}
-                className="rounded-md bg-amber-500/15 px-2 py-1 text-amber-400 hover:bg-amber-500/20"
+                className="rounded-md bg-warning/15 px-2 py-1 text-warning hover:bg-warning/20"
               >
                 回滚到选中版本
               </button>
@@ -751,9 +751,9 @@ function BreakdownTab({ project }: { project: ReturnType<typeof getProject> }) {
   if (isFailed && agent?.failedReason) {
     return (
       <div className="space-y-4">
-        <div className="rounded-xl bg-red-500/10 p-5 ring-1 ring-red-500/20">
+        <div className="rounded-xl bg-danger/10 p-5 ring-1 ring-danger/20">
           <div className="flex items-start gap-3">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-red-500/15 text-red-400">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-danger/15 text-danger">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
@@ -761,8 +761,8 @@ function BreakdownTab({ project }: { project: ReturnType<typeof getProject> }) {
               </svg>
             </span>
             <div className="min-w-0 flex-1">
-              <h3 className="text-[14px] font-medium text-red-400">拉片任务失败</h3>
-              <p className="mt-1 text-[12px] text-red-300/80">{agent.failedReason}</p>
+              <h3 className="text-[14px] font-medium text-danger">拉片任务失败</h3>
+              <p className="mt-1 text-[12px] text-danger/80">{agent.failedReason}</p>
               <div className="mt-3 flex items-center gap-2 text-[11px] text-white/50">
                 <span>任务进度 {agent.progress}%</span>
                 <span>·</span>
@@ -952,7 +952,7 @@ function ReferencesTab() {
             onClick={() => {
               if (window.confirm(`确定清空 ${count} 条引用？此操作不可恢复`)) clear();
             }}
-            className="rounded-lg bg-red-500/10 px-3 py-1.5 text-[12px] text-red-400 transition-colors hover:bg-red-500/20"
+            className="rounded-lg bg-danger/10 px-3 py-1.5 text-[12px] text-danger transition-colors hover:bg-danger/20"
           >
             清空
           </button>
@@ -1003,7 +1003,7 @@ function ReferencesTab() {
                   type="button"
                   onClick={() => remove(r.type, r.id)}
                   aria-label={`移除引用 ${r.title}`}
-                  className="shrink-0 rounded-lg bg-white/[0.04] p-1.5 text-white/40 transition-colors hover:bg-red-500/15 hover:text-red-400"
+                  className="shrink-0 rounded-lg bg-white/[0.04] p-1.5 text-white/40 transition-colors hover:bg-danger/15 hover:text-danger"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                     <line x1="18" y1="6" x2="6" y2="18" />

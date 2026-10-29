@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Episode, ShortDramaProject, ShotItem } from "@/lib/mock-projects";
 import {
@@ -92,7 +93,7 @@ export default function FilmTab({
                   onClick={() => setActiveEpisodeIdx(idx)}
                   className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[12px] transition-colors ${
                     active
-                      ? "bg-gradient-to-br from-[#00e5c8] to-[#7dff8c] text-black shadow-lg shadow-brand/20"
+                      ? "bg-brand text-brand-foreground shadow-lg shadow-brand/20"
                       : "text-white/60 hover:bg-white/[0.04] hover:text-white"
                   }`}
                 >
@@ -120,6 +121,13 @@ export default function FilmTab({
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <Link
+              href={`/watch/${project.id}`}
+              className="flex items-center gap-1.5 rounded-full bg-brand px-3 py-1.5 text-[12px] font-semibold text-brand-foreground transition-colors hover:bg-brand-hover"
+            >
+              <PlayIcon className="size-3.5" />
+              沉浸播放
+            </Link>
             <button
               type="button"
               onClick={exportVideo}

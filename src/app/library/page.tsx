@@ -20,6 +20,7 @@ import {
   VolumeIcon,
   CoinsIcon,
 } from "@/components/icons";
+import { VOICES, type Voice } from "./data";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,16 +47,6 @@ type Artist = {
   price: number;
   tags: string[];
   fitRoles: string;
-  imagePrompt: string;
-};
-
-type Voice = {
-  id: number;
-  name: string;
-  desc: string;
-  gender: "男" | "女";
-  age: "青年" | "中年" | "老年";
-  language: string;
   imagePrompt: string;
 };
 
@@ -169,81 +160,7 @@ const ARTISTS: Artist[] = [
       "tough young male actor portrait, leather jacket, urban night background",
   },
 ];
-
-const VOICES: Voice[] = [
-  {
-    id: 1,
-    name: "婆婆",
-    desc: "语调舒缓、声线慈祥，自带岁月感的长辈音",
-    gender: "女",
-    age: "老年",
-    language: "中文",
-    imagePrompt: "elderly Chinese grandmother portrait, warm smile, soft lighting",
-  },
-  {
-    id: 2,
-    name: "幽默大爷",
-    desc: "豁达沧桑的乐观爷爷，通透豁达又从容",
-    gender: "男",
-    age: "老年",
-    language: "中文",
-    imagePrompt: "elderly Chinese grandfather portrait, kind eyes, cheerful expression",
-  },
-  {
-    id: 3,
-    name: "和蔼奶奶",
-    desc: "慈祥的老奶奶，耐心亲切，散发着岁月沉淀的温柔",
-    gender: "女",
-    age: "老年",
-    language: "中文",
-    imagePrompt: "gentle Chinese grandmother portrait, silver hair, warm lighting",
-  },
-  {
-    id: 4,
-    name: "武则天",
-    desc: "声线威严、气场拉满，自带帝王霸气的御姐音",
-    gender: "女",
-    age: "中年",
-    language: "中文",
-    imagePrompt: "regal Chinese empress portrait, golden crown, imperial palace",
-  },
-  {
-    id: 5,
-    name: "邻居阿姨",
-    desc: "温暖成熟的中年阿姨，兼具知性气质",
-    gender: "女",
-    age: "中年",
-    language: "中文",
-    imagePrompt: "middle-aged Chinese woman portrait, friendly smile, home background",
-  },
-  {
-    id: 6,
-    name: "女雷神",
-    desc: "声线雄浑、气场拉满，充满力量感的御姐音",
-    gender: "女",
-    age: "青年",
-    language: "中文",
-    imagePrompt: "powerful female warrior portrait, lightning effects, dramatic lighting",
-  },
-  {
-    id: 7,
-    name: "温柔妈妈",
-    desc: "语调舒缓、咬字温润，自带母性柔光的治愈音",
-    gender: "女",
-    age: "中年",
-    language: "中文",
-    imagePrompt: "gentle mother portrait, soft lighting, warm home background",
-  },
-  {
-    id: 8,
-    name: "胡子叔叔",
-    desc: "历经风雨后变得沉稳的大叔，果敢让人信赖",
-    gender: "男",
-    age: "中年",
-    language: "中文",
-    imagePrompt: "mature bearded Chinese man portrait, confident expression",
-  },
-];
+;
 
 // ---------------------------------------------------------------------------
 // Helpers

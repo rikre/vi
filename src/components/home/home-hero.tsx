@@ -97,18 +97,18 @@ export function HomeHero() {
   return (
     <section className="relative">
       {/* ── 页面头：logo 居中 + 右上角操作 ── */}
-      <header className="relative flex h-[78px] items-start justify-center pt-4">
+      <header className="relative flex h-[116px] items-start justify-center pt-4 md:h-[82px]">
         <img
           src="/images/home/home-logo.png"
           alt="Bollo 标志"
           className="h-[63px] w-[132px] object-contain"
         />
-        <div className="absolute right-0 top-4 flex items-center gap-3">
+        <div className="absolute inset-x-0 top-[70px] flex items-center justify-center gap-2 md:inset-x-auto md:right-0 md:top-4 md:justify-end md:gap-2.5">
           <button
             type="button"
             onClick={() => setGroupOpen(true)}
             aria-haspopup="dialog"
-            className="flex h-9 items-center gap-1.5 rounded-full px-4 text-[13px] text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-white/25"
+            className="flex h-9 items-center gap-1.5 rounded-full bg-surface/40 px-3 text-[12px] text-muted-foreground ring-1 ring-border transition-colors hover:bg-surface hover:text-foreground hover:ring-white/25 md:px-4 md:text-[13px]"
           >
             <UserGroupIcon className="size-4" />
             用户群
@@ -116,7 +116,7 @@ export function HomeHero() {
           <button
             type="button"
             onClick={() => router.push("/pricing")}
-            className="relative flex h-9 items-center gap-1.5 rounded-full bg-brand px-4 text-[13px] font-semibold text-brand-foreground transition-all hover:brightness-110 active:scale-[0.98]"
+            className="relative flex h-9 items-center gap-1.5 rounded-full bg-brand/[0.08] px-3 text-[12px] font-semibold text-brand ring-1 ring-brand/20 transition-all hover:bg-brand/[0.14] hover:ring-brand/35 active:scale-[0.98] md:px-4 md:text-[13px]"
           >
             <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground px-1.5 text-[10px] font-medium text-background">
               最高 1000 积分
@@ -137,8 +137,18 @@ export function HomeHero() {
         </div>
       </header>
 
+      {/* ── 价值主张：只说明产品能力，不引入不可验证的数据 ── */}
+      <div className="mx-auto mt-2 max-w-[720px] text-center md:mt-5">
+        <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.02em] text-foreground md:text-[32px]">
+          让灵感，成为下一部作品
+        </h1>
+        <p className="mt-2 text-[12px] leading-5 text-muted-foreground md:text-[13px]">
+          从一个故事到完整短剧，剧本、资产与成片在同一工作台完成。
+        </p>
+      </div>
+
       {/* ── 主模式切换 ── */}
-      <div className="mx-auto mt-3 flex w-fit items-center gap-1 rounded-full bg-surface p-1">
+      <div className="mx-auto mt-5 flex w-fit items-center gap-1 rounded-full bg-surface/80 p-1 ring-1 ring-border">
         {(
           [
             { id: "short", label: "做短剧" },
@@ -164,7 +174,14 @@ export function HomeHero() {
       </div>
 
       {/* ── 创作卡片 ── */}
-      <div className="mx-auto mt-5 max-w-[1050px] rounded-[18px] p-[1px] ring-1 ring-border">
+      <div className="hero-panel mx-auto mt-5 max-w-[1050px] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3 text-[11px] text-muted-foreground">
+          <span className="font-medium tracking-[0.08em] text-foreground/70">创作配置</span>
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-brand" />
+            智能创作工作台
+          </span>
+        </div>
         {mainMode === "short" ? (
           <div className="flex flex-col gap-3 p-3">
             {/* 项目名 */}
@@ -191,18 +208,18 @@ export function HomeHero() {
                 </strong>
                 <small className="text-[12px] text-muted-foreground">
                   {isAgent
-                    ? "支持 TXT、PDF、DOCX，创建后进入剧本模式项目。"
-                    : "填写项目名后即可创建自由模式项目。"}
+                    ? "支持 TXT、PDF、DOCX，创建后进入 Agent 模式项目。"
+                    : "填写项目名后即可创建人工模式项目。"}
                 </small>
               </span>
             </button>
 
             {/* 底栏 */}
-            <div className="flex h-9 items-center justify-between gap-3">
-              <div className="flex items-center gap-1 rounded-full bg-black/50 p-1 ring-1 ring-border">
+            <div className="flex min-h-9 flex-wrap items-center justify-between gap-2">
+              <div className="flex shrink-0 items-center gap-1 rounded-full bg-black/50 p-1 ring-1 ring-border">
                 {(
                   [
-                    { id: "agent", label: "Agent模式" },
+                    { id: "agent", label: "Agent 模式" },
                     { id: "manual", label: "人工模式" },
                   ] as const
                 ).map((t) => (
@@ -213,7 +230,7 @@ export function HomeHero() {
                     aria-selected={shortSubMode === t.id}
                     onClick={() => setShortSubMode(t.id)}
                     className={cn(
-                      "rounded-full px-3.5 py-1 text-[12px] font-medium transition-colors",
+                      "whitespace-nowrap rounded-full px-3.5 py-1 text-[12px] font-medium transition-colors",
                       shortSubMode === t.id
                         ? "bg-brand text-brand-foreground"
                         : "text-muted-foreground hover:text-foreground"
@@ -224,13 +241,13 @@ export function HomeHero() {
                 ))}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 {isAgent ? (
                   <>
                     <button
                       type="button"
                       onClick={() => setStyleOpen(true)}
-                      className="flex h-8.5 items-center gap-1.5 rounded-full bg-black/25 px-3.5 text-[12px] text-brand/90 ring-1 ring-border transition-colors hover:ring-brand/40"
+                      className="flex h-8.5 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-black/25 px-3.5 text-[12px] text-brand/90 ring-1 ring-border transition-colors hover:ring-brand/40"
                     >
                       <PaletteIcon className="size-4" />
                       风格选择

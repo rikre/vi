@@ -1,8 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  ArrowRightIcon,
   TrendDownIcon,
   TrendFlatIcon,
 } from "@/components/icons";
@@ -20,37 +22,44 @@ import {
   type TrendCard,
 } from "./home-data";
 
-/* ── 快捷创作入口：4 卡图片底 + 文案 + 圆形箭头 ── */
+/* ── 快捷创作入口：深色卡 + 左侧标题描述 + 右侧缩略图 ── */
 export function QuickActions({ items = QUICK_ACTIONS }: { items?: QuickAction[] }) {
   return (
-    <section aria-label="快捷创作入口" className="mt-6">
-      <div className="grid grid-cols-2 gap-[14px] md:grid-cols-4">
+    <section aria-label="快捷创作入口" className="mx-auto mt-8 w-full max-w-[1360px]">
+      <div className="mb-3 flex items-end justify-between gap-4 px-1">
+        <div>
+          <h2 className="text-[15px] font-semibold text-foreground">快捷创作</h2>
+          <p className="mt-1 text-[11px] text-muted-foreground">从单次生成到数字资产，选择一种能力快速开始</p>
+        </div>
+        <span className="hidden shrink-0 text-[11px] text-muted-foreground sm:block">{items.length} 项能力</span>
+      </div>
+      <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         {items.map((a) => (
           <Link
             key={a.title}
             href={a.href}
-            className="group relative block h-[72px] overflow-hidden rounded-[14px] ring-1 ring-white/[0.06] transition-transform hover:-translate-y-0.5"
+            className="group card-base relative flex h-[96px] items-stretch overflow-hidden"
           >
-            <img
-              src={a.img}
-              alt=""
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-            />
-            <div className="relative z-10 flex h-full flex-col justify-center gap-0.5 pl-7 pr-12">
-              <strong className="text-[13px] font-semibold text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.55)]">
+            <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-center gap-1.5 py-3 pl-4 pr-2">
+              <strong className="truncate text-[14px] font-semibold text-foreground transition-colors group-hover:text-brand">
                 {a.title}
               </strong>
-              <span className="text-[11px] text-white/85 [text-shadow:0_1px_4px_rgba(0,0,0,0.55)]">
+              <span className="line-clamp-2 text-[11px] leading-[15px] text-muted-foreground">
                 {a.desc}
               </span>
             </div>
-            <span
-              aria-hidden="true"
-              className="absolute right-4 top-1/2 z-10 flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-black text-[16px] leading-none text-brand transition-transform group-hover:translate-x-0.5"
-            >
-              →
-            </span>
+            <div aria-hidden="true" className="relative w-[38%] shrink-0 overflow-hidden">
+              <img
+                src={a.img}
+                alt=""
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover opacity-80 transition-all duration-300 group-hover:scale-[1.05] group-hover:opacity-100"
+              />
+              <span className="absolute inset-0 bg-[linear-gradient(90deg,#141414_0%,rgba(20,20,20,0.5)_34%,transparent_78%)]" />
+              <span className="absolute bottom-2.5 right-2.5 flex size-6 items-center justify-center rounded-full bg-background/75 text-foreground ring-1 ring-white/15 backdrop-blur-sm transition-all group-hover:bg-brand group-hover:text-brand-foreground group-hover:ring-brand">
+                <ArrowRightIcon className="size-3 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </div>
           </Link>
         ))}
       </div>
@@ -278,27 +287,54 @@ export function ArtistSection({ items = ARTISTS }: { items?: ArtistItem[] }) {
   );
 }
 
-/* ── 数字剧场：8 卡 4 列 2 行 ── */
+/* ── 数字剧场：8 卡 4 列 2 行，hover 直接静音预览，点击进入沉浸播放 ── */
+function TheaterPreviewVideo({ src, poster }: { src: string; poster: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      poster={poster}
+      muted
+      loop
+      playsInline
+      preload="none"
+      className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      onMouseEnter={() => void videoRef.current?.play().catch(() => undefined)}
+      onMouseLeave={() => {
+        const video = videoRef.current;
+        if (!video) return;
+        video.pause();
+        video.currentTime = 0;
+      }}
+    />
+  );
+}
+
+export const THEATER_PREVIEW_VIDEO =
+  "https://store.cdn.bollo.video/media/3e373f32289841fda24e32096f5a917e/6dc02e9b328ab2b2/outputs/final_video_1779181877.mp4";
+
 export function TheaterSection({ items = THEATERS }: { items?: TheaterItem[] }) {
-  const router = useRouter();
   return (
     <section aria-label="数字剧场" className="mt-12">
       <SectionHead title="数字剧场" />
       <div className="mt-5 grid grid-cols-2 gap-[22px] lg:grid-cols-4">
-        {items.map((t) => (
-          <button
+        {items.map((t, idx) => (
+          <Link
             key={t.title}
-            type="button"
-            aria-label={t.title}
-            onClick={() => router.push("/plaza")}
+            href={`/theater/${idx + 1}`}
+            aria-label={`播放 ${t.title}`}
             className="group relative block aspect-[1.6/1] w-full overflow-hidden rounded-[12px] ring-1 ring-white/[0.08] transition-all hover:-translate-y-0.5 hover:ring-white/20"
           >
             <img
               src={t.img}
               alt={t.title}
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-0"
             />
+            {/* hover 直接静音循环播放预览 */}
+            <TheaterPreviewVideo src={THEATER_PREVIEW_VIDEO} poster={t.img} />
             <PosterShade />
             <div className="absolute bottom-[14px] left-[14px] right-[14px] z-10 text-left">
               <h3 className="line-clamp-2 text-[14px] font-medium text-foreground">
@@ -306,7 +342,7 @@ export function TheaterSection({ items = THEATERS }: { items?: TheaterItem[] }) 
               </h3>
               <p className="mt-1 text-[12px] text-foreground/70">{t.author}</p>
             </div>
-          </button>
+          </Link>
         ))}
       </div>
     </section>

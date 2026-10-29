@@ -26,6 +26,7 @@ import {
   ALL_PROJECTS,
   ALL_MEMBERS,
   formatProjectDate,
+  shortDramaModeLabel,
   type ShortDramaProject,
   type ScriptProject,
 } from "@/lib/mock-projects";
@@ -58,8 +59,8 @@ const PROJECT_TYPE_OPTIONS: ReadonlyArray<{
   hint: string;
   Icon: React.ComponentType<{ className?: string }>;
 }> = [
-  { value: "剧本模式", label: "剧本模式", hint: "上传剧本，自动解析", Icon: ScriptIcon },
-  { value: "自由模式", label: "自由模式", hint: "输入集数，自由创作", Icon: LayersIcon },
+  { value: "剧本模式", label: shortDramaModeLabel("剧本模式"), hint: "上传剧本，自动解析", Icon: ScriptIcon },
+  { value: "自由模式", label: shortDramaModeLabel("自由模式"), hint: "输入集数，自由创作", Icon: LayersIcon },
   { value: "AI重绘", label: "AI重绘", hint: "上传原片，智能复刻", Icon: RefreshCwIcon },
 ];
 
@@ -445,7 +446,7 @@ export default function ComicPage() {
                         : "border-white/[0.1] bg-white/[0.04] text-white/60 hover:border-white/[0.2] hover:text-white/90"
                     }`}
                   >
-                    {sub}
+                    {shortDramaModeLabel(sub)}
                   </button>
                 );
               })}
@@ -717,7 +718,7 @@ export default function ComicPage() {
                 className="h-10 w-full rounded-lg border border-white/[0.12] bg-white/[0.04] px-4 text-[14px] text-white outline-none transition-colors placeholder:text-white/30 focus:border-brand"
               />
               <p className="mt-1.5 text-[10px] text-white/40">
-                自由模式会按集数创建空白剧集。
+                人工模式会按集数创建空白剧集。
               </p>
             </div>
           )}
@@ -940,7 +941,7 @@ function ShortDramaCard({
 
           {/* Mode badge — top left */}
           <div className="absolute left-2.5 top-2.5 rounded-md bg-brand/20 px-2 py-0.5 text-[11px] font-medium text-brand backdrop-blur-sm">
-            {project.mode}
+            {shortDramaModeLabel(project.mode)}
           </div>
 
           {/* Episodes badge — top right (left of more button) */}
